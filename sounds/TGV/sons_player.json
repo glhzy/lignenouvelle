@@ -1,0 +1,407 @@
+[
+  {
+    "id": "moteur_marche",
+    "label": "Mise en traction",
+    "groupe": "conduite",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "moteur_1_demarrage.wav",
+        "type": "once",
+        "lbl": "MAR"
+      },
+      {
+        "son": "moteur_2_montee.wav",
+        "type": "once",
+        "lbl": "MON"
+      }
+    ]
+  },
+  {
+    "id": "drive_cycle",
+    "label": "Cycle de marche",
+    "groupe": "conduite",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "drive_1_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "drive_2_lent.wav",
+        "type": "loop",
+        "lbl": "V1↺"
+      },
+      {
+        "son": "drive_3_acceleration.wav",
+        "type": "once",
+        "lbl": "ACC"
+      },
+      {
+        "son": "drive_4_rapide.wav",
+        "type": "loop",
+        "lbl": "V2↺"
+      },
+      {
+        "son": "drive_5_deceleration.wav",
+        "type": "once",
+        "lbl": "DEC"
+      },
+      {
+        "son": "drive_6_lent2.wav",
+        "type": "loop",
+        "lbl": "V1↺"
+      },
+      {
+        "son": "drive_7_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "noise_low",
+    "label": "Bruit de roulement",
+    "groupe": "conduite",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "noise_1_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "noise_2_lent.wav",
+        "type": "loop",
+        "lbl": "BAS↺"
+      },
+      {
+        "son": "noise_3_montee.wav",
+        "type": "once",
+        "lbl": "MON"
+      },
+      {
+        "son": "noise_4_rapide.wav",
+        "type": "loop",
+        "lbl": "HAUT↺"
+      },
+      {
+        "son": "noise_5_descente.wav",
+        "type": "once",
+        "lbl": "DES"
+      },
+      {
+        "son": "noise_6_lent2.wav",
+        "type": "loop",
+        "lbl": "BAS↺"
+      },
+      {
+        "son": "noise_7_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "crissement",
+    "label": "Crissement de bandage",
+    "groupe": "conduite",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "crissement_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "crissement.wav",
+        "type": "loop",
+        "lbl": "↺"
+      },
+      {
+        "son": "crissement_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "moteur_ralenti",
+    "label": "Coupure de traction",
+    "groupe": "conduite",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "moteur_3_transition.wav",
+        "type": "once",
+        "lbl": "TRANS"
+      },
+      {
+        "son": "moteur_4_ralenti.wav",
+        "type": "loop",
+        "lbl": "RAL↺"
+      },
+      {
+        "son": "moteur_5_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "frein",
+    "label": "Serrage du frein",
+    "groupe": "conduite",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "frein_init.wav",
+        "type": "once",
+        "lbl": "SER"
+      },
+      {
+        "son": "frein_loop.wav",
+        "type": "loop",
+        "lbl": "↺"
+      },
+      {
+        "son": "frein_exit.wav",
+        "type": "once",
+        "lbl": "EXIT"
+      }
+    ]
+  },
+  {
+    "id": "frein_leve",
+    "label": "Desserrage du frein",
+    "groupe": "conduite",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "frein_leve.wav",
+        "type": "once",
+        "lbl": "LEV"
+      }
+    ]
+  },
+  {
+    "id": "airhorn_quai",
+    "label": "Avertisseur — départ",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "airhorn_quai.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "airhorn_tunnel",
+    "label": "Avertisseur — tunnel",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "airhorn_tunnel.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "sifflet_conducteur",
+    "label": "Sifflet de manœuvre",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "sifflet_conducteur.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "porte_ouverture",
+    "label": "Ouverture des portières",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "porte_ouverture.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "porte_fermeture",
+    "label": "Fermeture des portières",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "porte_fermeture.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "compresseur",
+    "label": "Groupe moto-compresseur",
+    "groupe": "equipements",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "compresseur_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "compresseur.wav",
+        "type": "loop",
+        "lbl": "↺"
+      },
+      {
+        "son": "compresseur_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "compresseur2",
+    "label": "Compresseur 2e groupe",
+    "groupe": "equipements",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "compresseur2_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "compresseur2.wav",
+        "type": "loop",
+        "lbl": "↺"
+      },
+      {
+        "son": "compresseur2_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "ventilateur",
+    "label": "Ventilateur de refroidissement",
+    "groupe": "equipements",
+    "boucle": true,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "ventilateur_demarrage.wav",
+        "type": "once",
+        "lbl": "DEM"
+      },
+      {
+        "son": "ventilateur.wav",
+        "type": "loop",
+        "lbl": "↺"
+      },
+      {
+        "son": "ventilateur_arret.wav",
+        "type": "once",
+        "lbl": "ARR"
+      }
+    ]
+  },
+  {
+    "id": "annonce_tgv_1",
+    "label": "Passage — alerte voie",
+    "groupe": "annonce",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "annonce_tgv_1.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "annonce_tgv_2",
+    "label": "Départ — Paris GdL (voie 1)",
+    "groupe": "annonce",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "annonce_tgv_2.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "annonce_tgv_3",
+    "label": "Départ — Paris-Montparnasse",
+    "groupe": "annonce",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "annonce_tgv_3.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "annonce_tgv_4",
+    "label": "Départ — Figueras (voie 13)",
+    "groupe": "annonce",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "annonce_tgv_4.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  },
+  {
+    "id": "annonce_tgv_5",
+    "label": "Arrivée — Brest / Rennes",
+    "groupe": "annonce",
+    "boucle": false,
+    "type": "sequence",
+    "etapes": [
+      {
+        "son": "annonce_tgv_5.wav",
+        "type": "once",
+        "lbl": "▶"
+      }
+    ]
+  }
+]

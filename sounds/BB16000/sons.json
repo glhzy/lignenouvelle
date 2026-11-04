@@ -1,0 +1,132 @@
+[
+  {
+    "id": "klaxon_haut",
+    "label": "Klaxon haut",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 0.71,
+    "fx": "F1",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bas",
+    "label": "Klaxon bas",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 0.92,
+    "fx": "F2",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_mixte",
+    "label": "Klaxon mixte",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 1.9,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "sifflet",
+    "label": "Sifflet conducteur",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 0.42,
+    "fx": "F16",
+    "disponible": true
+  },
+  {
+    "id": "annonce_actuelle",
+    "label": "Annonce gare (actuelle)",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 11.66,
+    "fx": "F5",
+    "disponible": true
+  },
+  {
+    "id": "annonce_ancienne",
+    "label": "Annonce gare (ancienne)",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 6.36,
+    "fx": "F7",
+    "disponible": true
+  },
+  {
+    "id": "porte",
+    "label": "Porte de cabine",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 0.53,
+    "fx": "F15",
+    "disponible": true
+  },
+  {
+    "id": "compresseur",
+    "label": "Compresseur",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 6.27,
+    "fx": "F4",
+    "disponible": true
+  },
+  {
+    "id": "kvb",
+    "label": "Signal KVB",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 4.24,
+    "fx": "F17",
+    "disponible": true
+  },
+  {
+    "id": "jingle_actuel",
+    "label": "Jingle annonce (actuel)",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 2.17,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "jingle_ancien",
+    "label": "Jingle annonce (ancien)",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 3.5,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "attelage",
+    "label": "Attelage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 1.08,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "disjoncteur",
+    "label": "Disjoncteur",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 3.95,
+    "fx": null,
+    "disponible": true
+  }
+]

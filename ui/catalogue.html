@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catalogue sonore — Lignenouvelle</title>
+<style>
+:root {
+  --bleu:   #1B2A49;
+  --papier: #F4F1E8;
+  --gris:   #D8D5CA;
+  --gris2:  #B8B5AA;
+  --orange: #E8761A;
+  --rouge:  #C8102E;
+  --encre:  #14203A;
+  --vert:   #2D7D46;
+  --fond:   #E8E5DC;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:'Helvetica Neue',Arial,sans-serif; background:var(--fond); color:var(--encre); font-size:14px; }
+
+.header { background:var(--bleu); color:#fff; padding:18px 24px 0; }
+.header-top { display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+.header-title { font-size:22px; font-weight:700; letter-spacing:.02em; }
+.header-sub { font-size:12px; opacity:.65; letter-spacing:.05em; text-transform:uppercase; }
+.header-stats { display:flex; gap:16px; margin-top:10px; padding-bottom:12px; flex-wrap:wrap; }
+.stat-chip { background:rgba(255,255,255,.12); border-radius:4px; padding:4px 10px; font-size:12px; }
+.stat-chip b { font-weight:700; }
+.orange-bar { height:3px; background:var(--orange); }
+
+.tabs { background:var(--bleu); display:flex; gap:2px; padding:0 24px; flex-wrap:wrap; border-bottom:3px solid var(--orange); }
+.tab { color:rgba(255,255,255,.6); padding:10px 14px 8px; cursor:pointer; font-size:12px;
+       letter-spacing:.04em; border-bottom:3px solid transparent; margin-bottom:-3px;
+       transition:color .15s,border-color .15s; white-space:nowrap; }
+.tab:hover { color:#fff; }
+.tab.active { color:#fff; border-bottom-color:var(--orange); font-weight:700; }
+
+.main { max-width:1200px; margin:0 auto; padding:20px; }
+.panel { display:none; }
+.panel.active { display:block; }
+
+.loco-header { display:flex; align-items:center; gap:16px; background:var(--bleu); color:#fff;
+               border-radius:6px 6px 0 0; padding:14px 18px; }
+.loco-name { font-size:20px; font-weight:700; }
+.loco-type { font-size:11px; opacity:.6; text-transform:uppercase; letter-spacing:.1em; margin-top:2px; }
+.loco-badge { font-size:22px; }
+.loco-psram { margin-left:auto; text-align:right; font-size:11px; opacity:.75; }
+.psram-bar-wrap { width:120px; height:6px; background:rgba(255,255,255,.2); border-radius:3px; margin-top:4px; }
+.psram-bar { height:6px; background:var(--orange); border-radius:3px; }
+
+.loco-body { background:var(--papier); border:2px solid var(--bleu); border-top:none;
+             border-radius:0 0 6px 6px; padding:16px; margin-bottom:24px; }
+
+.section-title { font-size:11px; text-transform:uppercase; letter-spacing:.1em;
+                 color:var(--bleu); font-weight:700;
+                 display:flex; align-items:center; gap:8px; margin:18px 0 10px; }
+.section-title:first-child { margin-top:0; }
+.section-dot { width:10px; height:10px; border-radius:50%; background:currentColor; flex-shrink:0; }
+
+.sons-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:8px; }
+
+/* Tuile son retenu */
+.son-tile { background:#fff; border:2px solid var(--bleu); border-radius:4px;
+            padding:10px 12px; position:relative; }
+.son-tile.shared { }
+.son-fx { display:inline-block; background:var(--bleu); color:#fff; font-size:10px;
+          font-weight:700; padding:1px 5px; border-radius:2px; margin-bottom:4px; letter-spacing:.05em; }
+.son-fx.auto { background:var(--gris2); color:var(--encre); }
+.son-label { font-size:13px; font-weight:600; line-height:1.3; }
+.son-meta { display:flex; gap:8px; margin-top:5px; align-items:center; flex-wrap:wrap; }
+.son-duree { font-size:11px; color:#666; }
+.son-groupe { font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+              padding:1px 5px; border-radius:2px; color:#fff; }
+.son-boucle { font-size:10px; color:var(--vert); font-weight:700;
+              border:1px solid var(--vert); border-radius:2px; padding:0 4px; }
+.son-kb { font-size:10px; color:#999; margin-left:auto; }
+
+/* Badge identique */
+.share-badge { position:absolute; top:6px; right:6px; width:16px; height:16px; border-radius:50%;
+               display:flex; align-items:center; justify-content:center;
+               font-size:9px; font-weight:700; color:#fff; cursor:default; }
+
+/* Bouton lecture */
+.son-tile { padding-bottom:34px; }
+.play-btn {
+  position:absolute; bottom:8px; left:0; right:0; margin:0 12px;
+  background:var(--bleu); color:#fff;
+  border:none; border-radius:3px; cursor:pointer;
+  font-size:11px; padding:4px 0; letter-spacing:.04em;
+  transition:background .15s;
+}
+.play-btn:hover { background:#2a3f6a; }
+.play-btn.playing { background:var(--orange); }
+.play-btn.playing:hover { background:#c96010; }
+
+/* Tuile son écarté — même grille, style grisé */
+.son-tile-discarded {
+  background:#f0ede8;
+  border:1.5px dashed var(--gris2);
+  border-radius:4px;
+  padding:10px 12px;
+  opacity:.72;
+}
+.son-tile-discarded.has-audio { padding-bottom:34px; }
+.disc-label { font-size:13px; font-weight:600; color:#888; line-height:1.3; }
+.disc-raison { font-size:11px; color:#aaa; margin-top:4px; line-height:1.4; }
+.disc-x { display:inline-block; color:#bbb; font-size:12px; margin-right:4px; }
+.play-btn.disc { background:#888; }
+.play-btn.disc:hover { background:#666; }
+.play-btn.disc.playing { background:var(--orange); }
+
+/* Matrice */
+.matrix-scroll { overflow-x:auto; }
+.matrix-table { border-collapse:collapse; font-size:11px; min-width:900px; }
+.matrix-table th { background:var(--bleu); color:#fff; padding:6px 8px; text-align:center;
+                   white-space:nowrap; font-weight:700; }
+.matrix-table th.loco-col { font-size:10px; padding:4px 6px; min-width:70px; }
+.matrix-table th.label-col { text-align:left; width:180px; }
+.matrix-table td { padding:4px 6px; border-bottom:1px solid var(--gris); vertical-align:middle; }
+.matrix-table td.label-col { font-size:11px; color:#444; border-right:1px solid var(--gris); }
+.matrix-table tr:hover td { background:#f0edea; }
+.matrix-dot { display:block; width:28px; height:20px; border-radius:3px;
+              margin:0 auto; text-align:center; line-height:20px; font-size:9px; color:#fff; font-weight:700; }
+.matrix-dot.absent { background:transparent; }
+.matrix-dot.shared { box-shadow:inset 0 0 0 2px rgba(255,255,255,.65); }
+.matrix-dot.solo   { background:#C8C5BC !important; color:#666 !important; font-weight:400; }
+.group-row-label td { font-size:10px; color:#fff; padding:5px 8px;
+                      font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+.matrix-row-shared td.label-col { border-left:3px solid var(--left-color,#888); }
+.matrix-legend { display:flex; gap:16px; flex-wrap:wrap; font-size:11px;
+                 background:var(--bleu); color:#fff; padding:10px 14px;
+                 border-radius:5px; margin-bottom:14px; align-items:center; }
+.matrix-legend-item { display:flex; align-items:center; gap:6px; }
+.matrix-legend-dot { width:22px; height:16px; border-radius:3px; flex-shrink:0; }
+
+@media (max-width:600px) {
+  .sons-grid { grid-template-columns:1fr 1fr; }
+  .tabs { gap:0; }
+  .tab { padding:8px 10px; font-size:11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-title">Catalogue sonore Lignenouvelle</div>
+    <div class="header-sub">10 locomotives · 177 sons retenus · 21 groupes identiques</div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-chip"><b>10</b> locomotives</div>
+    <div class="stat-chip"><b>177</b> sons retenus</div>
+    <div class="stat-chip"><b>21</b> groupes identiques (même binaire WAV)</div>
+    <div class="stat-chip">Budget PSRAM max <b>6 195 Ko</b> (CC 72000) / 8 192 Ko · TGV = player web</div>
+  </div>
+</div>
+<div class="orange-bar"></div>
+
+<div class="tabs" id="tabs">
+  <div class="tab active" data-panel="CC6500">CC 6500</div>
+  <div class="tab" data-panel="BB67400">BB 67400</div>
+  <div class="tab" data-panel="BB26000">BB 26000</div>
+  <div class="tab" data-panel="BB9400">BB 9400</div>
+  <div class="tab" data-panel="CC72000">CC 72000</div>
+  <div class="tab" data-panel="CC21000">CC 21000</div>
+  <div class="tab" data-panel="141R">141 R</div>
+  <div class="tab" data-panel="BB16000">BB 16000</div>
+  <div class="tab" data-panel="BB9300">BB 9300</div>
+  <div class="tab" data-panel="TGV">TGV PSE</div>
+  <div class="tab" data-panel="matrice" style="margin-left:auto;">⊞ Matrice</div>
+</div>
+
+<div class="main" id="main"></div>
+
+<script>
+const DATA = {"locosOrder":["141R","BB67400","CC72000","CC6500","BB26000","BB9400","CC21000","BB16000","BB9300","TGV"],"locos":{"CC6500":{"nom":"CC 6500","type":"électrique","icon":"⚡","psram_kb":4816,"sons":[{"id":"klaxon_long","label":"Klaxon long","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.56,"fx":"F3","kb":153,"group":-1},{"id":"klaxon_court","label":"Klaxon court","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":2.55,"fx":"F2","kb":110,"group":-1},{"id":"klaxon_bitonal","label":"Klaxon bitonal","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.85,"fx":"F3","kb":166,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":2.1,"fx":"F4","kb":90,"group":-1},{"id":"annonce_marseille","label":"Corail — Marseille","groupe":"annonce","boucle":false,"niveau":1.0,"duree":13.75,"fx":null,"kb":592,"group":-1},{"id":"annonce_jingle","label":"Corail — jingle 1977","groupe":"annonce","boucle":false,"niveau":1.0,"duree":14.95,"fx":null,"kb":644,"group":-1},{"id":"annonce_mistral","label":"TEE — Le Mistral","groupe":"annonce","boucle":false,"niveau":0.9,"duree":16.69,"fx":"F25","kb":719,"group":-1},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":2.35,"fx":"F11","kb":101,"group":-1},{"id":"porte_machines","label":"Porte salle des machines","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":2.08,"fx":"F13","kb":90,"group":-1},{"id":"essai_freins","label":"Essai des freins","groupe":"conduite","boucle":false,"niveau":0.8,"duree":6.93,"fx":"F16","kb":299,"group":-1},{"id":"frein_main","label":"Frein à main","groupe":"conduite","boucle":false,"niveau":0.9,"duree":4.0,"fx":"F17","kb":172,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":16.84,"fx":"F14","kb":725,"group":-1},{"id":"purge_air","label":"Purge d'air","groupe":"equipements","boucle":false,"niveau":0.7,"duree":7.89,"fx":"F10","kb":340,"group":-1},{"id":"pantographe","label":"Pantographe","groupe":"equipements","boucle":false,"niveau":0.7,"duree":10.3,"fx":"F21","kb":443,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":3.98,"fx":"F23","kb":172,"group":-1}],"discarded":[]},"BB67400":{"nom":"BB 67400","type":"diesel","icon":"🔧","psram_kb":5788,"sons":[{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.4,"fx":"F1","kb":192,"group":0},{"id":"klaxon_bas","label":"Klaxon bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.4,"fx":"F2","kb":191,"group":1},{"id":"klaxon_bitonal","label":"Klaxon bas-haut-bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":6.1,"fx":"F3","kb":261,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":2.1,"fx":"F4","kb":90,"group":2},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":3.4,"fx":"F13","kb":148,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":4.8,"fx":"F17","kb":205,"group":3},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":13.1,"fx":"F19","kb":562,"group":-1},{"id":"tachymetre","label":"Tachymètre","groupe":"conduite","boucle":false,"niveau":0.55,"duree":3.3,"fx":"F24","kb":142,"group":-1},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.5,"fx":"F26","kb":106,"group":4},{"id":"turbo","label":"Turbo diesel (boucle)","groupe":"equipements","boucle":true,"niveau":0.45,"duree":3.1,"fx":"auto","kb":134,"group":-1},{"id":"porte_machines","label":"Porte salle des machines","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":2.0,"fx":"auto","kb":85,"group":5},{"id":"essai_freins","label":"Freins pneumatiques","groupe":"conduite","boucle":false,"niveau":0.8,"duree":8.8,"fx":"auto","kb":379,"group":-1},{"id":"purge_air","label":"Purge d'air (urgence)","groupe":"equipements","boucle":false,"niveau":0.7,"duree":1.8,"fx":"auto","kb":78,"group":-1},{"id":"attelage","label":"Attelage - dételage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":24.64,"fx":"F5","kb":1061,"group":-1},{"id":"frein_main","label":"Frein à main","groupe":"conduite","boucle":false,"niveau":0.9,"duree":25.45,"fx":"F18","kb":1096,"group":-1},{"id":"tanken","label":"Faire le plein","groupe":"conduite","boucle":false,"niveau":0.7,"duree":24.56,"fx":"F25","kb":1058,"group":6}],"discarded":[]},"BB26000":{"nom":"BB 26000 Sybic","type":"électrique","icon":"⚡","psram_kb":4816,"sons":[{"id":"klaxon_bas_haut","label":"Klaxon bas-haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.09,"fx":"F2","kb":47,"group":-1},{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.31,"fx":"F3","kb":57,"group":-1},{"id":"klaxon_bitonal","label":"Klaxon bas-haut-bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.01,"fx":"F4","kb":43,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":0.58,"fx":"F5","kb":25,"group":-1},{"id":"annonce_depart","label":"Départ — voie A","groupe":"annonce","boucle":false,"niveau":1.0,"duree":8.24,"fx":null,"kb":355,"group":-1},{"id":"annonce_quai","label":"Passage — bord du quai","groupe":"annonce","boucle":false,"niveau":1.0,"duree":6.75,"fx":null,"kb":291,"group":-1},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.67,"fx":"F18","kb":72,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":3.17,"fx":"F19","kb":137,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":17.35,"fx":"F20","kb":747,"group":-1},{"id":"petit_cheval","label":"Petit-cheval (compresseur aux.)","groupe":"equipements","boucle":true,"niveau":0.45,"duree":9.95,"fx":"F21","kb":428,"group":-1},{"id":"pantographe","label":"Pantographe 1500V DC","groupe":"equipements","boucle":false,"niveau":0.7,"duree":6.76,"fx":"F25","kb":291,"group":-1},{"id":"tachymetre","label":"Tachymètre","groupe":"conduite","boucle":false,"niveau":0.55,"duree":6.58,"fx":"F24","kb":283,"group":-1},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.45,"fx":"F26","kb":106,"group":4},{"id":"attelage","label":"Attelage - dételage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":24.42,"fx":null,"kb":1052,"group":-1},{"id":"frein_rheostatique","label":"Frein rhéostatique","groupe":"conduite","boucle":false,"niveau":0.8,"duree":20.48,"fx":null,"kb":882,"group":-1}],"discarded":[]},"BB9400":{"nom":"BB 9400","type":"électrique","icon":"⚡","psram_kb":3780,"sons":[{"id":"klaxon_haut","label":"Klaxon haut court","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":2.78,"fx":"F2","kb":120,"group":-1},{"id":"klaxon_bas","label":"Klaxon bas court","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.23,"fx":"F3","kb":139,"group":-1},{"id":"klaxon_bitonal","label":"Klaxon bas-haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.29,"fx":null,"kb":142,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":3.21,"fx":"F4","kb":138,"group":-1},{"id":"annonce_limoges","label":"Départ — Limoges (jingle 1984)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":11.87,"fx":null,"kb":511,"group":-1},{"id":"annonce_amberieux","label":"Départ — Ambérieux (jingle 1977)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":8.34,"fx":"F24","kb":359,"group":-1},{"id":"purge_air","label":"Purge d'air","groupe":"equipements","boucle":false,"niveau":0.7,"duree":2.85,"fx":"F10","kb":123,"group":-1},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":3.43,"fx":"F11","kb":148,"group":-1},{"id":"porte_machines","label":"Porte salle des machines","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.97,"fx":"F13","kb":85,"group":5},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":6.71,"fx":"F14","kb":289,"group":-1},{"id":"petit_cheval","label":"Petit-cheval (compresseur aux.)","groupe":"equipements","boucle":true,"niveau":0.45,"duree":6.69,"fx":"F15","kb":288,"group":7},{"id":"essai_freins","label":"Essai des freins","groupe":"conduite","boucle":false,"niveau":0.8,"duree":8.29,"fx":"F16","kb":357,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":4.77,"fx":"F22","kb":205,"group":3},{"id":"tachymetre","label":"Tachymètre","groupe":"conduite","boucle":false,"niveau":0.55,"duree":9.64,"fx":"F23","kb":415,"group":8},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.45,"fx":"F25","kb":106,"group":4},{"id":"pantographe","label":"Pantographe","groupe":"equipements","boucle":false,"niveau":0.7,"duree":8.24,"fx":"F21","kb":355,"group":-1}],"discarded":[]},"CC72000":{"nom":"CC 72000","type":"diesel","icon":"🔧","psram_kb":6195,"sons":[{"id":"klaxon_bas","label":"Klaxon bas court","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.58,"fx":"F2","kb":68,"group":-1},{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.39,"fx":"F3","kb":146,"group":-1},{"id":"klaxon_bitonal","label":"Klaxon bas-haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.34,"fx":null,"kb":187,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":2.1,"fx":"F4","kb":90,"group":2},{"id":"annonce_1977","label":"Départ — (1977)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":8.85,"fx":null,"kb":381,"group":-1},{"id":"annonce_77","label":"Départ — jingle 1977","groupe":"annonce","boucle":false,"niveau":1.0,"duree":13.7,"fx":"F22","kb":590,"group":-1},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.72,"fx":"F13","kb":74,"group":-1},{"id":"porte_machines","label":"Porte salle des machines","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.17,"fx":"F15","kb":50,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":17.31,"fx":null,"kb":745,"group":9},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":4.77,"fx":"F24","kb":205,"group":3},{"id":"tachymetre","label":"Tachymètre","groupe":"conduite","boucle":false,"niveau":0.55,"duree":9.64,"fx":"F23","kb":415,"group":8},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.45,"fx":"F26","kb":106,"group":4},{"id":"frein_main","label":"Frein à main","groupe":"conduite","boucle":false,"niveau":0.9,"duree":14.54,"fx":"F16","kb":626,"group":-1},{"id":"essai_freins","label":"Essai des freins","groupe":"conduite","boucle":false,"niveau":0.8,"duree":15.44,"fx":"F17","kb":665,"group":-1},{"id":"annonce_corail","label":"Corail — voie 157","groupe":"annonce","boucle":false,"niveau":1.0,"duree":18.33,"fx":"F28","kb":789,"group":-1},{"id":"faire_plein","label":"Faire le plein","groupe":"conduite","boucle":false,"niveau":0.7,"duree":24.56,"fx":"F25","kb":1058,"group":6}],"discarded":[]},"CC21000":{"nom":"CC 21000","type":"électrique","icon":"⚡","psram_kb":2896,"sons":[{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.45,"fx":"F2","kb":192,"group":0},{"id":"klaxon_bas","label":"Klaxon bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.44,"fx":"F3","kb":191,"group":1},{"id":"klaxon_bitonal","label":"Klaxon haut-bas-haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":3.85,"fx":null,"kb":166,"group":-1},{"id":"sifflet","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":2.1,"fx":"F4","kb":90,"group":2},{"id":"porte_cabine","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.6,"fx":"F11","kb":69,"group":-1},{"id":"porte_machines","label":"Porte salle des machines","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":1.5,"fx":"F12","kb":65,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":17.31,"fx":"F13","kb":745,"group":9},{"id":"petit_cheval","label":"Petit-cheval (compresseur aux.)","groupe":"equipements","boucle":true,"niveau":0.45,"duree":6.69,"fx":"F14","kb":288,"group":7},{"id":"essai_freins","label":"Essai des freins","groupe":"conduite","boucle":false,"niveau":0.8,"duree":5.33,"fx":"F15","kb":230,"group":-1},{"id":"pantographe","label":"Pantographe","groupe":"equipements","boucle":false,"niveau":0.7,"duree":3.89,"fx":"F20","kb":167,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":3.98,"fx":"F22","kb":172,"group":-1},{"id":"tachymetre","label":"Tachymètre","groupe":"conduite","boucle":false,"niveau":0.55,"duree":9.64,"fx":"F23","kb":415,"group":8},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.45,"fx":"F26","kb":106,"group":4}],"discarded":[]},"141R":{"nom":"141 R","type":"vapeur","icon":"💨","psram_kb":5595,"sons":[{"id":"sifflet_court","label":"Sifflet court","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.88,"fx":"F2","kb":81,"group":-1},{"id":"sifflet_long","label":"Sifflet long","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":8.53,"fx":"F3","kb":368,"group":-1},{"id":"sifflet_moyen","label":"Sifflet moyen","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":4.09,"fx":"F4","kb":176,"group":-1},{"id":"sifflet_gare","label":"Sifflet chef de gare","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":1.24,"fx":"F5","kb":53,"group":-1},{"id":"annonce","label":"Départ — (ancienne)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":13.58,"fx":"F21","kb":585,"group":-1},{"id":"purge_cylindres","label":"Purge des cylindres","groupe":"equipements","boucle":true,"niveau":0.6,"duree":1.35,"fx":"F10","kb":58,"group":-1},{"id":"pompe_air","label":"Pompe à air","groupe":"equipements","boucle":true,"niveau":0.5,"duree":14.15,"fx":"F18","kb":609,"group":-1},{"id":"souffleur","label":"Souffleur","groupe":"equipements","boucle":false,"niveau":0.65,"duree":10.73,"fx":"F14","kb":462,"group":-1},{"id":"injecteur","label":"Injecteur","groupe":"equipements","boucle":false,"niveau":0.65,"duree":9.79,"fx":"F17","kb":422,"group":-1},{"id":"sablage","label":"Sablage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.45,"fx":"F25","kb":106,"group":4},{"id":"bruleur","label":"Brûleur","groupe":"equipements","boucle":true,"niveau":0.5,"duree":18.17,"fx":"F12","kb":783,"group":-1},{"id":"pompe_eau","label":"Pompe à eau","groupe":"equipements","boucle":true,"niveau":0.5,"duree":15.34,"fx":"F16","kb":661,"group":-1},{"id":"turbopompe","label":"Turbopompe","groupe":"equipements","boucle":true,"niveau":0.5,"duree":28.59,"fx":"F19","kb":1231,"group":-1}],"discarded":[]},"BB16000":{"nom":"BB 16000","type":"électrique","icon":"⚡","psram_kb":1884,"sons":[{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":0.71,"fx":"F1","kb":31,"group":10},{"id":"klaxon_bas","label":"Klaxon bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":0.92,"fx":"F2","kb":40,"group":11},{"id":"klaxon_mixte","label":"Klaxon mixte","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.9,"fx":"F3","kb":82,"group":12},{"id":"sifflet","label":"Sifflet de manœuvre","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":0.42,"fx":"F16","kb":18,"group":13},{"id":"annonce_actuelle","label":"Gare — actuelle","groupe":"annonce","boucle":false,"niveau":1.0,"duree":11.66,"fx":"F5","kb":502,"group":14},{"id":"annonce_ancienne","label":"Gare — ancienne","groupe":"annonce","boucle":false,"niveau":1.0,"duree":6.36,"fx":"F7","kb":274,"group":15},{"id":"porte","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":0.53,"fx":"F15","kb":23,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":6.27,"fx":"F4","kb":270,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":4.24,"fx":"F17","kb":183,"group":16},{"id":"jingle_actuel","label":"Jingle — actuel","groupe":"annonce","boucle":false,"niveau":0.9,"duree":2.17,"fx":null,"kb":94,"group":17},{"id":"jingle_ancien","label":"Jingle — ancien","groupe":"annonce","boucle":false,"niveau":0.9,"duree":3.5,"fx":null,"kb":151,"group":18},{"id":"attelage","label":"Attelage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":1.08,"fx":null,"kb":46,"group":19},{"id":"disjoncteur","label":"Disjoncteur","groupe":"conduite","boucle":false,"niveau":0.7,"duree":3.95,"fx":null,"kb":170,"group":20}],"discarded":[]},"BB9300":{"nom":"BB 9300","type":"électrique","icon":"⚡","psram_kb":2854,"sons":[{"id":"klaxon_haut","label":"Klaxon haut","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":0.71,"fx":"F1","kb":31,"group":10},{"id":"klaxon_bas","label":"Klaxon bas","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":0.92,"fx":"F2","kb":40,"group":11},{"id":"klaxon_mixte","label":"Klaxon mixte","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.9,"fx":"F3","kb":82,"group":12},{"id":"sifflet","label":"Sifflet de manœuvre","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":0.42,"fx":"F16","kb":18,"group":13},{"id":"annonce_actuelle","label":"Gare — actuelle","groupe":"annonce","boucle":false,"niveau":1.0,"duree":11.66,"fx":"F5","kb":502,"group":14},{"id":"annonce_ancienne","label":"Gare — ancienne","groupe":"annonce","boucle":false,"niveau":1.0,"duree":6.36,"fx":"F7","kb":274,"group":15},{"id":"porte","label":"Porte de cabine","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":0.8,"fx":"F15","kb":35,"group":-1},{"id":"compresseur","label":"Compresseur","groupe":"equipements","boucle":true,"niveau":0.45,"duree":10.33,"fx":"F4","kb":445,"group":-1},{"id":"pantographe","label":"Pantographe","groupe":"equipements","boucle":false,"niveau":0.7,"duree":3.91,"fx":"F18","kb":168,"group":-1},{"id":"kvb","label":"Signal KVB","groupe":"equipements","boucle":false,"niveau":0.7,"duree":4.24,"fx":"F17","kb":183,"group":16},{"id":"annonce_3e","label":"Gare — nouvelle","groupe":"annonce","boucle":false,"niveau":1.0,"duree":14.28,"fx":null,"kb":615,"group":-1},{"id":"jingle_actuel","label":"Jingle — actuel","groupe":"annonce","boucle":false,"niveau":0.9,"duree":2.17,"fx":null,"kb":94,"group":17},{"id":"jingle_ancien","label":"Jingle — ancien","groupe":"annonce","boucle":false,"niveau":0.9,"duree":3.5,"fx":null,"kb":151,"group":18},{"id":"attelage","label":"Attelage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":1.08,"fx":null,"kb":46,"group":19},{"id":"disjoncteur","label":"Disjoncteur","groupe":"conduite","boucle":false,"niveau":0.7,"duree":3.95,"fx":null,"kb":170,"group":20}],"discarded":[]},"TGV":{"nom":"TGV PSE","type":"électrique","icon":"🚄","psram_kb":14769,"sons":[{"id":"sifflet_conducteur","label":"Sifflet de manœuvre","groupe":"avertisseurs","boucle":false,"niveau":0.8,"duree":5.5,"fx":null,"kb":237,"group":-1},{"id":"airhorn_quai","label":"Avertisseur — départ","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":2.172,"fx":null,"kb":94,"group":-1},{"id":"airhorn_tunnel","label":"Avertisseur — tunnel","groupe":"avertisseurs","boucle":false,"niveau":0.85,"duree":1.581,"fx":null,"kb":68,"group":-1},{"id":"annonce_tgv_1","label":"Passage — alerte voie","groupe":"annonce","boucle":false,"niveau":1.0,"duree":8.963,"fx":null,"kb":386,"group":-1},{"id":"annonce_tgv_2","label":"Départ — Paris GdL (voie 1)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":17.648,"fx":null,"kb":760,"group":-1},{"id":"annonce_tgv_3","label":"Départ — Paris-Montparnasse","groupe":"annonce","boucle":false,"niveau":1.0,"duree":17.634,"fx":null,"kb":759,"group":-1},{"id":"annonce_tgv_4","label":"Départ — Figueras (voie 13)","groupe":"annonce","boucle":false,"niveau":1.0,"duree":22.124,"fx":null,"kb":953,"group":-1},{"id":"annonce_tgv_5","label":"Arrivée — Brest / Rennes","groupe":"annonce","boucle":false,"niveau":1.0,"duree":46.177,"fx":null,"kb":1989,"group":-1},{"id":"porte_ouverture","label":"Ouverture des portières","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":3.2,"fx":null,"kb":138,"group":-1},{"id":"porte_fermeture","label":"Fermeture des portières","groupe":"avertisseurs","boucle":false,"niveau":0.9,"duree":5.5,"fx":null,"kb":237,"group":-1},{"id":"frein_init","label":"Serrage — début","groupe":"conduite","boucle":false,"niveau":0.8,"duree":0.641,"fx":null,"kb":28,"group":-1},{"id":"frein_loop","label":"Serrage du frein ↺","groupe":"conduite","boucle":true,"niveau":0.8,"duree":2.997,"fx":null,"kb":129,"group":-1},{"id":"frein_exit","label":"Serrage — fin","groupe":"conduite","boucle":false,"niveau":0.8,"duree":1.092,"fx":null,"kb":47,"group":-1},{"id":"frein_leve","label":"Desserrage du frein","groupe":"conduite","boucle":false,"niveau":0.8,"duree":1.372,"fx":null,"kb":59,"group":-1},{"id":"compresseur_demarrage","label":"GMC — démarrage","groupe":"equipements","boucle":false,"niveau":0.45,"duree":3.2,"fx":null,"kb":138,"group":-1},{"id":"compresseur","label":"GMC ↺","groupe":"equipements","boucle":true,"niveau":0.45,"duree":2.2,"fx":null,"kb":95,"group":-1},{"id":"compresseur_arret","label":"GMC — arrêt","groupe":"equipements","boucle":false,"niveau":0.45,"duree":3.329,"fx":null,"kb":143,"group":-1},{"id":"compresseur2_demarrage","label":"Compresseur 2e groupe — démarrage","groupe":"equipements","boucle":false,"niveau":0.45,"duree":7.5,"fx":null,"kb":323,"group":-1},{"id":"compresseur2","label":"Compresseur 2e groupe ↺","groupe":"equipements","boucle":true,"niveau":0.45,"duree":8.0,"fx":null,"kb":345,"group":-1},{"id":"compresseur2_arret","label":"Compresseur 2e groupe — arrêt","groupe":"equipements","boucle":false,"niveau":0.45,"duree":9.92,"fx":null,"kb":427,"group":-1},{"id":"ventilateur_demarrage","label":"Ventilateur de refroidissement — démarrage","groupe":"equipements","boucle":false,"niveau":0.4,"duree":6.5,"fx":null,"kb":280,"group":-1},{"id":"ventilateur","label":"Ventilateur de refroidissement ↺","groupe":"equipements","boucle":true,"niveau":0.4,"duree":9.0,"fx":null,"kb":388,"group":-1},{"id":"ventilateur_arret","label":"Ventilateur de refroidissement — arrêt","groupe":"equipements","boucle":false,"niveau":0.4,"duree":8.787,"fx":null,"kb":378,"group":-1},{"id":"crissement_demarrage","label":"Crissement de bandage — démarrage","groupe":"equipements","boucle":false,"niveau":0.7,"duree":2.0,"fx":null,"kb":86,"group":-1},{"id":"crissement","label":"Crissement de bandage ↺","groupe":"equipements","boucle":true,"niveau":0.7,"duree":6.0,"fx":null,"kb":258,"group":-1},{"id":"crissement_arret","label":"Crissement de bandage — arrêt","groupe":"equipements","boucle":false,"niveau":0.7,"duree":5.776,"fx":null,"kb":249,"group":-1},{"id":"drive_1_demarrage","label":"Cycle de marche — démarrage","groupe":"conduite","boucle":false,"niveau":0.9,"duree":3.97,"fx":null,"kb":171,"group":-1},{"id":"drive_2_lent","label":"Cycle de marche — lent ↺","groupe":"conduite","boucle":true,"niveau":0.9,"duree":10.0,"fx":null,"kb":431,"group":-1},{"id":"drive_3_acceleration","label":"Cycle de marche — accélération","groupe":"conduite","boucle":false,"niveau":0.9,"duree":4.5,"fx":null,"kb":194,"group":-1},{"id":"drive_4_rapide","label":"Cycle de marche — rapide ↺","groupe":"conduite","boucle":true,"niveau":0.9,"duree":9.0,"fx":null,"kb":388,"group":-1},{"id":"drive_5_deceleration","label":"Cycle de marche — décélération","groupe":"conduite","boucle":false,"niveau":0.9,"duree":4.5,"fx":null,"kb":194,"group":-1},{"id":"drive_6_lent2","label":"Cycle de marche — lent 2 ↺","groupe":"conduite","boucle":true,"niveau":0.9,"duree":10.5,"fx":null,"kb":452,"group":-1},{"id":"drive_7_arret","label":"Cycle de marche — arrêt","groupe":"conduite","boucle":false,"niveau":0.9,"duree":4.749,"fx":null,"kb":205,"group":-1},{"id":"noise_1_demarrage","label":"Bruit de roulement — démarrage","groupe":"conduite","boucle":false,"niveau":0.7,"duree":2.5,"fx":null,"kb":108,"group":-1},{"id":"noise_2_lent","label":"Bruit de roulement — lent ↺","groupe":"conduite","boucle":true,"niveau":0.7,"duree":8.5,"fx":null,"kb":366,"group":-1},{"id":"noise_3_montee","label":"Bruit de roulement — montée","groupe":"conduite","boucle":false,"niveau":0.7,"duree":4.5,"fx":null,"kb":194,"group":-1},{"id":"noise_4_rapide","label":"Bruit de roulement — rapide ↺","groupe":"conduite","boucle":true,"niveau":0.7,"duree":10.0,"fx":null,"kb":431,"group":-1},{"id":"noise_5_descente","label":"Bruit de roulement — descente","groupe":"conduite","boucle":false,"niveau":0.7,"duree":5.0,"fx":null,"kb":215,"group":-1},{"id":"noise_6_lent2","label":"Bruit de roulement — lent 2 ↺","groupe":"conduite","boucle":true,"niveau":0.7,"duree":6.0,"fx":null,"kb":258,"group":-1},{"id":"noise_7_arret","label":"Bruit de roulement — arrêt","groupe":"conduite","boucle":false,"niveau":0.7,"duree":7.695,"fx":null,"kb":331,"group":-1},{"id":"moteur_1_demarrage","label":"Mise en traction — démarrage","groupe":"conduite","boucle":false,"niveau":0.8,"duree":7.0,"fx":null,"kb":301,"group":-1},{"id":"moteur_2_montee","label":"Mise en traction — montée","groupe":"conduite","boucle":false,"niveau":0.8,"duree":9.0,"fx":null,"kb":388,"group":-1},{"id":"moteur_3_transition","label":"Coupure de traction — transition","groupe":"conduite","boucle":false,"niveau":0.8,"duree":10.5,"fx":null,"kb":452,"group":-1},{"id":"moteur_4_ralenti","label":"Coupure de traction — ralenti ↺","groupe":"conduite","boucle":true,"niveau":0.8,"duree":10.0,"fx":null,"kb":431,"group":-1},{"id":"moteur_5_arret","label":"Coupure de traction — arrêt","groupe":"conduite","boucle":false,"niveau":0.8,"duree":6.16,"fx":null,"kb":265,"group":-1}],"discarded":[]}},"groups":[{"color":"#E8761A","idx":0,"members":[{"loco":"BB67400","son":"klaxon_haut"},{"loco":"CC21000","son":"klaxon_haut"}]},{"color":"#2196F3","idx":1,"members":[{"loco":"BB67400","son":"klaxon_bas"},{"loco":"CC21000","son":"klaxon_bas"}]},{"color":"#4CAF50","idx":2,"members":[{"loco":"BB67400","son":"sifflet"},{"loco":"CC72000","son":"sifflet"},{"loco":"CC21000","son":"sifflet"}]},{"color":"#9C27B0","idx":3,"members":[{"loco":"BB67400","son":"kvb"},{"loco":"BB9400","son":"kvb"},{"loco":"CC72000","son":"kvb"}]},{"color":"#F44336","idx":4,"members":[{"loco":"BB67400","son":"sablage"},{"loco":"BB26000","son":"sablage"},{"loco":"BB9400","son":"sablage"},{"loco":"CC72000","son":"sablage"},{"loco":"CC21000","son":"sablage"},{"loco":"141R","son":"sablage"}]},{"color":"#00BCD4","idx":5,"members":[{"loco":"BB67400","son":"porte_machines"},{"loco":"BB9400","son":"porte_machines"}]},{"color":"#FF9800","idx":6,"members":[{"loco":"BB67400","son":"tanken"},{"loco":"CC72000","son":"faire_plein"}]},{"color":"#8BC34A","idx":7,"members":[{"loco":"BB9400","son":"petit_cheval"},{"loco":"CC21000","son":"petit_cheval"}]},{"color":"#E91E63","idx":8,"members":[{"loco":"BB9400","son":"tachymetre"},{"loco":"CC72000","son":"tachymetre"},{"loco":"CC21000","son":"tachymetre"}]},{"color":"#795548","idx":9,"members":[{"loco":"CC72000","son":"compresseur"},{"loco":"CC21000","son":"compresseur"}]},{"color":"#607D8B","idx":10,"members":[{"loco":"BB16000","son":"klaxon_haut"},{"loco":"BB9300","son":"klaxon_haut"}]},{"color":"#009688","idx":11,"members":[{"loco":"BB16000","son":"klaxon_bas"},{"loco":"BB9300","son":"klaxon_bas"}]},{"color":"#FF5722","idx":12,"members":[{"loco":"BB16000","son":"klaxon_mixte"},{"loco":"BB9300","son":"klaxon_mixte"}]},{"color":"#3F51B5","idx":13,"members":[{"loco":"BB16000","son":"sifflet"},{"loco":"BB9300","son":"sifflet"}]},{"color":"#FFC107","idx":14,"members":[{"loco":"BB16000","son":"annonce_actuelle"},{"loco":"BB9300","son":"annonce_actuelle"}]},{"color":"#673AB7","idx":15,"members":[{"loco":"BB16000","son":"annonce_ancienne"},{"loco":"BB9300","son":"annonce_ancienne"}]},{"color":"#D32F2F","idx":16,"members":[{"loco":"BB16000","son":"kvb"},{"loco":"BB9300","son":"kvb"}]},{"color":"#1565C0","idx":17,"members":[{"loco":"BB16000","son":"jingle_actuel"},{"loco":"BB9300","son":"jingle_actuel"}]},{"color":"#2E7D32","idx":18,"members":[{"loco":"BB16000","son":"jingle_ancien"},{"loco":"BB9300","son":"jingle_ancien"}]},{"color":"#6A1B9A","idx":19,"members":[{"loco":"BB16000","son":"attelage"},{"loco":"BB9300","son":"attelage"}]},{"color":"#BF360C","idx":20,"members":[{"loco":"BB16000","son":"disjoncteur"},{"loco":"BB9300","son":"disjoncteur"}]}]};
+const LOCOS_ORDER = DATA.locosOrder;
+const LOCOS = DATA.locos;
+const GROUPS = DATA.groups;
+
+const CATEGORIES = [
+  {label:'Vapeur',      icon:'💨', locos:['141R'],                                              color:'#546E7A'},
+  {label:'Diesel',      icon:'🔧', locos:['BB67400','CC72000'],                                 color:'#6D4C41'},
+  {label:'Électrique',  icon:'⚡', locos:['CC6500','BB26000','BB9400','CC21000','BB16000','BB9300'], color:'#283593'},
+  {label:'TGV PSE',     icon:'🚄', locos:['TGV'],                                               color:'#E8761A'}
+];
+
+const GROUPE_COLORS = {
+  conduite:'#5C6BC0', avertisseurs:'#C8102E', equipements:'#2D7D46', annonce:'#E8761A'
+};
+const GROUPE_LABELS = {
+  conduite:'Conduite', avertisseurs:'Avertisseurs et portières', equipements:'Équipements de bord', annonce:'Annonces en gare'
+};
+const GROUPE_ORDER = ['conduite','avertisseurs','equipements','annonce'];
+
+const GROUP_COLOR = {};
+const MEMBER_TO_GROUP = {};
+GROUPS.forEach(g => {
+  GROUP_COLOR[g.idx] = g.color;
+  g.members.forEach(m => { MEMBER_TO_GROUP[m.loco + '/' + m.son] = g.idx; });
+});
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Lecteur audio (unifié tuiles + matrice) ───────────────────────────────────
+let _audio    = null;
+let _curEl    = null;
+let _origBg   = null;   // couleur d'origine pour les cellules matrice
+
+function _resetEl(el) {
+  if (!el) return;
+  if (el.classList.contains('play-btn')) {
+    el.textContent = '▶ Écouter';
+  } else {
+    el.style.background = _origBg;
+    el.style.outline = '';
+  }
+  el.classList.remove('playing');
+}
+
+// locoId/sonId peuvent être null si directPath est fourni (sons écartés)
+function playSound(el, locoId, sonId, loop, directPath) {
+  const wasThis = (_curEl === el);
+  if (_audio) { _audio.pause(); _audio.currentTime = 0; _audio = null; }
+  _resetEl(_curEl);
+  _curEl = null;
+  if (wasThis) return;  // toggle off
+
+  const path = directPath || ('../sounds/' + locoId + '/' + sonId + '.wav');
+  const audio = new Audio(path);
+  audio.loop = loop;
+  audio.play().catch(() => {
+    if (el.classList.contains('play-btn')) {
+      el.textContent = '⚠ Absent';
+      setTimeout(() => { el.textContent = '▶ Écouter'; }, 2000);
+    }
+  });
+
+  if (el.classList.contains('play-btn')) {
+    el.textContent = '■ Stop';
+  } else {
+    _origBg = el.style.background;
+    el.style.background = '#E8761A';
+    el.style.outline = '2px solid #fff';
+  }
+  el.classList.add('playing');
+  _audio = audio; _curEl = el;
+  audio.addEventListener('ended', () => {
+    if (_curEl === el) { _resetEl(el); _curEl = null; _audio = null; }
+  });
+}
+
+function groupOthers(gidx, locoId) {
+  const g = GROUPS[gidx];
+  if (!g) return '';
+  return g.members.filter(m => m.loco !== locoId).map(m => LOCOS[m.loco].nom).join(', ');
+}
+
+function makeSonTile(son, locoId) {
+  const gidx = son.group;
+  const gcolor = gidx >= 0 ? GROUP_COLOR[gidx] : null;
+  const gc = GROUPE_COLORS[son.groupe] || '#555';
+  const shared = gidx >= 0;
+  const borderStyle = shared ? 'border-color:' + gcolor + ';border-width:2px' : '';
+
+  let t = '<div class="son-tile' + (shared ? ' shared' : '') + '" style="' + borderStyle + '">';
+  t += '<span class="son-fx' + (son.fx ? '' : ' auto') + '">' + esc(son.fx || 'auto') + '</span> ';
+  t += '<div class="son-label">' + esc(son.label) + '</div>';
+  t += '<div class="son-meta">';
+  t += '<span class="son-duree">' + son.duree.toFixed(1) + ' s</span>';
+  t += '<span class="son-groupe" style="background:' + gc + '">' + esc(GROUPE_LABELS[son.groupe] || son.groupe) + '</span>';
+  if (son.boucle) t += '<span class="son-boucle">&#8635; boucle</span>';
+  if (son.kb) t += '<span class="son-kb">' + son.kb + ' Ko</span>';
+  t += '</div>';
+  if (shared) {
+    const others = groupOthers(gidx, locoId);
+    t += '<div class="share-badge" title="= ' + esc(others) + '" style="background:' + gcolor + '">&#8801;</div>';
+  }
+  t += '<button class="play-btn" onclick="playSound(this,\'' + locoId + '\',\'' + son.id + '\',' + son.boucle + ')">&#9654; &Eacute;couter</button>';
+  t += '</div>';
+  return t;
+}
+
+function makeDiscardedTile(d, locoId) {
+  const hasAudio = !!d.file;
+  let t = '<div class="son-tile-discarded' + (hasAudio ? ' has-audio' : '') + '">';
+  t += '<div class="disc-label"><span class="disc-x">&#x2715;</span>' + esc(d.label) + '</div>';
+  if (d.duree) t += '<div class="disc-raison">' + d.duree.toFixed(1) + ' s &mdash; ' + esc(d.raison) + '</div>';
+  else         t += '<div class="disc-raison">' + esc(d.raison) + '</div>';
+  if (hasAudio) {
+    const path = '../sounds/' + locoId + '/' + d.file;
+    t += '<button class="play-btn disc" onclick="playSound(this,null,null,false,\'' + path + '\')">&#9654; &Eacute;couter</button>';
+  }
+  t += '</div>';
+  return t;
+}
+
+function makeLocoPanel(locoId) {
+  const L = LOCOS[locoId];
+  const pct = Math.round(L.psram_kb / 4449 * 100);
+
+  let h = '<div class="loco-header">'
+    + '<div class="loco-badge">' + L.icon + '</div>'
+    + '<div><div class="loco-name">' + esc(L.nom) + '</div>'
+    + '<div class="loco-type">' + esc(L.type) + '</div></div>'
+    + '<div class="loco-psram">' + L.psram_kb + ' Ko PSRAM &mdash; ' + L.sons.length + ' sons'
+    + '<div class="psram-bar-wrap"><div class="psram-bar" style="width:' + pct + '%"></div></div></div>'
+    + '</div>';
+  h += '<div class="loco-body">';
+
+  // Regrouper sons retenus ET écartés par groupe
+  GROUPE_ORDER.forEach(gname => {
+    const kept = L.sons.filter(s => s.groupe === gname);
+    const disc = (L.discarded || []).filter(d => d.groupe === gname);
+    if (kept.length === 0 && disc.length === 0) return;
+
+    const gc = GROUPE_COLORS[gname] || '#555';
+    h += '<div class="section-title">'
+       + '<span class="section-dot" style="background:' + gc + '"></span>'
+       + esc(GROUPE_LABELS[gname] || gname) + '</div>';
+    h += '<div class="sons-grid">';
+    kept.forEach(s => { h += makeSonTile(s, locoId); });
+    disc.forEach(d => { h += makeDiscardedTile(d, locoId); });
+    h += '</div>';
+  });
+
+  h += '</div>';
+  return h;
+}
+
+function makeMatricePanel() {
+  const byGroupe = {};
+  function addKey(groupe, key) {
+    if (!byGroupe[groupe]) byGroupe[groupe] = new Map();
+    if (!byGroupe[groupe].has(key)) byGroupe[groupe].set(key, key);
+  }
+  LOCOS_ORDER.forEach(lid => {
+    LOCOS[lid].sons.forEach(s => addKey(s.groupe, 'K|' + s.id + '|' + s.label));
+    (LOCOS[lid].discarded || []).forEach(d => addKey(d.groupe, 'D|' + d.label + '|' + d.label));
+  });
+
+  function discardedIn(lid, label) {
+    return (LOCOS[lid].discarded || []).find(d => d.label === label) || null;
+  }
+
+  // Légende
+  let h = '<div class="matrix-legend">'
+    + '<strong>Lecture :</strong>'
+    + '<span class="matrix-legend-item">'
+    + '<span class="matrix-legend-dot" style="background:#888;box-shadow:inset 0 0 0 2px rgba(255,255,255,.65)"></span>'
+    + 'Son <b>commun</b> (WAV identique dans plusieurs locos — anneau blanc)</span>'
+    + '<span class="matrix-legend-item">'
+    + '<span class="matrix-legend-dot" style="background:#C8C5BC"></span>'
+    + 'Son présent, <b>unique</b> à cette loco</span>'
+    + '<span style="margin-left:auto;opacity:.7">Clic sur un point = écouter</span>'
+    + '</div>';
+
+  h += '<div class="matrix-scroll"><table class="matrix-table"><thead>';
+  h += '<tr><th class="label-col"></th>';
+  CATEGORIES.forEach(cat => {
+    h += '<th colspan="' + cat.locos.length + '" style="background:' + cat.color
+       + ';text-align:center;letter-spacing:.07em;font-size:11px">'
+       + cat.icon + '&nbsp;' + esc(cat.label) + '</th>';
+  });
+  h += '</tr>';
+  h += '<tr><th class="label-col">Son</th>';
+  LOCOS_ORDER.forEach(lid => {
+    h += '<th class="loco-col">' + esc(LOCOS[lid].nom).replace(' ','<br>') + '</th>';
+  });
+  h += '</tr></thead><tbody>';
+
+  GROUPE_ORDER.forEach(gname => {
+    const map = byGroupe[gname];
+    if (!map || map.size === 0) return;
+    const gc = GROUPE_COLORS[gname] || '#555';
+    h += '<tr><td colspan="' + (LOCOS_ORDER.length+1) + '" class="group-row-label" style="background:' + gc + '">'
+       + esc(GROUPE_LABELS[gname]||gname) + '</td></tr>';
+
+    const keys = [...map.keys()].sort((a,b) => a.localeCompare(b, 'fr'));
+    keys.forEach(key => {
+      const isDisc = key.startsWith('D|');
+      const parts   = key.split('|');
+      const sonId   = isDisc ? null : parts[1];
+      const sonLabel = parts[2];
+
+      // Déterminer si la ligne contient des sons communs et la couleur de groupe dominante
+      let rowGroupIdx = -1, rowGroupColor = null;
+      if (!isDisc) {
+        LOCOS_ORDER.forEach(lid => {
+          const found = LOCOS[lid].sons.find(s => s.id === sonId);
+          if (found && found.group >= 0 && rowGroupIdx < 0) {
+            rowGroupIdx = found.group; rowGroupColor = GROUP_COLOR[found.group];
+          }
+        });
+      }
+
+      const rowClass  = rowGroupIdx >= 0 ? ' class="matrix-row-shared"' : '';
+      const rowStyle  = rowGroupColor ? ' style="--left-color:' + rowGroupColor + '"' : '';
+      const labelSuffix = rowGroupIdx >= 0
+        ? ' <span style="font-size:9px;font-weight:700;color:' + rowGroupColor + ';letter-spacing:.04em">'
+          + '≡ ' + GROUPS[rowGroupIdx].members.length + ' locos</span>'
+        : '';
+
+      h += '<tr' + rowClass + rowStyle + '>';
+      h += '<td class="label-col">' + esc(sonLabel) + labelSuffix + '</td>';
+
+      LOCOS_ORDER.forEach(lid => {
+        if (!isDisc) {
+          const found = LOCOS[lid].sons.find(s => s.id === sonId);
+          if (found) {
+            const gidx = found.group;
+            const isShared = gidx >= 0;
+            const color = isShared ? GROUP_COLOR[gidx] : '#C8C5BC';
+            const dotClass = 'matrix-dot' + (isShared ? ' shared' : ' solo');
+            const others = isShared
+              ? GROUPS[gidx].members.filter(m => m.loco !== lid)
+                                    .map(m => LOCOS[m.loco].nom).join(', ')
+              : '';
+            const title = isShared
+              ? found.duree.toFixed(1) + ' s — identique à : ' + others + ' — clic pour écouter'
+              : found.duree.toFixed(1) + ' s — clic pour écouter';
+            h += '<td style="text-align:center">'
+              + '<div class="' + dotClass + '" style="background:' + color + ';cursor:pointer" '
+              + 'title="' + esc(title) + '" '
+              + 'onclick="playSound(this,\'' + lid + '\',\'' + sonId + '\',' + found.boucle + ')">'
+              + (isShared ? '&#8801;' : (found.fx ? esc(found.fx) : '&#8226;')) + '</div></td>';
+          } else {
+            h += '<td></td>';
+          }
+        } else {
+          const d = discardedIn(lid, sonLabel);
+          if (d) {
+            if (d.file) {
+              const dpath = '../sounds/' + lid + '/' + d.file;
+              h += '<td style="text-align:center"><div class="matrix-dot present" '
+                + 'style="background:#999;color:#fff;cursor:pointer" '
+                + 'title="' + esc((d.duree ? d.duree.toFixed(1)+' s — ' : '') + d.raison + ' — clic') + '" '
+                + 'onclick="playSound(this,null,null,false,\'' + dpath + '\')">&#x2715;</div></td>';
+            } else {
+              h += '<td style="text-align:center"><div class="matrix-dot present" '
+                + 'style="background:#ddd;color:#999" title="' + esc(d.raison) + '">&#x2715;</div></td>';
+            }
+          } else {
+            h += '<td></td>';
+          }
+        }
+      });
+      h += '</tr>';
+    });
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+// Injecter tous les panneaux
+const main = document.getElementById('main');
+LOCOS_ORDER.forEach(lid => {
+  const div = document.createElement('div');
+  div.className = 'panel';
+  div.id = 'panel-' + lid;
+  div.innerHTML = makeLocoPanel(lid);
+  main.appendChild(div);
+});
+const matDiv = document.createElement('div');
+matDiv.className = 'panel';
+matDiv.id = 'panel-matrice';
+matDiv.innerHTML = makeMatricePanel();
+main.appendChild(matDiv);
+
+// Onglets
+document.getElementById('tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  const target = tab.dataset.panel;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  const panel = document.getElementById('panel-' + target);
+  if (panel) panel.classList.add('active');
+});
+
+document.getElementById('panel-CC6500').classList.add('active');
+</script>
+</body>
+</html>

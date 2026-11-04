@@ -1,0 +1,162 @@
+[
+  {
+    "id": "klaxon_haut",
+    "label": "Klaxon haut court",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 2.78,
+    "fx": "F2",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bas",
+    "label": "Klaxon bas court",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 3.23,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bitonal",
+    "label": "Klaxon bas-haut",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 3.29,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "sifflet",
+    "label": "Sifflet chef de gare",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 3.21,
+    "fx": "F4",
+    "disponible": true
+  },
+  {
+    "id": "annonce_limoges",
+    "label": "Annonce Limoges jingle84",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 11.87,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "annonce_amberieux",
+    "label": "Annonce Ambérieux jingle77",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 8.34,
+    "fx": "F24",
+    "disponible": true
+  },
+  {
+    "id": "purge_air",
+    "label": "Purge d'air",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 2.85,
+    "fx": "F10",
+    "disponible": true
+  },
+  {
+    "id": "porte_cabine",
+    "label": "Porte de cabine",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 3.43,
+    "fx": "F11",
+    "disponible": true
+  },
+  {
+    "id": "porte_machines",
+    "label": "Porte salle des machines",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 1.97,
+    "fx": "F13",
+    "disponible": true
+  },
+  {
+    "id": "compresseur",
+    "label": "Compresseur",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 6.71,
+    "fx": "F14",
+    "disponible": true
+  },
+  {
+    "id": "petit_cheval",
+    "label": "Petit-cheval (compresseur aux.)",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 6.69,
+    "fx": "F15",
+    "disponible": true
+  },
+  {
+    "id": "essai_freins",
+    "label": "Essai des freins",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 8.29,
+    "fx": "F16",
+    "disponible": true
+  },
+  {
+    "id": "kvb",
+    "label": "Signal KVB",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 4.77,
+    "fx": "F22",
+    "disponible": true
+  },
+  {
+    "id": "tachymetre",
+    "label": "Tachymètre",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "duree": 9.64,
+    "fx": "F23",
+    "disponible": true
+  },
+  {
+    "id": "sablage",
+    "label": "Sablage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 2.45,
+    "fx": "F25",
+    "disponible": true
+  },
+  {
+    "id": "pantographe",
+    "label": "Pantographe",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 8.24,
+    "fx": "F21",
+    "disponible": true
+  }
+]

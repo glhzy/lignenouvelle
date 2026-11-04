@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>La ligne nouvelle — prévisualisation</title>
+<style>
+@font-face{font-family:"PoliceSNCF";src:url(../fonts/PoliceSNCF.woff) format("woff");font-weight:400;font-style:normal}
+@font-face{font-family:"Univers LT Std";src:url(../fonts/UniversLTStd55.woff) format("woff");font-weight:400;font-style:normal}
+
+*{box-sizing:border-box}
+body{margin:0;background:#E4E1D8;font-family:"Univers LT Std",Univers,"Helvetica Neue",Helvetica,Arial,sans-serif;font-weight:400;color:#14203A}
+.pg{max-width:480px;margin:0 auto;background:#F4F1E8;padding-bottom:32px}
+
+/* En-tête */
+.hd{background:#1B2A49;color:#fff;padding:16px 18px 14px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.hd h1{margin:0;font-family:"PoliceSNCF",Arial,sans-serif;font-size:24px;line-height:1;font-weight:400;letter-spacing:.02em;text-transform:uppercase}
+.wf{border:2px solid rgba(255,255,255,.5);padding:5px 8px;font-size:12px;line-height:1.3;text-align:center;white-space:nowrap;color:#F2A65A}
+.bar{height:6px;background:#D8D5CA}
+.bar i{display:block;height:6px;background:#E8761A;width:55%}
+
+/* Onglets voies */
+.tabs{display:flex;border-bottom:2px solid #D8D5CA;background:#F4F1E8}
+.tab{flex:1;padding:12px 8px;border:0;background:none;font-family:"PoliceSNCF",Arial,sans-serif;font-size:15px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:#3A4560;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+.tab.act{color:#1B2A49;border-bottom-color:#E8761A}
+
+/* Contenu voie */
+.voie{display:none;padding:0 16px}
+.voie.act{display:block}
+
+/* Sélecteur loco */
+.loco-sel{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+.loco-sel label{font-family:"PoliceSNCF",Arial,sans-serif;font-size:14px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;color:#3A4560}
+.loco-sel select{flex:1;padding:8px 10px;border:2px solid #1B2A49;background:#fff;color:#14203A;font:400 15px "Univers LT Std",Arial,sans-serif;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%231B2A49'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+
+/* Sections */
+.sec{margin-top:18px}
+.sh{display:flex;align-items:center;gap:10px;background:#1B2A49;color:#fff;padding:0 14px 0 0;min-height:44px}
+.sh em{font-style:normal;font-family:"PoliceSNCF",Arial,sans-serif;font-size:26px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:#fff;color:#1B2A49;flex-shrink:0}
+.sh h2{margin:0;font-family:"PoliceSNCF",Arial,sans-serif;font-size:18px;font-weight:400;letter-spacing:.06em;text-transform:uppercase}
+.gr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+/* Boutons */
+.t{min-height:64px;border:2px solid #1B2A49;background:#fff;color:#14203A;
+   font:400 15px/1.2 "Univers LT Std",Univers,"Helvetica Neue",Helvetica,Arial,sans-serif;
+   text-align:left;padding:8px 10px;display:flex;flex-direction:column;
+   justify-content:space-between;gap:4px;cursor:pointer}
+.t.wide{grid-column:1/3;min-height:52px;flex-direction:row;align-items:center;gap:12px}
+/* Triangle décoratif */
+.t::after{content:"";width:0;height:0;border-left:11px solid #1B2A49;
+  border-top:7px solid transparent;border-bottom:7px solid transparent;
+  align-self:flex-end;flex-shrink:0}
+.t.wide::after{align-self:center}
+/* État actif */
+.t.on{background:#E8761A;border-color:#E8761A;color:#14203A}
+.t.on::after{border-left-color:#14203A}
+
+/* Ligne Fx — libellé */
+.t-fx{font-family:"PoliceSNCF",Arial,sans-serif;font-size:13px;font-weight:400;
+  letter-spacing:.06em;color:#1B2A49;white-space:nowrap}
+.t.on .t-fx{color:#14203A}
+.t-lbl{font-size:15px;line-height:1.2}
+/* Étiquette "En cours" */
+.t-on-lbl{font-family:"PoliceSNCF",Arial,sans-serif;font-size:13px;font-weight:400;
+  letter-spacing:.08em;text-transform:uppercase}
+
+/* Volume + Arrêt */
+.ctrl{padding:18px 16px 0}
+.vol-lbl{display:block;font-family:"PoliceSNCF",Arial,sans-serif;font-size:18px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.vol-lbl b{float:right;letter-spacing:0}
+.rg{width:100%;height:44px;margin:0;accent-color:#E8761A}
+.stop{width:100%;min-height:56px;border:0;background:#C8102E;color:#fff;font:400 22px/1 "PoliceSNCF","Univers LT Std",Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 0;cursor:pointer}
+.stop span{width:14px;height:14px;background:#fff;flex-shrink:0}
+
+/* Pied de page */
+.ft{margin:20px 16px 0;padding-top:10px;border-top:2px solid #D8D5CA;font-size:12px;display:flex;justify-content:space-between;color:#3A4560}
+
+option:disabled{color:#aaa}
+</style>
+</head>
+<body>
+<div class="pg">
+
+<div class="hd">
+  <div><h1>La ligne nouvelle</h1></div>
+  <div class="wf">Wi-Fi<br>lignenouvelle.local</div>
+</div>
+<div class="bar"><i></i></div>
+
+<div class="ctrl">
+  <label class="vol-lbl" for="vol">Volume <b>70 %</b></label>
+  <input class="rg" id="vol" type="range" min="0" max="100" value="70">
+  <button class="stop" type="button"><span></span>Arrêt général</button>
+</div>
+
+<div class="tabs">
+  <button class="tab act" id="tab1" type="button">Voie 1</button>
+  <button class="tab"     id="tab2" type="button">Voie 2</button>
+</div>
+
+<!-- ── Voie 1 : CC 6500 ──────────────────────────────────────────────────── -->
+<div class="voie act" id="voie1-panel">
+  <div class="loco-sel">
+    <label>Loco</label>
+    <select>
+      <option selected>CC 6500</option>
+      <option>BB 67400</option>
+      <option disabled>BB 26000 Sybic</option>
+      <option disabled>BB 9400</option>
+      <option disabled>CC 72000</option>
+      <option disabled>CC 21000</option>
+      <option disabled>141-R</option>
+    </select>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>1</em><h2>Klaxons et sifflet</h2></div>
+    <div class="gr">
+      <button class="t" type="button">
+        <span class="t-fx">F3</span>
+        <span class="t-lbl">Klaxon long</span>
+      </button>
+      <button class="t on" type="button">
+        <span class="t-on-lbl">En cours</span>
+        <span class="t-fx">F2</span>
+        <span class="t-lbl">Klaxon court</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F3</span>
+        <span class="t-lbl">Klaxon bitonal</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F4</span>
+        <span class="t-lbl">Sifflet chef de gare</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>2</em><h2>Annonces en gare</h2></div>
+    <div class="gr">
+      <button class="t wide" type="button">
+        <span class="t-lbl" style="flex:1">Annonce Corail Marseille</span>
+      </button>
+      <button class="t wide on" type="button">
+        <span class="t-on-lbl">En cours</span>
+        <span class="t-lbl" style="flex:1">Annonce Corail, jingle</span>
+      </button>
+      <button class="t wide" type="button">
+        <span class="t-fx">F25</span>
+        <span class="t-lbl" style="flex:1">Annonce TEE Mistral</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>3</em><h2>Portes et freins</h2></div>
+    <div class="gr">
+      <button class="t" type="button">
+        <span class="t-fx">F11</span>
+        <span class="t-lbl">Porte de cabine</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F13</span>
+        <span class="t-lbl">Porte salle des machines</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F16</span>
+        <span class="t-lbl">Essai des freins</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F17</span>
+        <span class="t-lbl">Frein à main</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>4</em><h2>Ambiances</h2></div>
+    <div class="gr">
+      <button class="t on" type="button">
+        <span class="t-on-lbl">En cours</span>
+        <span class="t-fx">F14</span>
+        <span class="t-lbl">Compresseur</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F10</span>
+        <span class="t-lbl">Purge d'air</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F21</span>
+        <span class="t-lbl">Pantographe</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F23</span>
+        <span class="t-lbl">Signal KVB</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Voie 2 : BB 67400 ─────────────────────────────────────────────────── -->
+<div class="voie" id="voie2-panel">
+  <div class="loco-sel">
+    <label>Loco</label>
+    <select>
+      <option>CC 6500</option>
+      <option selected>BB 67400</option>
+      <option disabled>BB 26000 Sybic</option>
+      <option disabled>BB 9400</option>
+      <option disabled>CC 72000</option>
+      <option disabled>CC 21000</option>
+      <option disabled>141-R</option>
+    </select>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>1</em><h2>Klaxons et sifflet</h2></div>
+    <div class="gr">
+      <button class="t" type="button">
+        <span class="t-fx">F1</span>
+        <span class="t-lbl">Klaxon haut</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F2</span>
+        <span class="t-lbl">Klaxon bas</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F3</span>
+        <span class="t-lbl">Klaxon bitonal</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F4</span>
+        <span class="t-lbl">Sifflet</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>3</em><h2>Portes et freins</h2></div>
+    <div class="gr">
+      <button class="t" type="button">
+        <span class="t-fx">F13</span>
+        <span class="t-lbl">Porte de cabine</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-lbl">Porte salle des machines</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-lbl">Freins pneumatiques</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sh"><em>4</em><h2>Ambiances</h2></div>
+    <div class="gr">
+      <button class="t on" type="button">
+        <span class="t-on-lbl">En cours</span>
+        <span class="t-fx">F19</span>
+        <span class="t-lbl">Compresseur</span>
+      </button>
+      <button class="t on" type="button">
+        <span class="t-on-lbl">En cours</span>
+        <span class="t-lbl">Turbo diesel (boucle)</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F17</span>
+        <span class="t-lbl">Signal KVB</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-lbl">Purge d'air (urgence)</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F24</span>
+        <span class="t-lbl">Tachymètre</span>
+      </button>
+      <button class="t" type="button">
+        <span class="t-fx">F26</span>
+        <span class="t-lbl">Sablage</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="ft">
+  <span>ESP32-S3 · en ligne</span>
+  <span>28 sons chargés</span>
+</div>
+
+</div>
+
+<script>
+document.getElementById("tab1").onclick = () => switchTab(1);
+document.getElementById("tab2").onclick = () => switchTab(2);
+function switchTab(v) {
+  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("act", i+1===v));
+  document.querySelectorAll(".voie").forEach((p,i) => p.classList.toggle("act", i+1===v));
+}
+document.getElementById("vol").oninput = e => {
+  e.target.previousElementSibling.querySelector("b").textContent = e.target.value + " %";
+};
+</script>
+</body>
+</html>

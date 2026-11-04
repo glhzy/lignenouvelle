@@ -1,0 +1,83 @@
+[
+  {
+    "id": "CC6500",
+    "nom": "CC 6500",
+    "serie": "CC 6500",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "CC6500/sons.json"
+  },
+  {
+    "id": "BB67400",
+    "nom": "BB 67400",
+    "serie": "BB 67400",
+    "type": "diesel",
+    "disponible": true,
+    "sons": "BB67400/sons.json"
+  },
+  {
+    "id": "BB26000",
+    "nom": "BB 26000 Sybic",
+    "serie": "BB 26000",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "BB26000/sons.json"
+  },
+  {
+    "id": "BB9400",
+    "nom": "BB 9400",
+    "serie": "BB 9400",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "BB9400/sons.json"
+  },
+  {
+    "id": "CC21000",
+    "nom": "CC 21000",
+    "serie": "CC 21000",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "CC21000/sons.json"
+  },
+  {
+    "id": "CC72000",
+    "nom": "CC 72000",
+    "serie": "CC 72000",
+    "type": "diesel",
+    "disponible": true,
+    "sons": "CC72000/sons.json"
+  },
+  {
+    "id": "BB9300",
+    "nom": "BB 9300",
+    "serie": "BB 9300",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "BB9300/sons.json"
+  },
+  {
+    "id": "BB16000",
+    "nom": "BB 16000",
+    "serie": "BB 16000",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "BB16000/sons.json"
+  },
+  {
+    "id": "141R",
+    "nom": "141 R",
+    "serie": "141 R",
+    "type": "vapeur",
+    "disponible": true,
+    "sons": "141R/sons.json"
+  },
+  {
+    "id": "TGV",
+    "nom": "TGV PSE",
+    "serie": "TGV",
+    "type": "électrique",
+    "disponible": true,
+    "sons": "TGV/sons_player.json",
+    "sons_firmware": "TGV/sons.json"
+  }
+]

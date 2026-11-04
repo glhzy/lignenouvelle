@@ -1,0 +1,167 @@
+[
+ {
+  "id": "klaxon_long",
+  "file": "klaxon_long.wav",
+  "label": "Klaxon long",
+  "group": "klaxon",
+  "loop": false,
+  "level": 0.85,
+  "duration": 3.56,
+  "bytes": 156926,
+  "source": "Klaxon_hoch-lang_lmt"
+ },
+ {
+  "id": "klaxon_court",
+  "file": "klaxon_court.wav",
+  "label": "Klaxon court",
+  "group": "klaxon",
+  "loop": false,
+  "level": 0.85,
+  "duration": 2.55,
+  "bytes": 112532,
+  "source": "Klaxon_hoch-kurz_lmt"
+ },
+ {
+  "id": "klaxon_bitonal",
+  "file": "klaxon_bitonal.wav",
+  "label": "Klaxon bitonal",
+  "group": "klaxon",
+  "loop": false,
+  "level": 0.85,
+  "duration": 3.85,
+  "bytes": 169740,
+  "source": "Klaxon_hoch-tief-hoch_lmt"
+ },
+ {
+  "id": "sifflet",
+  "file": "sifflet.wav",
+  "label": "Sifflet chef de gare",
+  "group": "klaxon",
+  "loop": false,
+  "level": 0.8,
+  "duration": 2.1,
+  "bytes": 92638,
+  "source": "Sifflet_SNCF_2_echo"
+ },
+ {
+  "id": "annonce_marseille",
+  "file": "annonce_marseille.wav",
+  "label": "Annonce Corail Marseille",
+  "group": "annonce",
+  "loop": false,
+  "level": 1.0,
+  "duration": 13.75,
+  "bytes": 606332,
+  "source": "Annonce Corail Marseille_jingle84"
+ },
+ {
+  "id": "annonce_jingle",
+  "file": "annonce_jingle.wav",
+  "label": "Annonce Corail, jingle",
+  "group": "annonce",
+  "loop": false,
+  "level": 1.0,
+  "duration": 14.95,
+  "bytes": 659234,
+  "source": "annonce_Corail_jingle77"
+ },
+ {
+  "id": "annonce_mistral",
+  "file": "annonce_mistral.wav",
+  "label": "Annonce TEE Mistral",
+  "group": "annonce",
+  "loop": false,
+  "level": 0.9,
+  "duration": 8.34,
+  "bytes": 368038,
+  "source": "Annonce TEE Mistral_jingle très ancien_8-bit"
+ },
+ {
+  "id": "porte_cabine",
+  "file": "porte_cabine.wav",
+  "label": "Porte de cabine",
+  "group": "porte",
+  "loop": false,
+  "level": 0.9,
+  "duration": 2.35,
+  "bytes": 103516,
+  "source": "Tür_auf-zu"
+ },
+ {
+  "id": "porte_machines",
+  "file": "porte_machines.wav",
+  "label": "Porte salle des machines",
+  "group": "porte",
+  "loop": false,
+  "level": 0.9,
+  "duration": 2.08,
+  "bytes": 91868,
+  "source": "Maschinenraumtür_auf-zu"
+ },
+ {
+  "id": "essai_freins",
+  "file": "essai_freins.wav",
+  "label": "Essai des freins",
+  "group": "frein",
+  "loop": false,
+  "level": 0.8,
+  "duration": 6.93,
+  "bytes": 305726,
+  "source": "Bremsprobe_dir.-Br._an-lösen_kurz"
+ },
+ {
+  "id": "frein_main",
+  "file": "frein_main.wav",
+  "label": "Frein à main",
+  "group": "frein",
+  "loop": false,
+  "level": 0.9,
+  "duration": 4.0,
+  "bytes": 176294,
+  "source": "Handbremse_an_k"
+ },
+ {
+  "id": "compresseur",
+  "file": "compresseur.wav",
+  "label": "Compresseur",
+  "group": "ambiance",
+  "loop": true,
+  "level": 0.45,
+  "duration": 16.84,
+  "bytes": 742648,
+  "source": "Compresseur_kurz"
+ },
+ {
+  "id": "purge_air",
+  "file": "purge_air.wav",
+  "label": "Purge d'air",
+  "group": "ambiance",
+  "loop": false,
+  "level": 0.7,
+  "duration": 7.89,
+  "bytes": 347890,
+  "source": "Luftzisch_kurz"
+ },
+ {
+  "id": "pantographe",
+  "file": "pantographe.wav",
+  "label": "Pantographe",
+  "group": "ambiance",
+  "loop": false,
+  "level": 0.7,
+  "duration": 10.3,
+  "bytes": 454062,
+  "source": "Panto-up-down_02"
+ },
+ {
+  "id": "kvb",
+  "file": "kvb.wav",
+  "label": "Signal KVB",
+  "group": "ambiance",
+  "loop": false,
+  "level": 0.7,
+  "duration": 3.98,
+  "bytes": 175676,
+  "source": "KVB_start"
+ }
+]

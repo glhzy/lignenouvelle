@@ -1,0 +1,152 @@
+[
+  {
+    "id": "klaxon_long",
+    "label": "Klaxon long",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 3.56,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_court",
+    "label": "Klaxon court",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 2.55,
+    "fx": "F2",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bitonal",
+    "label": "Klaxon bitonal",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 3.85,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "sifflet",
+    "label": "Sifflet chef de gare",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 2.1,
+    "fx": "F4",
+    "disponible": true
+  },
+  {
+    "id": "annonce_marseille",
+    "label": "Annonce Corail Marseille",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 13.75,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "annonce_jingle",
+    "label": "Annonce Corail, jingle",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 14.95,
+    "fx": null,
+    "disponible": true
+  },
+  {
+    "id": "annonce_mistral",
+    "label": "Annonce TEE Mistral",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 16.69,
+    "fx": "F25",
+    "disponible": true
+  },
+  {
+    "id": "porte_cabine",
+    "label": "Porte de cabine",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 2.35,
+    "fx": "F11",
+    "disponible": true
+  },
+  {
+    "id": "porte_machines",
+    "label": "Porte salle des machines",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 2.08,
+    "fx": "F13",
+    "disponible": true
+  },
+  {
+    "id": "essai_freins",
+    "label": "Essai des freins",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 6.93,
+    "fx": "F16",
+    "disponible": true
+  },
+  {
+    "id": "frein_main",
+    "label": "Frein à main",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 4.0,
+    "fx": "F17",
+    "disponible": true
+  },
+  {
+    "id": "compresseur",
+    "label": "Compresseur",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 16.84,
+    "fx": "F14",
+    "disponible": true
+  },
+  {
+    "id": "purge_air",
+    "label": "Purge d'air",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 7.89,
+    "fx": "F10",
+    "disponible": true
+  },
+  {
+    "id": "pantographe",
+    "label": "Pantographe",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 10.3,
+    "fx": "F21",
+    "disponible": true
+  },
+  {
+    "id": "kvb",
+    "label": "Signal KVB",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 3.98,
+    "fx": "F23",
+    "disponible": true
+  }
+]

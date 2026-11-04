@@ -1,0 +1,25 @@
+# Fichiers sons et polices (usage privé — ne pas redistribuer)
+sounds/**/*.wav
+fonts/
+
+# Sources propriétaires
+input/
+Zpp Extracts 20261024/
+
+# Build PlatformIO
+firmware/.pio/
+
+# Claude Code (config locale, permissions)
+.claude/
+
+# Fichiers archivés audio
+*.wav.bak
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo

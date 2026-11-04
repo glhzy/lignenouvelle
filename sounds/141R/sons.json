@@ -1,0 +1,132 @@
+[
+  {
+    "id": "sifflet_court",
+    "label": "Sifflet court",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 1.88,
+    "fx": "F2",
+    "disponible": true
+  },
+  {
+    "id": "sifflet_long",
+    "label": "Sifflet long",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 8.53,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "sifflet_moyen",
+    "label": "Sifflet moyen",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 4.09,
+    "fx": "F4",
+    "disponible": true
+  },
+  {
+    "id": "sifflet_gare",
+    "label": "Sifflet chef de gare",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 1.24,
+    "fx": "F5",
+    "disponible": true
+  },
+  {
+    "id": "annonce",
+    "label": "Annonce départ (ancienne)",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "duree": 13.58,
+    "fx": "F21",
+    "disponible": true
+  },
+  {
+    "id": "purge_cylindres",
+    "label": "Purge des cylindres",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.6,
+    "duree": 1.35,
+    "fx": "F10",
+    "disponible": true
+  },
+  {
+    "id": "pompe_air",
+    "label": "Pompe à air",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.5,
+    "duree": 14.15,
+    "fx": "F18",
+    "disponible": true
+  },
+  {
+    "id": "souffleur",
+    "label": "Souffleur",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.65,
+    "duree": 10.73,
+    "fx": "F14",
+    "disponible": true
+  },
+  {
+    "id": "injecteur",
+    "label": "Injecteur",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.65,
+    "duree": 9.79,
+    "fx": "F17",
+    "disponible": true
+  },
+  {
+    "id": "sablage",
+    "label": "Sablage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 2.45,
+    "fx": "F25",
+    "disponible": true
+  },
+  {
+    "id": "bruleur",
+    "label": "Brûleur",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.5,
+    "duree": 18.17,
+    "fx": "F12",
+    "disponible": true
+  },
+  {
+    "id": "pompe_eau",
+    "label": "Pompe à eau",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.5,
+    "duree": 15.34,
+    "fx": "F16",
+    "disponible": true
+  },
+  {
+    "id": "turbopompe",
+    "label": "Turbopompe",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.5,
+    "duree": 28.59,
+    "fx": "F19",
+    "disponible": true
+  }
+]

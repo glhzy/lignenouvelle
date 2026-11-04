@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TGV PSE — Séquences sonores</title>
+<style>
+@font-face{font-family:"PoliceSNCF";src:url(../fonts/PoliceSNCF.woff) format("woff")}
+@font-face{font-family:"Univers LT Std";src:url(../fonts/UniversLTStd55.woff) format("woff")}
+*{box-sizing:border-box}
+body{margin:0;background:#E4E1D8}
+.pg{max-width:480px;margin:0 auto;background:#F4F1E8;
+    font-family:"Univers LT Std",Univers,"Helvetica Neue",Arial,sans-serif;
+    color:#14203A;padding-bottom:32px}
+
+/* ── En-tête ── */
+.hd{background:#1B2A49;color:#fff;padding:20px 18px 16px;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.hd-left small{display:block;font-family:"PoliceSNCF";font-size:13px;
+               letter-spacing:.12em;text-transform:uppercase;color:#F2A65A;margin-bottom:4px}
+.hd-left h1{margin:0;font-family:"PoliceSNCF";font-size:26px;font-weight:400;
+            letter-spacing:.03em;text-transform:uppercase;line-height:1}
+.wf{border:2px solid rgba(255,255,255,.4);padding:5px 8px;font-size:12px;
+    text-align:center;line-height:1.3;white-space:nowrap}
+.stripe{height:8px;background:#E8761A}
+
+/* ── Corps ── */
+.bd{padding:18px 16px 0}
+.vol-lbl{display:block;font-family:"PoliceSNCF";font-size:18px;letter-spacing:.06em;
+         text-transform:uppercase;margin-bottom:4px}
+.vol-lbl b{float:right;letter-spacing:0}
+.rg{width:100%;height:44px;accent-color:#E8761A;margin:0 0 2px}
+.stop-btn{width:100%;min-height:54px;border:0;background:#C8102E;color:#fff;
+          font:400 22px "PoliceSNCF",sans-serif;letter-spacing:.06em;text-transform:uppercase;
+          display:flex;align-items:center;justify-content:center;gap:12px;
+          margin:8px 0 4px;cursor:pointer}
+.stop-btn span{width:14px;height:14px;background:#fff;display:block;flex-shrink:0}
+
+/* ── Sections ── */
+.sec{margin-top:22px}
+.sh{display:flex;align-items:center;background:#1B2A49;color:#fff;
+    padding:0 14px 0 0;min-height:44px}
+.sh em{font-style:normal;font-family:"PoliceSNCF";font-size:28px;
+       width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+       background:#fff;color:#1B2A49;flex-shrink:0}
+.sh h2{margin:0 0 0 12px;font-family:"PoliceSNCF";font-size:18px;font-weight:400;
+       letter-spacing:.06em;text-transform:uppercase}
+.gr{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+/* ── Tuile bouton ── */
+.t{min-height:64px;border:2px solid #1B2A49;background:#fff;color:#14203A;
+   font:400 15px/1.2 "Univers LT Std",sans-serif;text-align:left;
+   padding:9px 10px 8px;display:flex;flex-direction:column;
+   justify-content:space-between;gap:4px;
+   cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;
+   transition:background .12s}
+.t.w{grid-column:1/3;min-height:52px;flex-direction:row;
+     align-items:center;gap:10px;padding:0 12px;justify-content:flex-start}
+/* triangle */
+.arr{width:0;height:0;
+     border-left:11px solid #1B2A49;
+     border-top:7px solid transparent;
+     border-bottom:7px solid transparent;
+     flex-shrink:0;margin-left:auto}
+.t.on .arr{border-left-color:#14203A}
+
+/* états bouton */
+.t.on{background:#E8761A}
+.t.busy{opacity:.65}
+.t.busy .arr{display:none}
+
+/* ── Barre de séquence ── */
+.seq-bar{display:none;align-items:center;gap:3px;margin-top:2px;flex-wrap:nowrap;overflow:hidden}
+.t.w .seq-bar{flex:1;margin:0;justify-content:flex-start;overflow:hidden}
+
+/* pastille d'étape */
+.step{height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;
+      font-family:"PoliceSNCF";font-size:10px;letter-spacing:.03em;white-space:nowrap;
+      border:1.5px solid rgba(20,32,58,.35);background:rgba(255,255,255,.25);
+      color:rgba(20,32,58,.7);padding:0 4px;flex-shrink:0;transition:all .12s}
+.step.type-once{min-width:16px;padding:0 3px}
+.step.type-loop{min-width:28px}
+/* étape courante */
+.step.cur{background:#fff;color:#14203A;border-color:#14203A;
+          font-size:11px;box-shadow:0 0 0 1px #14203A}
+/* étapes passées */
+.step.past{background:rgba(20,32,58,.18);border-color:rgba(20,32,58,.25);
+           color:rgba(20,32,58,.45)}
+/* étapes futures */
+.step.future{background:transparent;border-color:rgba(20,32,58,.2);
+             color:rgba(20,32,58,.3)}
+/* séparateur entre étapes */
+.step-sep{width:4px;height:1.5px;background:rgba(20,32,58,.2);flex-shrink:0}
+.step.past + .step-sep{background:rgba(20,32,58,.18)}
+
+/* ── Pied de page ── */
+.ft{margin:22px 16px 0;padding-top:10px;border-top:2px solid #D8D5CA;
+    font-size:12px;display:flex;justify-content:space-between;color:#3A4560}
+</style>
+</head>
+<body>
+<div class="pg">
+
+<div class="hd">
+  <div class="hd-left">
+    <small>TGV PSE</small>
+    <h1>Séquences sonores</h1>
+  </div>
+  <div class="wf">sons<br>séquencés</div>
+</div>
+<div class="stripe"></div>
+
+<div class="bd">
+  <label class="vol-lbl" for="vol">Volume <b id="vol-val">70 %</b></label>
+  <input class="rg" type="range" id="vol" min="0" max="100" value="70">
+  <button class="stop-btn" id="btn-stop"><span></span>Arrêt général</button>
+
+  <!-- Section 1 : Conduite -->
+  <div class="sec">
+    <div class="sh"><em>1</em><h2>Conduite</h2></div>
+    <div class="gr">
+      <button class="t w" data-seq="moteur_marche">
+        <span class="lbl">Mise en traction</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="drive_cycle">
+        <span class="lbl">Cycle de marche</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="noise_low">
+        <span class="lbl">Bruit de roulement</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="crissement">
+        <span class="lbl">Crissement de bandage</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="moteur_ralenti">
+        <span class="lbl">Coupure de traction</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="frein">
+        <span class="lbl">Serrage du frein</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="frein_leve">
+        <span class="lbl">Desserrage du frein</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 2 : Avertisseurs et portières -->
+  <div class="sec">
+    <div class="sh"><em>2</em><h2>Avertisseurs et portières</h2></div>
+    <div class="gr">
+      <button class="t" data-seq="airhorn_quai">
+        <span class="lbl">Avertisseur — départ</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t" data-seq="airhorn_tunnel">
+        <span class="lbl">Avertisseur — tunnel</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="sifflet_conducteur">
+        <span class="lbl">Sifflet de manœuvre</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t" data-seq="porte_ouverture">
+        <span class="lbl">Ouverture des portières</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t" data-seq="porte_fermeture">
+        <span class="lbl">Fermeture des portières</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 3 : Équipements de bord -->
+  <div class="sec">
+    <div class="sh"><em>3</em><h2>Équipements de bord</h2></div>
+    <div class="gr">
+      <button class="t" data-seq="compresseur">
+        <span class="lbl">Groupe moto-compresseur</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t" data-seq="compresseur2">
+        <span class="lbl">Compresseur 2e groupe</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="ventilateur">
+        <span class="lbl">Ventilateur de refroidissement</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Section 4 : Annonces en gare -->
+  <div class="sec">
+    <div class="sh"><em>4</em><h2>Annonces en gare</h2></div>
+    <div class="gr">
+      <button class="t w" data-seq="annonce_tgv_1">
+        <span class="lbl">Passage — alerte voie</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="annonce_tgv_2">
+        <span class="lbl">Départ — Paris GdL (voie 1)</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="annonce_tgv_3">
+        <span class="lbl">Départ — Paris-Montparnasse</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="annonce_tgv_4">
+        <span class="lbl">Départ — Figueras (voie 13)</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+      <button class="t w" data-seq="annonce_tgv_5">
+        <span class="lbl">Arrivée — Brest / Rennes</span>
+        <div class="seq-bar"></div>
+        <span class="arr"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ft">
+    <span>TGV PSE · sons séquencés</span>
+    <span id="status-line">En attente</span>
+  </div>
+</div>
+</div>
+
+<script>
+const PATH = "../sounds/TGV/";
+
+// ─── Web Audio API ─────────────────────────────────────────────────────────────
+let _ctx = null;
+let _gain = null;
+
+function getCtx() {
+  if (!_ctx) _ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_ctx.state === "suspended") _ctx.resume();
+  return _ctx;
+}
+
+function getGain() {
+  if (!_gain) {
+    _gain = getCtx().createGain();
+    _gain.gain.value = masterVol;
+    _gain.connect(getCtx().destination);
+  }
+  return _gain;
+}
+
+function loadBuffer(url) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "arraybuffer";
+    xhr.onload = () => {
+      if (xhr.status === 0 || xhr.status === 200) {
+        getCtx().decodeAudioData(xhr.response, resolve, reject);
+      } else {
+        reject(new Error("HTTP " + xhr.status));
+      }
+    };
+    xhr.onerror = reject;
+    xhr.send();
+  });
+}
+
+const SEQ = {
+  drive_cycle: { label:"Cycle de marche", etapes:[
+    {s:"drive_1_demarrage.wav",   t:"once", lbl:"DEM"},
+    {s:"drive_2_lent.wav",        t:"loop", lbl:"V1↺"},
+    {s:"drive_3_acceleration.wav",t:"once", lbl:"→"},
+    {s:"drive_4_rapide.wav",      t:"loop", lbl:"V2↺"},
+    {s:"drive_5_deceleration.wav",t:"once", lbl:"→"},
+    {s:"drive_6_lent2.wav",       t:"loop", lbl:"V1↺"},
+    {s:"drive_7_arret.wav",       t:"once", lbl:"■"}
+  ]},
+  noise_low: { label:"Bruit de roulement", etapes:[
+    {s:"noise_1_demarrage.wav",   t:"once", lbl:"DEM"},
+    {s:"noise_2_lent.wav",        t:"loop", lbl:"BAS↺"},
+    {s:"noise_3_montee.wav",      t:"once", lbl:"→"},
+    {s:"noise_4_rapide.wav",      t:"loop", lbl:"HAUT↺"},
+    {s:"noise_5_descente.wav",    t:"once", lbl:"→"},
+    {s:"noise_6_lent2.wav",       t:"loop", lbl:"BAS↺"},
+    {s:"noise_7_arret.wav",       t:"once", lbl:"■"}
+  ]},
+  moteur_marche: { label:"Mise en traction", etapes:[
+    {s:"moteur_1_demarrage.wav",  t:"once", lbl:"DEM"},
+    {s:"moteur_2_montee.wav",     t:"once", lbl:"■"}
+  ]},
+  moteur_ralenti: { label:"Coupure de traction", etapes:[
+    {s:"moteur_3_transition.wav", t:"once", lbl:"→"},
+    {s:"moteur_4_ralenti.wav",    t:"loop", lbl:"RAL↺"},
+    {s:"moteur_5_arret.wav",      t:"once", lbl:"■"}
+  ]},
+  compresseur: { label:"Groupe moto-compresseur", etapes:[
+    {s:"compresseur_demarrage.wav",t:"once", lbl:"DEM"},
+    {s:"compresseur.wav",          t:"loop", lbl:"↺"},
+    {s:"compresseur_arret.wav",    t:"once", lbl:"■"}
+  ]},
+  compresseur2: { label:"Compresseur 2e groupe", etapes:[
+    {s:"compresseur2_demarrage.wav",t:"once", lbl:"DEM"},
+    {s:"compresseur2.wav",          t:"loop", lbl:"↺"},
+    {s:"compresseur2_arret.wav",    t:"once", lbl:"■"}
+  ]},
+  ventilateur: { label:"Ventilateur de refroidissement", etapes:[
+    {s:"ventilateur_demarrage.wav",t:"once", lbl:"DEM"},
+    {s:"ventilateur.wav",          t:"loop", lbl:"↺"},
+    {s:"ventilateur_arret.wav",    t:"once", lbl:"■"}
+  ]},
+  crissement: { label:"Crissement de bandage", etapes:[
+    {s:"crissement_demarrage.wav",t:"once", lbl:"DEM"},
+    {s:"crissement.wav",          t:"loop", lbl:"↺"},
+    {s:"crissement_arret.wav",    t:"once", lbl:"■"}
+  ]},
+  airhorn_quai: { label:"Avertisseur — départ", etapes:[
+    {s:"airhorn_quai.wav", t:"once", lbl:"▶"}
+  ]},
+  airhorn_tunnel: { label:"Avertisseur — tunnel", etapes:[
+    {s:"airhorn_tunnel.wav", t:"once", lbl:"▶"}
+  ]},
+  sifflet_conducteur: { label:"Sifflet de manœuvre", etapes:[
+    {s:"sifflet_conducteur.wav", t:"once", lbl:"▶"}
+  ]},
+  annonce_tgv_1: { label:"Passage — alerte voie",          etapes:[{s:"annonce_tgv_1.wav", t:"once", lbl:"▶"}]},
+  annonce_tgv_2: { label:"Départ — Paris GdL (voie 1)",    etapes:[{s:"annonce_tgv_2.wav", t:"once", lbl:"▶"}]},
+  annonce_tgv_3: { label:"Départ — Paris-Montparnasse",    etapes:[{s:"annonce_tgv_3.wav", t:"once", lbl:"▶"}]},
+  annonce_tgv_4: { label:"Départ — Figueras (voie 13)",    etapes:[{s:"annonce_tgv_4.wav", t:"once", lbl:"▶"}]},
+  annonce_tgv_5: { label:"Arrivée — Brest / Rennes",       etapes:[{s:"annonce_tgv_5.wav", t:"once", lbl:"▶"}]},
+  frein: { label:"Serrage du frein", etapes:[
+    {s:"frein_init.wav", t:"once", lbl:"DEC"},
+    {s:"frein_loop.wav", t:"loop", lbl:"↺"},
+    {s:"frein_exit.wav", t:"once", lbl:"■"}
+  ]},
+  frein_leve: { label:"Desserrage du frein", etapes:[
+    {s:"frein_leve.wav", t:"once", lbl:"▶"}
+  ]},
+  porte_ouverture: { label:"Ouverture des portières", etapes:[
+    {s:"porte_ouverture.wav", t:"once", lbl:"▶"}
+  ]},
+  porte_fermeture: { label:"Fermeture des portières", etapes:[
+    {s:"porte_fermeture.wav", t:"once", lbl:"▶"}
+  ]}
+};
+
+// ─── Lecteur de séquence ──────────────────────────────────────────────────────
+
+let masterVol = 0.70;
+const players = {};
+
+class SeqPlayer {
+  constructor(id, btn) {
+    this.id      = id;
+    this.seq     = SEQ[id];
+    this.btn     = btn;
+    this.state   = "stopped";
+    this.step    = 0;
+    this.mode    = "html";    // "webaudio" | "html"
+    this.src     = null;      // AudioBufferSourceNode (mode webaudio)
+    this.audio   = null;      // HTMLAudioElement courant (mode html)
+    this.buffers = null;
+    this.audios  = null;
+    this.ready   = false;
+    this.nLoops  = this.seq.etapes.filter(e => e.t === "loop").length;
+    this.cLoop   = 0;
+
+    this._buildBar();
+    btn.addEventListener("click", () => this.press());
+
+    // Essaie Web Audio API (gapless) — si XHR échoue (file://), bascule sur HTMLAudioElement
+    Promise.all(this.seq.etapes.map(e => loadBuffer(PATH + e.s)))
+      .then(bufs => {
+        this.buffers = bufs;
+        this.mode    = "webaudio";
+        this.ready   = true;
+      })
+      .catch(() => {
+        // Fallback HTMLAudioElement (fonctionne avec file://)
+        this.audios = this.seq.etapes.map(e => {
+          const a = new Audio(PATH + e.s);
+          a.preload = "auto";
+          a.load();
+          return a;
+        });
+        this.mode  = "html";
+        this.ready = true;
+      });
+  }
+
+  _buildBar() {
+    const bar = this.btn.querySelector(".seq-bar");
+    if (!bar) return;
+    const frags = [];
+    this.seq.etapes.forEach((e, i) => {
+      if (i > 0) frags.push('<span class="step-sep"></span>');
+      frags.push(`<span class="step type-${e.t} future" data-i="${i}">${e.lbl}</span>`);
+    });
+    bar.innerHTML = frags.join("");
+  }
+
+  _syncBar() {
+    const bar = this.btn.querySelector(".seq-bar");
+    if (!bar) return;
+    bar.querySelectorAll(".step").forEach(el => {
+      const i = +el.dataset.i;
+      el.classList.remove("cur", "past", "future");
+      if      (i === this.step) el.classList.add("cur");
+      else if (i <  this.step)  el.classList.add("past");
+      else                      el.classList.add("future");
+    });
+  }
+
+  press() {
+    if (!this.ready) return;
+    if (this.mode === "webaudio") getCtx(); // réveille l'AudioContext
+    if      (this.state === "stopped") this.start();
+    else if (this.state === "looping") this.advance();
+  }
+
+  start() { this.step = 0; this.cLoop = 0; this._play(); }
+
+  // ── Web Audio (gapless) ────────────────────────────────────────
+  _stopSrc() {
+    if (this.src) {
+      this.src.onended = null;
+      try { this.src.stop(); } catch(_) {}
+      this.src = null;
+    }
+  }
+
+  _playWA() {
+    const e    = this.seq.etapes[this.step];
+    const last = this.step === this.seq.etapes.length - 1;
+    this._stopSrc();
+    const src = getCtx().createBufferSource();
+    src.buffer = this.buffers[this.step];
+    src.loop   = (e.t === "loop");
+    src.connect(getGain());
+    this.src = src;
+    if (e.t === "loop") {
+      this.cLoop++; this.state = "looping";
+      src.start(0);
+    } else {
+      this.state = last ? "stopping" : "once";
+      src.start(0);
+      src.onended = () => last ? this._done() : (this.step++, this._play());
+    }
+    this._ui();
+  }
+
+  // ── HTMLAudioElement (fallback file://) ───────────────────────
+  _stopAudio() {
+    if (this.audio) {
+      this.audio.onended = null;
+      this.audio.loop    = false;
+      this.audio.pause();
+      this.audio = null;
+    }
+  }
+
+  _playHTML() {
+    const e    = this.seq.etapes[this.step];
+    const last = this.step === this.seq.etapes.length - 1;
+    this._stopAudio();
+    this.audio = this.audios[this.step];
+    this.audio.currentTime = 0;
+    this.audio.volume      = masterVol;
+    this.audio.loop        = (e.t === "loop");
+    this.audio.onended     = null;
+    if (e.t === "loop") {
+      this.cLoop++; this.state = "looping";
+      this.audio.play().catch(() => {});
+    } else {
+      this.state = last ? "stopping" : "once";
+      this.audio.play().catch(() => {});
+      this.audio.onended = () => last ? this._done() : (this.step++, this._play());
+    }
+    this._ui();
+  }
+
+  // ── Dispatch ──────────────────────────────────────────────────
+  _play()    { this.mode === "webaudio" ? this._playWA()    : this._playHTML(); }
+  _stopCur() { this.mode === "webaudio" ? this._stopSrc()   : this._stopAudio(); }
+
+  advance()  { this._stopCur(); this.step++; this.step < this.seq.etapes.length ? this._play() : this._done(); }
+  hardStop() { this._stopCur(); this._done(); }
+
+  _done() { this.state = "stopped"; this.step = 0; this.cLoop = 0; this._ui(); }
+
+  setVol(v) {
+    if (this.mode === "html" && this.audios) this.audios.forEach(a => a.volume = v);
+    if (_gain) _gain.gain.value = v;
+  }
+
+  _ui() {
+    const btn = this.btn;
+    const bar = btn.querySelector(".seq-bar");
+    const arr = btn.querySelector(".arr");
+    btn.classList.remove("on", "busy");
+
+    if (this.state === "stopped") {
+      if (bar) bar.style.display = "none";
+      if (arr) arr.style.display = "";
+    } else {
+      // Affiche la barre, cache la flèche
+      if (bar) { bar.style.display = "flex"; this._syncBar(); }
+      if (arr) arr.style.display = "none";
+
+      btn.classList.add("on");
+      if (this.state === "once" || this.state === "stopping") btn.classList.add("busy");
+    }
+
+    _updateFooter();
+  }
+}
+
+function _updateFooter() {
+  const active = Object.values(players)
+    .filter(p => p.state !== "stopped")
+    .map(p => p.seq.label);
+  document.getElementById("status-line").textContent =
+    active.length ? active.join(" · ") : "En attente";
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+document.querySelectorAll("[data-seq]").forEach(btn => {
+  const id = btn.dataset.seq;
+  if (SEQ[id]) players[id] = new SeqPlayer(id, btn);
+});
+
+document.getElementById("vol").addEventListener("input", function () {
+  masterVol = this.value / 100;
+  document.getElementById("vol-val").textContent = this.value + " %";
+  Object.values(players).forEach(p => p.setVol(masterVol));
+});
+
+document.getElementById("btn-stop").addEventListener("click", () => {
+  Object.values(players).forEach(p => p.hardStop());
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+[
+  {
+    "id": "drive_1_demarrage",
+    "label": "Drive — démarrage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "drive_2_lent",
+    "label": "Drive — lent ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "drive_3_acceleration",
+    "label": "Drive — accélération",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "drive_4_rapide",
+    "label": "Drive rapide ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.75,
+    "disponible": true
+  },
+  {
+    "id": "drive_5_deceleration",
+    "label": "Drive — décélération",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "drive_6_lent2",
+    "label": "Drive — lent 2 ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "drive_7_arret",
+    "label": "Drive — arrêt",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": false
+  },
+  {
+    "id": "moteur_1_demarrage",
+    "label": "Moteur — démarrage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "disponible": false
+  },
+  {
+    "id": "moteur_2_montee",
+    "label": "Moteur — montée",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "disponible": false
+  },
+  {
+    "id": "moteur_3_transition",
+    "label": "Moteur — transition",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "disponible": false
+  },
+  {
+    "id": "moteur_4_ralenti",
+    "label": "Moteur ralenti ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.7,
+    "disponible": true
+  },
+  {
+    "id": "moteur_5_arret",
+    "label": "Moteur — arrêt",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "disponible": false
+  },
+  {
+    "id": "noise_1_demarrage",
+    "label": "Bruit roul. — démarrage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_2_lent",
+    "label": "Bruit roul. — lent ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_3_montee",
+    "label": "Bruit roul. — montée",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_4_rapide",
+    "label": "Bruit roul. — rapide ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_5_descente",
+    "label": "Bruit roul. — descente",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_6_lent2",
+    "label": "Bruit roul. — lent 2 ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "noise_7_arret",
+    "label": "Bruit roul. — arrêt",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "crissement_demarrage",
+    "label": "Crissement — début",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.65,
+    "disponible": false
+  },
+  {
+    "id": "crissement",
+    "label": "Crissement ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.65,
+    "disponible": true
+  },
+  {
+    "id": "crissement_arret",
+    "label": "Crissement — fin",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.65,
+    "disponible": false
+  },
+  {
+    "id": "frein_init",
+    "label": "Freinage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "disponible": true
+  },
+  {
+    "id": "frein_loop",
+    "label": "Frein serré ↺",
+    "groupe": "conduite",
+    "boucle": true,
+    "niveau": 0.8,
+    "disponible": true
+  },
+  {
+    "id": "frein_exit",
+    "label": "Frein desserré",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "disponible": true
+  },
+  {
+    "id": "frein_leve",
+    "label": "Frein levé",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "disponible": true
+  },
+  {
+    "id": "airhorn_quai",
+    "label": "Klaxon quai",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "disponible": true
+  },
+  {
+    "id": "airhorn_tunnel",
+    "label": "Klaxon tunnel",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "disponible": true
+  },
+  {
+    "id": "sifflet_conducteur",
+    "label": "Sifflet conducteur",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "disponible": true
+  },
+  {
+    "id": "porte_ouverture",
+    "label": "Portes ouverture",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": true
+  },
+  {
+    "id": "porte_fermeture",
+    "label": "Portes fermeture",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.75,
+    "disponible": true
+  },
+  {
+    "id": "compresseur_demarrage",
+    "label": "Compresseur — démarrage",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "compresseur",
+    "label": "Compresseur ↺",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "disponible": true
+  },
+  {
+    "id": "compresseur_arret",
+    "label": "Compresseur — arrêt",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "compresseur2_demarrage",
+    "label": "Compresseur 2 — démarrage",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "compresseur2",
+    "label": "Compresseur 2 ↺",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "disponible": false
+  },
+  {
+    "id": "compresseur2_arret",
+    "label": "Compresseur 2 — arrêt",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "ventilateur_demarrage",
+    "label": "Ventilateur — démarrage",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "ventilateur",
+    "label": "Ventilateur ↺",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "disponible": true
+  },
+  {
+    "id": "ventilateur_arret",
+    "label": "Ventilateur — arrêt",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.55,
+    "disponible": false
+  },
+  {
+    "id": "annonce_tgv_1",
+    "label": "Annonce 1",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "disponible": true
+  },
+  {
+    "id": "annonce_tgv_2",
+    "label": "Annonce 2",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "disponible": true
+  },
+  {
+    "id": "annonce_tgv_3",
+    "label": "Annonce 3",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "disponible": true
+  },
+  {
+    "id": "annonce_tgv_4",
+    "label": "Annonce 4",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "disponible": true
+  },
+  {
+    "id": "annonce_tgv_5",
+    "label": "Annonce 5",
+    "groupe": "annonce",
+    "boucle": false,
+    "niveau": 1.0,
+    "disponible": true
+  }
+]

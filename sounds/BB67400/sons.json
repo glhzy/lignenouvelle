@@ -1,0 +1,162 @@
+[
+  {
+    "id": "klaxon_haut",
+    "label": "Klaxon haut",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 4.4,
+    "fx": "F1",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bas",
+    "label": "Klaxon bas",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 4.4,
+    "fx": "F2",
+    "disponible": true
+  },
+  {
+    "id": "klaxon_bitonal",
+    "label": "Klaxon bas-haut-bas",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.85,
+    "duree": 6.1,
+    "fx": "F3",
+    "disponible": true
+  },
+  {
+    "id": "sifflet",
+    "label": "Sifflet chef de gare",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 2.1,
+    "fx": "F4",
+    "disponible": true
+  },
+  {
+    "id": "porte_cabine",
+    "label": "Porte de cabine",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 3.4,
+    "fx": "F13",
+    "disponible": true
+  },
+  {
+    "id": "kvb",
+    "label": "Signal KVB",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 4.8,
+    "fx": "F17",
+    "disponible": true
+  },
+  {
+    "id": "compresseur",
+    "label": "Compresseur",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 13.1,
+    "fx": "F19",
+    "disponible": true
+  },
+  {
+    "id": "tachymetre",
+    "label": "Tachymètre",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.55,
+    "duree": 3.3,
+    "fx": "F24",
+    "disponible": true
+  },
+  {
+    "id": "sablage",
+    "label": "Sablage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 2.5,
+    "fx": "F26",
+    "disponible": true
+  },
+  {
+    "id": "turbo",
+    "label": "Turbo diesel (boucle)",
+    "groupe": "equipements",
+    "boucle": true,
+    "niveau": 0.45,
+    "duree": 3.1,
+    "fx": "auto",
+    "disponible": true
+  },
+  {
+    "id": "porte_machines",
+    "label": "Porte salle des machines",
+    "groupe": "avertisseurs",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 2.0,
+    "fx": "auto",
+    "disponible": true
+  },
+  {
+    "id": "essai_freins",
+    "label": "Freins pneumatiques",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.8,
+    "duree": 8.8,
+    "fx": "auto",
+    "disponible": true
+  },
+  {
+    "id": "purge_air",
+    "label": "Purge d'air (urgence)",
+    "groupe": "equipements",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 1.8,
+    "fx": "auto",
+    "disponible": true
+  },
+  {
+    "id": "attelage",
+    "label": "Attelage - dételage",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 24.64,
+    "fx": "F5",
+    "disponible": false
+  },
+  {
+    "id": "frein_main",
+    "label": "Frein à main",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.9,
+    "duree": 25.45,
+    "fx": "F18",
+    "disponible": false
+  },
+  {
+    "id": "tanken",
+    "label": "Faire le plein",
+    "groupe": "conduite",
+    "boucle": false,
+    "niveau": 0.7,
+    "duree": 24.56,
+    "fx": "F25",
+    "disponible": false
+  }
+]

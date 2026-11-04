@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>La ligne nouvelle</title>
+<style>
+@font-face {
+  font-family: 'PoliceSNCF';
+  src: url('../fonts/PoliceSNCF.woff') format('woff');
+  font-weight: normal; font-style: normal;
+}
+@font-face {
+  font-family: 'UniversLT';
+  src: url('../fonts/UniversLTStd55.woff') format('woff');
+  font-weight: normal; font-style: normal;
+}
+
+:root {
+  --bleu:    #1B2A49;
+  --papier:  #F4F1E8;
+  --gris:    #D8D5CA;
+  --orange:  #E8761A;
+  --rouge:   #C8102E;
+  --encre:   #14203A;
+  --c-cond:  #5C6BC0;
+  --c-avert: #C8102E;
+  --c-equip: #2D7D46;
+  --c-ann:   #E8761A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--papier);
+  color: var(--bleu);
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+.container { max-width: 480px; margin: 0 auto; }
+
+/* ── En-tête ── */
+.header {
+  background: var(--bleu);
+  padding: 14px 18px 10px;
+}
+.header h1 {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 22px;
+  color: white;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.header-stripe {
+  height: 4px;
+  background: var(--orange);
+  margin: 8px -18px 0;
+}
+
+/* Sélecteur de loco */
+.loco-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.loco-bar label {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.6);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.loco-select {
+  flex: 1;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: white;
+  padding: 7px 10px;
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.loco-select option { background: var(--bleu); color: white; }
+
+/* ── Barre de contrôles ── */
+.controls {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid var(--gris);
+}
+.volume-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.volume-row span {
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--bleu);
+  min-width: 44px;
+}
+input[type=range] {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  background: var(--gris);
+  border-radius: 2px;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px; height: 16px;
+  background: var(--bleu);
+  border-radius: 50%;
+}
+.stop-btn {
+  background: var(--rouge);
+  color: white;
+  border: none;
+  padding: 0 18px;
+  height: 44px;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: .08em;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.stop-btn:active { opacity: .85; }
+
+/* ── Sections ── */
+.sections-wrap { padding-bottom: 2rem; }
+
+.section {
+  padding: 14px 18px 16px;
+  border-bottom: 1px solid var(--gris);
+}
+.section:last-child { border-bottom: none; }
+
+.section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.section-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  color: white;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--bleu);
+}
+
+.sec-conduite    .section-num { background: var(--c-cond); }
+.sec-avertisseurs .section-num { background: var(--c-avert); }
+.sec-equipements .section-num { background: var(--c-equip); }
+.sec-annonce     .section-num { background: var(--c-ann); }
+
+/* Grilles */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.btn-grid.cols1 { grid-template-columns: 1fr; }
+
+/* ── Bouton son ── */
+.sound-btn {
+  background: white;
+  border: 2px solid var(--bleu);
+  color: var(--bleu);
+  padding: 8px 30px 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  min-height: 44px;
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  position: relative;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.btn-label { display: block; }
+.btn-status {
+  display: none;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 9px;
+  letter-spacing: .08em;
+  margin-top: 3px;
+}
+
+/* Triangle play */
+.sound-btn::after {
+  content: '';
+  position: absolute;
+  right: 9px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid var(--bleu);
+}
+
+/* Actif (son one-shot en cours) */
+.sound-btn.is-active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: white;
+}
+.sound-btn.is-active .btn-status { display: block; color: rgba(255,255,255,.85); }
+.sound-btn.is-active::after { border-left-color: white; }
+
+/* En boucle */
+.sound-btn.is-loop {
+  background: var(--c-cond);
+  border-color: var(--c-cond);
+  color: white;
+}
+.sound-btn.is-loop .btn-status { display: block; color: rgba(255,255,255,.85); }
+.sound-btn.is-loop::after {
+  right: 8px;
+  border: none;
+  width: 9px; height: 9px;
+  border: 2px solid white;
+  transform: translateY(-50%) rotate(0deg);
+}
+
+/* Span full-width */
+.sound-btn.full { grid-column: 1 / -1; }
+
+/* ── Barre de séquence ── */
+.seq-bar {
+  display: none;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 5px;
+}
+.sound-btn.is-active .seq-bar,
+.sound-btn.is-loop   .seq-bar { display: flex; }
+
+.seq-step {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 9px;
+  letter-spacing: .04em;
+  padding: 2px 5px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.2);
+  color: rgba(255,255,255,.5);
+  white-space: nowrap;
+}
+.seq-step.cur  {
+  background: rgba(255,255,255,.95);
+  color: var(--bleu);
+  font-size: 10px;
+}
+.seq-step.past { opacity: .35; }
+.seq-sep {
+  align-self: center;
+  width: 6px; height: 1px;
+  background: rgba(255,255,255,.3);
+  flex-shrink: 0;
+}
+
+/* ── État vide / chargement ── */
+.placeholder {
+  padding: 2.5rem 18px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+/* ── Pied de page ── */
+.footer {
+  padding: 10px 18px;
+  font-size: 11px;
+  color: #999;
+  border-top: 1px solid var(--gris);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- En-tête -->
+<header class="header">
+  <h1>La ligne nouvelle</h1>
+  <div class="loco-bar">
+    <label for="locoSelect">Loco</label>
+    <select class="loco-select" id="locoSelect">
+      <option value="">— Choisir une locomotive —</option>
+    </select>
+  </div>
+  <div class="header-stripe"></div>
+</header>
+
+<!-- Contrôles -->
+<div class="controls">
+  <div class="volume-row">
+    <span>Volume</span>
+    <input type="range" id="volume" min="0" max="100" value="80">
+    <span id="volLabel">80</span>
+  </div>
+  <button class="stop-btn" id="stopAll">ARRÊT</button>
+</div>
+
+<!-- Sections dynamiques -->
+<div class="sections-wrap" id="sections">
+  <div class="placeholder">Sélectionne une locomotive pour commencer.</div>
+</div>
+
+<!-- Pied de page -->
+<div class="footer" id="footer">lignenouvelle.local</div>
+
+</div><!-- /container -->
+
+<script>
+// ─── Config ────────────────────────────────────────────────────────────────
+const BASE = '../sounds/';
+
+const SECTIONS_DEF = [
+  { id:'conduite',      label:'Conduite',                   num:1 },
+  { id:'avertisseurs',  label:'Avertisseurs et portières',  num:2 },
+  { id:'equipements',   label:'Équipements de bord',        num:3 },
+  { id:'annonce',       label:'Annonces en gare',           num:4 },
+];
+
+const EXCLUSIVE = new Set(['avertisseurs','annonce']);
+
+// ─── État ──────────────────────────────────────────────────────────────────
+let audioCtx   = null;
+let masterGain = null;
+const activePlayers  = {}; // sonId → player instance
+const exclusiveGroup = {}; // groupeId → sonId actif
+
+// ─── Audio init ────────────────────────────────────────────────────────────
+function ensureAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.8;
+  masterGain.connect(audioCtx.destination);
+}
+
+// ─── Volume ────────────────────────────────────────────────────────────────
+const volEl    = document.getElementById('volume');
+const volLabel = document.getElementById('volLabel');
+volEl.addEventListener('input', () => {
+  volLabel.textContent = volEl.value;
+  if (masterGain) masterGain.gain.value = volEl.value / 100;
+});
+
+// ─── Arrêt général ─────────────────────────────────────────────────────────
+document.getElementById('stopAll').addEventListener('click', () => {
+  ensureAudio();
+  Object.keys(activePlayers).forEach(hardStopById);
+});
+
+// ─── Chargement liste locos ────────────────────────────────────────────────
+async function initLocos() {
+  const locos = await fetchJSON(BASE + 'locos.json');
+  const sel = document.getElementById('locoSelect');
+  locos.forEach(l => {
+    const o = document.createElement('option');
+    o.value = l.id;
+    o.textContent = l.nom;
+    sel.appendChild(o);
+  });
+  sel.addEventListener('change', () => {
+    if (sel.value) loadLoco(sel.value);
+  });
+}
+
+// ─── Chargement d'une loco ─────────────────────────────────────────────────
+async function loadLoco(id) {
+  Object.keys(activePlayers).forEach(hardStopById);
+
+  document.getElementById('sections').innerHTML =
+    '<div class="placeholder">Chargement…</div>';
+
+  const jsonFile = id === 'TGV' ? 'sons_player.json' : 'sons.json';
+  const sons = await fetchJSON(BASE + id + '/' + jsonFile);
+
+  renderSections(id, sons);
+  document.getElementById('footer').textContent =
+    sons.length + ' sons · ' + id;
+}
+
+// ─── Rendu des 4 sections ──────────────────────────────────────────────────
+function renderSections(locoId, sons) {
+  const wrap = document.getElementById('sections');
+  wrap.innerHTML = '';
+
+  SECTIONS_DEF.forEach(sec => {
+    const list = sons.filter(s => s.groupe === sec.id);
+    if (!list.length) return;
+
+    const secEl = document.createElement('div');
+    secEl.className = 'section sec-' + sec.id;
+    secEl.innerHTML =
+      '<div class="section-hdr">' +
+        '<div class="section-num">' + sec.num + '</div>' +
+        '<div class="section-title">' + sec.label + '</div>' +
+      '</div>';
+
+    const grid = document.createElement('div');
+    grid.className = 'btn-grid cols1';
+    list.forEach(son => grid.appendChild(makeBtn(locoId, son)));
+    secEl.appendChild(grid);
+    wrap.appendChild(secEl);
+  });
+}
+
+// ─── Bouton ────────────────────────────────────────────────────────────────
+function makeBtn(locoId, son) {
+  const btn = document.createElement('button');
+  btn.className = 'sound-btn';
+  btn.id = 'btn-' + son.id;
+
+  // Barre de séquence (uniquement pour les sons à étapes multiples)
+  let seqBarHtml = '';
+  if (son.type === 'sequence' && son.etapes && son.etapes.length > 1) {
+    const frags = son.etapes.map((e, i) =>
+      (i > 0 ? '<span class="seq-sep"></span>' : '') +
+      '<span class="seq-step future" data-i="' + i + '">' + escHtml(e.lbl || '·') + '</span>'
+    ).join('');
+    seqBarHtml = '<span class="seq-bar">' + frags + '</span>';
+  }
+
+  btn.innerHTML =
+    '<span class="btn-label">' + escHtml(son.label) + '</span>' +
+    '<span class="btn-status">EN COURS</span>' +
+    seqBarHtml;
+
+  btn.addEventListener('click', () => {
+    ensureAudio();
+    const p = activePlayers[son.id];
+    if (p) {
+      if (p.state === 'looping') {
+        // En boucle → avancer vers l'étape suivante (sortie propre)
+        p.advance();
+      } else {
+        // En lecture one-shot ou fin → arrêt brutal
+        hardStopById(son.id);
+      }
+    } else {
+      // Arrêté → démarrer
+      if (EXCLUSIVE.has(son.groupe) && exclusiveGroup[son.groupe]) {
+        hardStopById(exclusiveGroup[son.groupe]);
+      }
+      playSound(locoId, son);
+    }
+  });
+  return btn;
+}
+
+// ─── Lecture ───────────────────────────────────────────────────────────────
+async function playSound(locoId, son) {
+  const btn = document.getElementById('btn-' + son.id);
+
+  if (son.type === 'sequence') {
+    const player = new SeqPlayer({
+      locoId, son, ctx: audioCtx, gain: masterGain,
+      onEnd: () => {
+        delete activePlayers[son.id];
+        if (exclusiveGroup[son.groupe] === son.id) delete exclusiveGroup[son.groupe];
+        setBtnState(btn, 'idle');
+      },
+      onStep: (label, isLoop) => {
+        setBtnState(btn, isLoop ? 'loop' : 'active', label);
+      },
+    });
+    activePlayers[son.id] = player;
+    if (EXCLUSIVE.has(son.groupe)) exclusiveGroup[son.groupe] = son.id;
+    setBtnState(btn, 'active', '…');
+    player.start();
+
+  } else {
+    const url = BASE + locoId + '/' + son.id + '.wav';
+    let buf;
+    try {
+      const ab = await fetch(url).then(r => r.arrayBuffer());
+      buf = await audioCtx.decodeAudioData(ab);
+    } catch (e) {
+      console.warn('Erreur chargement:', url);
+      return;
+    }
+    const src = audioCtx.createBufferSource();
+    src.buffer = buf;
+    src.loop = !!son.boucle;
+    src.connect(masterGain);
+    src.start();
+
+    // SimplePlayer compatible avec hardStopById
+    const sp = {
+      state: son.boucle ? 'looping' : 'once',
+      stop:  () => { try { src.stop(); } catch(_){} },
+    };
+    activePlayers[son.id] = sp;
+    if (EXCLUSIVE.has(son.groupe)) exclusiveGroup[son.groupe] = son.id;
+    setBtnState(btn, son.boucle ? 'loop' : 'active');
+
+    if (!son.boucle) {
+      src.onended = () => {
+        if (!activePlayers[son.id]) return;
+        delete activePlayers[son.id];
+        if (exclusiveGroup[son.groupe] === son.id) delete exclusiveGroup[son.groupe];
+        setBtnState(btn, 'idle');
+      };
+    }
+  }
+}
+
+// ─── Arrêt brutal ──────────────────────────────────────────────────────────
+function hardStopById(id) {
+  const p = activePlayers[id];
+  if (p) {
+    if (typeof p.hardStop === 'function') p.hardStop();
+    else p.stop();
+    delete activePlayers[id];
+  }
+  const btn = document.getElementById('btn-' + id);
+  if (btn) setBtnState(btn, 'idle');
+}
+
+// ─── État visuel ───────────────────────────────────────────────────────────
+function setBtnState(btn, state, detail) {
+  btn.classList.remove('is-active', 'is-loop');
+  const st = btn.querySelector('.btn-status');
+  if (state === 'active') {
+    btn.classList.add('is-active');
+    st.textContent = detail || 'EN COURS';
+  } else if (state === 'loop') {
+    btn.classList.add('is-loop');
+    st.textContent = (detail ? detail + ' · ' : '') + '↺ clic pour avancer';
+  }
+}
+
+// ─── SeqPlayer ─────────────────────────────────────────────────────────────
+// Logique : start → joue les étapes "once" en chaîne, s'arrête sur "loop"
+//           advance() → sort proprement de la boucle courante (step++)
+//           hardStop() → arrêt immédiat
+class SeqPlayer {
+  constructor({ locoId, son, ctx, gain, onEnd, onStep }) {
+    this.locoId = locoId;
+    this.son    = son;
+    this.ctx    = ctx;
+    this.gain   = gain;
+    this.onEnd  = onEnd;
+    this.onStep = onStep;
+
+    this.state  = 'loading'; // loading | once | looping | stopping
+    this.step   = 0;
+    this._src   = null;
+    this._bufs  = null;
+  }
+
+  async start() {
+    if (!this._bufs) {
+      this._bufs = await Promise.all(this.son.etapes.map(e => {
+        const url = BASE + this.locoId + '/' + e.son;
+        return fetch(url)
+          .then(r => r.arrayBuffer())
+          .then(ab => this.ctx.decodeAudioData(ab))
+          .catch(() => null);
+      }));
+    }
+    if (this.state !== 'loading') return; // hardStop pendant le chargement
+    this.step = 0;
+    this._playStep();
+  }
+
+  _playStep() {
+    const etapes = this.son.etapes;
+    if (this.step >= etapes.length) { this._done(); return; }
+
+    const e    = etapes[this.step];
+    const buf  = this._bufs?.[this.step];
+    const last = this.step === etapes.length - 1;
+
+    if (!buf) { this.step++; this._playStep(); return; }
+
+    this._stopSrc();
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(this.gain);
+    this._src = src;
+
+    const label = e.son.replace('.wav','').replace(/_/g,' ');
+
+    if (e.type === 'loop') {
+      this.state = 'looping';
+      src.loop = true;
+      src.start();
+      this._syncBar();
+      this.onStep(label, true);
+    } else {
+      this.state = last ? 'stopping' : 'once';
+      src.loop = false;
+      src.start();
+      src.onended = () => { this.step++; this._playStep(); };
+      this._syncBar();
+      this.onStep(label, false);
+    }
+  }
+
+  _stopSrc() {
+    if (this._src) {
+      this._src.onended = null;
+      try { this._src.stop(); } catch(_) {}
+      this._src = null;
+    }
+  }
+
+  _syncBar() {
+    const btn = document.getElementById('btn-' + this.son.id);
+    if (!btn) return;
+    btn.querySelectorAll('.seq-step').forEach(el => {
+      const i = +el.dataset.i;
+      el.classList.remove('cur', 'past', 'future');
+      if      (i === this.step) el.classList.add('cur');
+      else if (i <  this.step)  el.classList.add('past');
+      else                      el.classList.add('future');
+    });
+  }
+
+  // Sortie propre d'une boucle → joue les étapes suivantes jusqu'à la fin
+  advance() {
+    this._stopSrc();
+    this.step++;
+    this._playStep();
+  }
+
+  // Arrêt immédiat
+  hardStop() {
+    this.state = 'stopped';
+    this._stopSrc();
+  }
+
+  stop() { this.hardStop(); }
+
+  _done() {
+    this.state = 'stopped';
+    this.step  = 0;
+    this.onEnd();
+  }
+}
+
+// ─── Utilitaires ──────────────────────────────────────────────────────────
+async function fetchJSON(url) {
+  return fetch(url).then(r => r.json());
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+initLocos();
+</script>
+</body>
+</html>

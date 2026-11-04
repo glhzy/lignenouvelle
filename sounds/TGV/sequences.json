@@ -1,0 +1,167 @@
+[
+  {
+    "id": "moteur_marche",
+    "label": "Mise en traction",
+    "section": "conduite",
+    "etapes": [
+      {"son": "moteur_1_demarrage.wav",  "type": "once"},
+      {"son": "moteur_2_montee.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "drive_cycle",
+    "label": "Cycle de marche",
+    "section": "conduite",
+    "etapes": [
+      {"son": "drive_1_demarrage.wav", "type": "once"},
+      {"son": "drive_2_lent.wav",      "type": "loop"},
+      {"son": "drive_3_acceleration.wav", "type": "once"},
+      {"son": "drive_4_rapide.wav",    "type": "loop"},
+      {"son": "drive_5_deceleration.wav", "type": "once"},
+      {"son": "drive_6_lent2.wav",     "type": "loop"},
+      {"son": "drive_7_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "noise_low",
+    "label": "Bruit de roulement",
+    "section": "conduite",
+    "etapes": [
+      {"son": "noise_1_demarrage.wav", "type": "once"},
+      {"son": "noise_2_lent.wav",      "type": "loop"},
+      {"son": "noise_3_montee.wav",    "type": "once"},
+      {"son": "noise_4_rapide.wav",    "type": "loop"},
+      {"son": "noise_5_descente.wav",  "type": "once"},
+      {"son": "noise_6_lent2.wav",     "type": "loop"},
+      {"son": "noise_7_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "crissement",
+    "label": "Crissement de bandage",
+    "section": "conduite",
+    "etapes": [
+      {"son": "crissement_demarrage.wav", "type": "once"},
+      {"son": "crissement.wav",           "type": "loop"},
+      {"son": "crissement_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "moteur_ralenti",
+    "label": "Coupure de traction",
+    "section": "conduite",
+    "etapes": [
+      {"son": "moteur_3_transition.wav", "type": "once"},
+      {"son": "moteur_4_ralenti.wav",    "type": "loop"},
+      {"son": "moteur_5_arret.wav",      "type": "once"}
+    ]
+  },
+  {
+    "id": "frein",
+    "label": "Serrage du frein",
+    "section": "conduite",
+    "etapes": [
+      {"son": "frein_init.wav", "type": "once"},
+      {"son": "frein_loop.wav", "type": "loop"},
+      {"son": "frein_exit.wav", "type": "once"}
+    ]
+  },
+  {
+    "id": "frein_leve",
+    "label": "Desserrage du frein",
+    "section": "conduite",
+    "etapes": [
+      {"son": "frein_leve.wav", "type": "once"}
+    ]
+  },
+  {
+    "id": "airhorn_quai",
+    "label": "Avertisseur — départ",
+    "section": "avertisseurs",
+    "etapes": [{"son": "airhorn_quai.wav", "type": "once"}]
+  },
+  {
+    "id": "airhorn_tunnel",
+    "label": "Avertisseur — tunnel",
+    "section": "avertisseurs",
+    "etapes": [{"son": "airhorn_tunnel.wav", "type": "once"}]
+  },
+  {
+    "id": "sifflet_conducteur",
+    "label": "Sifflet de manœuvre",
+    "section": "avertisseurs",
+    "etapes": [{"son": "sifflet_conducteur.wav", "type": "once"}]
+  },
+  {
+    "id": "porte_ouverture",
+    "label": "Ouverture des portières",
+    "section": "avertisseurs",
+    "etapes": [{"son": "porte_ouverture.wav", "type": "once"}]
+  },
+  {
+    "id": "porte_fermeture",
+    "label": "Fermeture des portières",
+    "section": "avertisseurs",
+    "etapes": [{"son": "porte_fermeture.wav", "type": "once"}]
+  },
+  {
+    "id": "compresseur",
+    "label": "Groupe moto-compresseur",
+    "section": "equipements",
+    "etapes": [
+      {"son": "compresseur_demarrage.wav", "type": "once"},
+      {"son": "compresseur.wav",           "type": "loop"},
+      {"son": "compresseur_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "compresseur2",
+    "label": "Compresseur 2e groupe",
+    "section": "equipements",
+    "etapes": [
+      {"son": "compresseur2_demarrage.wav", "type": "once"},
+      {"son": "compresseur2.wav",           "type": "loop"},
+      {"son": "compresseur2_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "ventilateur",
+    "label": "Ventilateur de refroidissement",
+    "section": "equipements",
+    "etapes": [
+      {"son": "ventilateur_demarrage.wav", "type": "once"},
+      {"son": "ventilateur.wav",           "type": "loop"},
+      {"son": "ventilateur_arret.wav",     "type": "once"}
+    ]
+  },
+  {
+    "id": "annonce_tgv_1",
+    "label": "Passage — alerte voie",
+    "section": "annonces",
+    "etapes": [{"son": "annonce_tgv_1.wav", "type": "once"}]
+  },
+  {
+    "id": "annonce_tgv_2",
+    "label": "Départ — Paris GdL (voie 1)",
+    "section": "annonces",
+    "etapes": [{"son": "annonce_tgv_2.wav", "type": "once"}]
+  },
+  {
+    "id": "annonce_tgv_3",
+    "label": "Départ — Paris-Montparnasse",
+    "section": "annonces",
+    "etapes": [{"son": "annonce_tgv_3.wav", "type": "once"}]
+  },
+  {
+    "id": "annonce_tgv_4",
+    "label": "Départ — Figueras (voie 13)",
+    "section": "annonces",
+    "etapes": [{"son": "annonce_tgv_4.wav", "type": "once"}]
+  },
+  {
+    "id": "annonce_tgv_5",
+    "label": "Arrivée — Brest / Rennes",
+    "section": "annonces",
+    "etapes": [{"son": "annonce_tgv_5.wav", "type": "once"}]
+  }
+]

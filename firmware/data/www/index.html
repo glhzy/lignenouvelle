@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>La ligne nouvelle</title>
+<style>
+@font-face {
+  font-family: 'PoliceSNCF';
+  src: url('/fonts/PoliceSNCF.woff') format('woff');
+  font-weight: normal; font-style: normal;
+}
+@font-face {
+  font-family: 'UniversLT';
+  src: url('/fonts/UniversLTStd55.woff') format('woff');
+  font-weight: normal; font-style: normal;
+}
+
+:root {
+  --bleu:    #1B2A49;
+  --papier:  #F4F1E8;
+  --gris:    #D8D5CA;
+  --orange:  #E8761A;
+  --rouge:   #C8102E;
+  --encre:   #14203A;
+  --c-cond:  #5C6BC0;
+  --c-avert: #C8102E;
+  --c-equip: #2D7D46;
+  --c-ann:   #E8761A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--papier);
+  color: var(--bleu);
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+.container { max-width: 480px; margin: 0 auto; }
+
+/* ── En-tête ── */
+.header {
+  background: var(--bleu);
+  padding: 14px 18px 10px;
+}
+.header h1 {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 22px;
+  color: white;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.header-stripe {
+  height: 4px;
+  background: var(--orange);
+  margin: 8px -18px 0;
+}
+
+/* Sélecteur de loco */
+.loco-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.loco-bar label {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: rgba(255,255,255,.6);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.loco-select {
+  flex: 1;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: white;
+  padding: 7px 10px;
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 14px;
+  border-radius: 3px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+.loco-select option { background: var(--bleu); color: white; }
+
+/* ── Barre de contrôles ── */
+.controls {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid var(--gris);
+}
+.volume-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.volume-row span {
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 13px;
+  color: var(--bleu);
+  min-width: 44px;
+}
+input[type=range] {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  background: var(--gris);
+  border-radius: 2px;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px; height: 16px;
+  background: var(--bleu);
+  border-radius: 50%;
+}
+.stop-btn {
+  background: var(--rouge);
+  color: white;
+  border: none;
+  padding: 0 18px;
+  height: 44px;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: .08em;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.stop-btn:active { opacity: .85; }
+
+/* ── Sections ── */
+.sections-wrap { padding-bottom: 2rem; }
+
+.section {
+  padding: 14px 18px 16px;
+  border-bottom: 1px solid var(--gris);
+}
+.section:last-child { border-bottom: none; }
+
+.section-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.section-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  color: white;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 12px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--bleu);
+}
+
+.sec-conduite    .section-num { background: var(--c-cond); }
+.sec-avertisseurs .section-num { background: var(--c-avert); }
+.sec-equipements .section-num { background: var(--c-equip); }
+.sec-annonce     .section-num { background: var(--c-ann); }
+
+/* Grille 1 colonne */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* ── Boutons grisés pendant le chargement ── */
+.sections-loading .sound-btn {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* ── Bouton son ── */
+.sound-btn {
+  background: white;
+  border: 2px solid var(--bleu);
+  color: var(--bleu);
+  padding: 8px 30px 8px 10px;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 3px;
+  min-height: 44px;
+  font-family: 'UniversLT', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.3;
+  position: relative;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.btn-label { display: block; }
+.btn-status {
+  display: none;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 9px;
+  letter-spacing: .08em;
+  margin-top: 3px;
+}
+
+/* Triangle play */
+.sound-btn::after {
+  content: '';
+  position: absolute;
+  right: 9px; top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid var(--bleu);
+}
+
+/* Actif (one-shot) */
+.sound-btn.is-active {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: white;
+}
+.sound-btn.is-active .btn-status { display: block; color: rgba(255,255,255,.85); }
+.sound-btn.is-active::after { border-left-color: white; }
+
+/* En boucle */
+.sound-btn.is-loop {
+  background: var(--c-cond);
+  border-color: var(--c-cond);
+  color: white;
+}
+.sound-btn.is-loop .btn-status { display: block; color: rgba(255,255,255,.85); }
+.sound-btn.is-loop::after {
+  right: 8px;
+  border: none;
+  width: 9px; height: 9px;
+  border: 2px solid white;
+  transform: translateY(-50%) rotate(0deg);
+}
+
+/* ── Bannière de chargement ── */
+.loading-bar {
+  display: none;
+  background: var(--orange);
+  color: white;
+  text-align: center;
+  padding: 8px;
+  font-family: 'PoliceSNCF', Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+.loading-bar.visible { display: block; }
+
+/* ── État vide / chargement ── */
+.placeholder {
+  padding: 2.5rem 18px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+}
+
+/* ── Pied de page ── */
+.footer {
+  padding: 10px 18px;
+  font-size: 11px;
+  color: #999;
+  border-top: 1px solid var(--gris);
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="loading-bar" id="loadingBar">CHARGEMENT EN COURS…</div>
+
+<header class="header">
+  <h1>La ligne nouvelle</h1>
+  <div class="loco-bar">
+    <label for="locoSelect">Loco</label>
+    <select class="loco-select" id="locoSelect">
+      <option value="">— Choisir une locomotive —</option>
+    </select>
+  </div>
+  <div class="header-stripe"></div>
+</header>
+
+<div class="controls">
+  <div class="volume-row">
+    <span>Volume</span>
+    <input type="range" id="volume" min="0" max="100" value="70">
+    <span id="volLabel">70</span>
+  </div>
+  <button class="stop-btn" id="stopAll">ARRÊT</button>
+</div>
+
+<div class="sections-wrap" id="sections">
+  <div class="placeholder">Sélectionne une locomotive pour commencer.</div>
+</div>
+
+<div class="footer" id="footer">lignenouvelle.local</div>
+
+</div>
+
+<script>
+const SECTIONS_DEF = [
+  { id:'conduite',      label:'Conduite',                   num:1 },
+  { id:'avertisseurs',  label:'Avertisseurs et portières',  num:2 },
+  { id:'equipements',   label:'Équipements de bord',        num:3 },
+  { id:'annonce',       label:'Annonces en gare',           num:4 },
+];
+
+const volEl    = document.getElementById('volume');
+const volLabel = document.getElementById('volLabel');
+
+let pollTimer  = null;
+let sonMap     = {};  // id → son (pour savoir si boucle)
+let currentVoie = 1;
+
+// ─── Init ──────────────────────────────────────────────────────────────────
+async function init() {
+  // État initial : volume + loco active
+  const state = await fetchJSON('/api/state').catch(() => null);
+  if (state) {
+    const v = state.volume ?? 70;
+    volEl.value  = v;
+    volLabel.textContent = v;
+  }
+
+  const locos = await fetchJSON('/api/locos').catch(() => []);
+  const sel = document.getElementById('locoSelect');
+  locos.filter(l => l.disponible).forEach(l => {
+    const o = document.createElement('option');
+    o.value = l.id;
+    o.textContent = l.nom;
+    sel.appendChild(o);
+  });
+
+  // Pré-sélectionner la loco courante du firmware
+  if (state) {
+    const locoId = state.voie1?.loco;
+    if (locoId) {
+      sel.value = locoId;
+      await loadLoco(locoId, false);
+    }
+  }
+
+  sel.addEventListener('change', () => {
+    if (sel.value) loadLoco(sel.value, true);
+  });
+}
+
+// ─── Chargement loco ──────────────────────────────────────────────────────
+async function loadLoco(id, changeFirmware) {
+  if (pollTimer) clearInterval(pollTimer);
+  document.getElementById('sections').innerHTML =
+    '<div class="placeholder">Chargement…</div>';
+
+  const locos = await fetchJSON('/api/locos').catch(() => []);
+  const loco  = locos.find(l => l.id === id);
+  // sons_firmware : fichier dédié firmware (ex. TGV sons.json au lieu de sons_player.json)
+  const jsonPath = '/sounds/' + (loco?.sons_firmware || loco?.sons || id + '/sons.json');
+
+  let sons = await fetchJSON(jsonPath).catch(() => []);
+  // Garder uniquement les sons disponibles et non-séquences
+  sons = sons.filter(s => s.disponible !== false && (!s.type || s.type !== 'sequence'));
+
+  sonMap = {};
+  sons.forEach(s => { sonMap[s.id] = s; });
+
+  if (changeFirmware) {
+    await apiPost('/api/stop');
+    await apiPost('/api/loco?voie=' + currentVoie + '&id=' + encodeURIComponent(id));
+  }
+
+  renderSections(sons);
+  document.getElementById('footer').textContent =
+    sons.length + ' sons · ' + id;
+
+  pollTimer = setInterval(syncState, 2000);
+  syncState();
+}
+
+// ─── Rendu sections ────────────────────────────────────────────────────────
+function renderSections(sons) {
+  const wrap = document.getElementById('sections');
+  wrap.innerHTML = '';
+  SECTIONS_DEF.forEach(sec => {
+    const list = sons.filter(s => s.groupe === sec.id);
+    if (!list.length) return;
+    const secEl = document.createElement('div');
+    secEl.className = 'section sec-' + sec.id;
+    secEl.innerHTML =
+      '<div class="section-hdr">' +
+        '<div class="section-num">' + sec.num + '</div>' +
+        '<div class="section-title">' + sec.label + '</div>' +
+      '</div>';
+    const grid = document.createElement('div');
+    grid.className = 'btn-grid';
+    list.forEach(son => grid.appendChild(makeBtn(son)));
+    secEl.appendChild(grid);
+    wrap.appendChild(secEl);
+  });
+}
+
+// ─── Bouton ────────────────────────────────────────────────────────────────
+function makeBtn(son) {
+  const btn = document.createElement('button');
+  btn.className = 'sound-btn';
+  btn.id = 'btn-' + son.id;
+  btn.innerHTML =
+    '<span class="btn-label">' + escHtml(son.label) + '</span>' +
+    '<span class="btn-status">EN COURS</span>';
+
+  btn.addEventListener('click', () => {
+    const active = btn.classList.contains('is-active') ||
+                   btn.classList.contains('is-loop');
+    if (active) {
+      apiPost('/api/stop?voie=' + currentVoie + '&sound=' + encodeURIComponent(son.id));
+      setBtnState(btn, 'idle');
+    } else {
+      apiPost('/api/play?voie=' + currentVoie + '&sound=' + encodeURIComponent(son.id));
+      setBtnState(btn, son.boucle ? 'loop' : 'active');
+    }
+  });
+  return btn;
+}
+
+// ─── Polling état ──────────────────────────────────────────────────────────
+async function syncState() {
+  const state = await fetchJSON('/api/state').catch(() => null);
+  if (!state) return;
+
+  // Indicateur de chargement
+  const bar  = document.getElementById('loadingBar');
+  const wrap = document.getElementById('sections');
+  if (state.loading) {
+    bar.classList.add('visible');
+    wrap.classList.add('sections-loading');
+    // Polling rapide pendant le chargement
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(syncState, 500); }
+  } else {
+    if (bar.classList.contains('visible')) {
+      bar.classList.remove('visible');
+      wrap.classList.remove('sections-loading');
+      // Revenir au polling normal
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(syncState, 2000); }
+    }
+  }
+
+  const voie   = currentVoie === 1 ? state.voie1 : state.voie2;
+  const playing = new Set(voie?.playing || []);
+  document.querySelectorAll('.sound-btn').forEach(btn => {
+    const id = btn.id.replace('btn-', '');
+    const son = sonMap[id];
+    if (!son) return;
+    const isPlaying = playing.has(id);
+    setBtnState(btn, isPlaying ? (son.boucle ? 'loop' : 'active') : 'idle');
+  });
+}
+
+// ─── Volume ────────────────────────────────────────────────────────────────
+let volDebounce = null;
+volEl.addEventListener('input', () => {
+  volLabel.textContent = volEl.value;
+  clearTimeout(volDebounce);
+  volDebounce = setTimeout(() => {
+    apiPost('/api/volume?v=' + volEl.value);
+  }, 150);
+});
+
+// ─── Arrêt général ─────────────────────────────────────────────────────────
+document.getElementById('stopAll').addEventListener('click', () => {
+  apiPost('/api/stop');
+  document.querySelectorAll('.sound-btn').forEach(btn => setBtnState(btn, 'idle'));
+});
+
+// ─── État visuel bouton ────────────────────────────────────────────────────
+function setBtnState(btn, state) {
+  btn.classList.remove('is-active', 'is-loop');
+  const st = btn.querySelector('.btn-status');
+  if (state === 'active') {
+    btn.classList.add('is-active');
+    st.textContent = 'EN COURS';
+  } else if (state === 'loop') {
+    btn.classList.add('is-loop');
+    st.textContent = '↺ clic pour arrêter';
+  }
+}
+
+// ─── Utilitaires ──────────────────────────────────────────────────────────
+async function apiPost(url) {
+  return fetch(url, { method: 'POST' }).catch(() => null);
+}
+async function fetchJSON(url) {
+  return fetch(url).then(r => r.json());
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+init();
+</script>
+</body>
+</html>
