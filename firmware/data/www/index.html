@@ -1,515 +1,554 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>La ligne nouvelle</title>
 <style>
-@font-face {
-  font-family: 'PoliceSNCF';
-  src: url('/fonts/PoliceSNCF.woff') format('woff');
-  font-weight: normal; font-style: normal;
-}
-@font-face {
-  font-family: 'UniversLT';
-  src: url('/fonts/UniversLTStd55.woff') format('woff');
-  font-weight: normal; font-style: normal;
-}
+@font-face{font-family:"PoliceSNCF";src:url('/fonts/PoliceSNCF.woff') format('woff')}
+@font-face{font-family:"Univers LT Std";src:url('/fonts/UniversLTStd55.woff') format('woff')}
 
-:root {
-  --bleu:    #1B2A49;
-  --papier:  #F4F1E8;
-  --gris:    #D8D5CA;
-  --orange:  #E8761A;
-  --rouge:   #C8102E;
-  --encre:   #14203A;
-  --c-cond:  #5C6BC0;
-  --c-avert: #C8102E;
-  --c-equip: #2D7D46;
-  --c-ann:   #E8761A;
+:root{
+  --bleu:#1B2A49; --papier:#F4F1E8; --gris:#D8D5CA;
+  --orange:#E8761A; --rouge:#C8102E; --encre:#14203A;
+  --c-cond:#5C6BC0; --c-avert:#C8102E; --c-equip:#2D7D46; --c-ann:#E8761A;
 }
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  background: var(--papier);
-  color: var(--bleu);
-  font-family: 'UniversLT', Arial, sans-serif;
-  font-size: 14px;
-  min-height: 100vh;
-}
-
-.container { max-width: 480px; margin: 0 auto; }
+*{box-sizing:border-box}
+body{margin:0;background:#E4E1D8}
+.pg{max-width:480px;margin:0 auto;background:var(--papier);
+    font-family:"Univers LT Std",Univers,"Helvetica Neue",Arial,sans-serif;
+    color:var(--encre);padding-bottom:32px}
 
 /* ── En-tête ── */
-.header {
-  background: var(--bleu);
-  padding: 14px 18px 10px;
-}
-.header h1 {
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 22px;
-  color: white;
-  letter-spacing: .05em;
-  margin-bottom: 10px;
-}
-.header-stripe {
-  height: 4px;
-  background: var(--orange);
-  margin: 8px -18px 0;
-}
+.hd{background:var(--bleu);color:#fff;padding:18px 18px 14px;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.hd-left small{display:block;font-family:"PoliceSNCF";font-size:12px;
+               letter-spacing:.12em;text-transform:uppercase;color:#F2A65A;margin-bottom:4px}
+.hd-left h1{margin:0;font-family:"PoliceSNCF";font-size:24px;font-weight:400;
+            letter-spacing:.03em;text-transform:uppercase;line-height:1}
+/* ── Carousel locos ── */
+.loco-carousel{display:flex;overflow-x:auto;
+               scroll-snap-type:x mandatory;gap:8px;padding:10px 0 12px;
+               scrollbar-width:none;margin-top:10px}
+.loco-carousel::-webkit-scrollbar{display:none}
+.loco-card{flex:0 0 auto;scroll-snap-align:center;background:#fff;
+           border:2px solid transparent;border-radius:4px;
+           padding:5px 7px 3px;cursor:pointer;text-align:center;
+           -webkit-tap-highlight-color:transparent;user-select:none;
+           transition:border-color .12s;
+           display:flex;flex-direction:column;justify-content:flex-end}
+.loco-card.active{border-color:var(--orange);background:var(--orange)}
+.loco-card.active .lc-name{color:#fff}
+.loco-card img{display:block;height:auto;max-width:100%;image-rendering:pixelated}
+.loco-card .lc-name{font-family:"PoliceSNCF";font-size:9px;letter-spacing:.05em;
+                    text-transform:uppercase;color:var(--encre);margin-top:3px;
+                    white-space:nowrap}
+/* couleur du nom et du cadre par type de traction */
+.loco-card[data-type="vapeur"]     {border-color:#7B4F2E}
+.loco-card[data-type="diesel"]     {border-color:#B87800}
+.loco-card[data-type="électrique"] {border-color:#2D67A8}
+.loco-card[data-type="tgv"]        {border-color:#E8761A}
+.loco-card[data-type="vapeur"]     .lc-name{color:#7B4F2E}
+.loco-card[data-type="diesel"]     .lc-name{color:#B87800}
+.loco-card[data-type="électrique"] .lc-name{color:#2D67A8}
+.loco-card[data-type="tgv"]        .lc-name{color:#E8761A}
+/* séparateur entre groupes */
+.car-sep{flex:0 0 2px;align-self:stretch;margin:6px 0;border-radius:1px;
+         background:var(--gc,#888);opacity:.55}
+.stripe{height:8px;background:var(--orange)}
 
-/* Sélecteur de loco */
-.loco-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.loco-bar label {
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: .08em;
-  color: rgba(255,255,255,.6);
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-.loco-select {
-  flex: 1;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.25);
-  color: white;
-  padding: 7px 10px;
-  font-family: 'UniversLT', Arial, sans-serif;
-  font-size: 14px;
-  border-radius: 3px;
-  cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,.5)'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
-}
-.loco-select option { background: var(--bleu); color: white; }
-
-/* ── Barre de contrôles ── */
-.controls {
-  padding: 10px 18px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 2px solid var(--gris);
-}
-.volume-row {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.volume-row span {
-  font-family: 'UniversLT', Arial, sans-serif;
-  font-size: 13px;
-  color: var(--bleu);
-  min-width: 44px;
-}
-input[type=range] {
-  flex: 1;
-  height: 4px;
-  appearance: none;
-  background: var(--gris);
-  border-radius: 2px;
-  cursor: pointer;
-}
-input[type=range]::-webkit-slider-thumb {
-  appearance: none;
-  width: 16px; height: 16px;
-  background: var(--bleu);
-  border-radius: 50%;
-}
-.stop-btn {
-  background: var(--rouge);
-  color: white;
-  border: none;
-  padding: 0 18px;
-  height: 44px;
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 13px;
-  letter-spacing: .08em;
-  border-radius: 3px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.stop-btn:active { opacity: .85; }
+/* ── Corps ── */
+.bd{padding:18px 16px 0}
+.vol-lbl{display:block;font-family:"PoliceSNCF";font-size:16px;letter-spacing:.06em;
+         text-transform:uppercase;margin-bottom:4px}
+.vol-lbl b{float:right;letter-spacing:0}
+.rg{width:100%;height:44px;accent-color:var(--orange);margin:0 0 2px;cursor:pointer}
+.stop-btn{width:100%;min-height:54px;border:0;background:var(--rouge);color:#fff;
+          font:400 20px "PoliceSNCF",sans-serif;letter-spacing:.06em;text-transform:uppercase;
+          display:flex;align-items:center;justify-content:center;gap:12px;
+          margin:8px 0 4px;cursor:pointer}
+.stop-btn span{width:14px;height:14px;background:#fff;display:block;flex-shrink:0}
 
 /* ── Sections ── */
-.sections-wrap { padding-bottom: 2rem; }
+.sec{margin-top:22px}
+.sh{display:flex;align-items:center;background:var(--bleu);color:#fff;
+    padding:0 14px 0 0;min-height:44px}
+.sh em{font-style:normal;font-family:"PoliceSNCF";font-size:26px;
+       width:44px;height:44px;display:flex;align-items:center;justify-content:center;
+       background:#fff;color:var(--bleu);flex-shrink:0}
+.sh h2{margin:0 0 0 12px;font-family:"PoliceSNCF";font-size:16px;font-weight:400;
+       letter-spacing:.06em;text-transform:uppercase}
 
-.section {
-  padding: 14px 18px 16px;
-  border-bottom: 1px solid var(--gris);
-}
-.section:last-child { border-bottom: none; }
+/* Carrés colorés par section */
+.sec-conduite    .sh em{background:var(--c-cond);  color:#fff}
+.sec-avertisseurs .sh em{background:var(--c-avert);color:#fff}
+.sec-equipements  .sh em{background:var(--c-equip);color:#fff}
+.sec-annonce      .sh em{background:var(--c-ann);  color:#fff}
 
-.section-hdr {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.section-num {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  color: white;
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 13px;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.section-title {
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 12px;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-  color: var(--bleu);
-}
+.gr{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
 
-.sec-conduite    .section-num { background: var(--c-cond); }
-.sec-avertisseurs .section-num { background: var(--c-avert); }
-.sec-equipements .section-num { background: var(--c-equip); }
-.sec-annonce     .section-num { background: var(--c-ann); }
+/* ── Tuile bouton ── */
+.t{min-height:64px;border:2px solid var(--bleu);background:#fff;color:var(--encre);
+   font:400 14px/1.2 "Univers LT Std",sans-serif;text-align:left;
+   padding:9px 10px 8px;display:flex;flex-direction:column;
+   justify-content:space-between;gap:4px;
+   cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;
+   transition:background .12s}
+.t.w{min-height:64px;flex-direction:row;
+     align-items:center;gap:10px;padding:0 12px;justify-content:flex-start;
+     flex-wrap:wrap;align-content:center}
+/* triangle play */
+.arr{width:0;height:0;
+     border-left:11px solid var(--bleu);
+     border-top:7px solid transparent;
+     border-bottom:7px solid transparent;
+     flex-shrink:0;margin-left:auto}
+.t.on .arr{border-left-color:var(--encre)}
+/* états */
+.t.on{background:var(--orange)}
+.t.busy{opacity:.65}
+.t.busy .arr{display:none}
 
-/* Grille 1 colonne */
-.btn-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
+/* ── Barre de séquence ── */
+.seq-bar{display:none;align-items:center;gap:3px;margin-top:2px;flex-wrap:wrap;overflow:visible}
+.t.w .seq-bar{flex-basis:100%;margin:4px 0 6px;justify-content:flex-start;flex-wrap:wrap}
 
-/* ── Boutons grisés pendant le chargement ── */
-.sections-loading .sound-btn {
-  opacity: 0.35;
-  pointer-events: none;
-}
+.step{height:20px;border-radius:2px;display:flex;align-items:center;justify-content:center;
+      font-family:"PoliceSNCF";font-size:10px;letter-spacing:.03em;white-space:nowrap;
+      border:1.5px solid rgba(20,32,58,.35);background:rgba(255,255,255,.25);
+      color:rgba(20,32,58,.7);padding:0 4px;flex-shrink:0;transition:all .12s}
+.step.type-once{min-width:16px;padding:0 3px}
+.step.type-loop{min-width:28px}
+.step.cur{background:#fff;color:var(--encre);border-color:var(--encre);
+          font-size:11px;box-shadow:0 0 0 1px var(--encre)}
+.step.past{background:rgba(20,32,58,.18);border-color:rgba(20,32,58,.25);
+           color:rgba(20,32,58,.45)}
+.step.future{background:transparent;border-color:rgba(20,32,58,.2);color:rgba(20,32,58,.3)}
+.step-sep{width:4px;height:1.5px;background:rgba(20,32,58,.2);flex-shrink:0}
+.step.past + .step-sep{background:rgba(20,32,58,.18)}
 
-/* ── Bouton son ── */
-.sound-btn {
-  background: white;
-  border: 2px solid var(--bleu);
-  color: var(--bleu);
-  padding: 8px 30px 8px 10px;
-  text-align: left;
-  cursor: pointer;
-  border-radius: 3px;
-  min-height: 44px;
-  font-family: 'UniversLT', Arial, sans-serif;
-  font-size: 13px;
-  line-height: 1.3;
-  position: relative;
-  transition: background .12s, color .12s, border-color .12s;
-}
-.btn-label { display: block; }
-.btn-status {
-  display: none;
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 9px;
-  letter-spacing: .08em;
-  margin-top: 3px;
-}
-
-/* Triangle play */
-.sound-btn::after {
-  content: '';
-  position: absolute;
-  right: 9px; top: 50%;
-  transform: translateY(-50%);
-  width: 0; height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
-  border-left: 8px solid var(--bleu);
-}
-
-/* Actif (one-shot) */
-.sound-btn.is-active {
-  background: var(--orange);
-  border-color: var(--orange);
-  color: white;
-}
-.sound-btn.is-active .btn-status { display: block; color: rgba(255,255,255,.85); }
-.sound-btn.is-active::after { border-left-color: white; }
-
-/* En boucle */
-.sound-btn.is-loop {
-  background: var(--c-cond);
-  border-color: var(--c-cond);
-  color: white;
-}
-.sound-btn.is-loop .btn-status { display: block; color: rgba(255,255,255,.85); }
-.sound-btn.is-loop::after {
-  right: 8px;
-  border: none;
-  width: 9px; height: 9px;
-  border: 2px solid white;
-  transform: translateY(-50%) rotate(0deg);
-}
-
-/* ── Bannière de chargement ── */
-.loading-bar {
-  display: none;
-  background: var(--orange);
-  color: white;
-  text-align: center;
-  padding: 8px;
-  font-family: 'PoliceSNCF', Arial, sans-serif;
-  font-size: 11px;
-  letter-spacing: .08em;
-}
-.loading-bar.visible { display: block; }
-
-/* ── État vide / chargement ── */
-.placeholder {
-  padding: 2.5rem 18px;
-  text-align: center;
-  color: #999;
-  font-size: 14px;
-}
+/* ── Automatismes ── */
+.auto-panel{margin-top:14px;border:2px solid var(--bleu);background:#fff}
+.auto-hd{background:var(--bleu);color:#fff;padding:0 14px;min-height:36px;
+          display:flex;align-items:center;
+          font-family:"PoliceSNCF";font-size:14px;letter-spacing:.06em;text-transform:uppercase}
+.auto-row{display:flex;align-items:center;gap:10px;padding:8px 12px;
+           border-top:1px solid var(--gris)}
+.auto-row:first-of-type{border-top:none}
+.auto-lbl{font-size:13px;flex:1;min-width:80px}
+.auto-tog{min-height:36px;min-width:54px;border:2px solid var(--bleu);background:#fff;
+          color:var(--encre);font-family:"PoliceSNCF";font-size:12px;letter-spacing:.06em;
+          text-transform:uppercase;cursor:pointer;padding:0 8px;flex-shrink:0;
+          transition:background .12s}
+.auto-tog.on{background:var(--orange);border-color:var(--orange);color:#fff}
+.auto-freq{flex:1;height:36px;border:2px solid var(--gris);background:#fff;
+           font-family:"Univers LT Std",Arial,sans-serif;font-size:13px;color:var(--encre);
+           padding:0 6px;cursor:pointer}
 
 /* ── Pied de page ── */
-.footer {
-  padding: 10px 18px;
-  font-size: 11px;
-  color: #999;
-  border-top: 1px solid var(--gris);
-  text-align: center;
-}
+.ft{margin:22px 16px 0;padding-top:10px;border-top:2px solid var(--gris);
+    font-size:12px;display:flex;justify-content:space-between;color:#3A4560}
+
+/* ── Placeholder ── */
+.placeholder{padding:2.5rem 16px;text-align:center;color:#999;font-size:14px}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="pg">
 
-<div class="loading-bar" id="loadingBar">CHARGEMENT EN COURS…</div>
-
-<header class="header">
-  <h1>La ligne nouvelle</h1>
-  <div class="loco-bar">
-    <label for="locoSelect">Loco</label>
-    <select class="loco-select" id="locoSelect">
-      <option value="">— Choisir une locomotive —</option>
-    </select>
+<div class="hd">
+  <div class="hd-left">
+    <small id="hd-sub">Lignenouvelle</small>
+    <h1>Séquences sonores</h1>
   </div>
-  <div class="header-stripe"></div>
-</header>
+</div>
+<div class="stripe"></div>
 
-<div class="controls">
-  <div class="volume-row">
-    <span>Volume</span>
-    <input type="range" id="volume" min="0" max="100" value="70">
-    <span id="volLabel">70</span>
+<div class="bd">
+  <label class="vol-lbl" for="vol">Volume <b id="vol-val">70 %</b></label>
+  <input class="rg" type="range" id="vol" min="0" max="100" value="70">
+  <button class="stop-btn" id="btn-stop"><span></span>Arrêt général</button>
+
+  <div class="loco-carousel" id="loco-carousel"></div>
+
+  <div class="auto-panel">
+    <div class="auto-hd">Automatismes</div>
+    <div class="auto-row">
+      <span class="auto-lbl">Annonces</span>
+      <button class="auto-tog" id="auto-annonce" onclick="autoToggle('annonce')">Off</button>
+      <select class="auto-freq" id="freq-annonce">
+        <option value="300,900">~10 min</option>
+        <option value="120,360" selected>~4 min</option>
+        <option value="60,120">~1 min</option>
+        <option value="20,60">~40 s</option>
+        <option value="10,20">~15 s</option>
+      </select>
+    </div>
+    <div class="auto-row">
+      <span class="auto-lbl">Ambiances</span>
+      <button class="auto-tog" id="auto-ambiance" onclick="autoToggle('ambiance')">Off</button>
+      <select class="auto-freq" id="freq-ambiance">
+        <option value="300,900">~10 min</option>
+        <option value="120,360" selected>~4 min</option>
+        <option value="60,120">~1 min</option>
+        <option value="20,60">~40 s</option>
+        <option value="10,20">~15 s</option>
+      </select>
+    </div>
   </div>
-  <button class="stop-btn" id="stopAll">ARRÊT</button>
+
+  <div id="secs-wrap">
+    <div class="placeholder">Chargement…</div>
+  </div>
+
+  <div class="ft">
+    <span id="ft-loco">—</span>
+    <span id="ft-status">En attente</span>
+  </div>
 </div>
 
-<div class="sections-wrap" id="sections">
-  <div class="placeholder">Sélectionne une locomotive pour commencer.</div>
-</div>
-
-<div class="footer" id="footer">lignenouvelle.local</div>
-
-</div>
+</div><!-- .pg -->
 
 <script>
-const SECTIONS_DEF = [
-  { id:'conduite',      label:'Conduite',                   num:1 },
-  { id:'avertisseurs',  label:'Avertisseurs et portières',  num:2 },
-  { id:'equipements',   label:'Équipements de bord',        num:3 },
-  { id:'annonce',       label:'Annonces en gare',           num:4 },
+'use strict';
+
+const SECTIONS = [
+  {id:'conduite',      label:'Conduite',                  num:1},
+  {id:'avertisseurs',  label:'Avertisseurs et portières', num:2},
+  {id:'equipements',   label:'Équipements de bord',       num:3},
+  {id:'annonce',       label:'Annonces en gare',          num:4},
 ];
 
-const volEl    = document.getElementById('volume');
-const volLabel = document.getElementById('volLabel');
-
-let pollTimer  = null;
-let sonMap     = {};  // id → son (pour savoir si boucle)
 let currentVoie = 1;
+let players     = {};   // seq_id → SeqPlayer
+let pollTimer   = null;
 
-// ─── Init ──────────────────────────────────────────────────────────────────
-async function init() {
-  // État initial : volume + loco active
-  const state = await fetchJSON('/api/state').catch(() => null);
-  if (state) {
-    const v = state.volume ?? 70;
-    volEl.value  = v;
-    volLabel.textContent = v;
+// ─── Utilitaires REST ──────────────────────────────────────────────────────
+async function apiPost(url) { return fetch(url,{method:'POST'}).catch(()=>null); }
+async function fetchJSON(url) { return fetch(url).then(r=>{ if(!r.ok)throw r; return r.json(); }); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ─── SeqPlayer ─────────────────────────────────────────────────────────────
+class SeqPlayer {
+  constructor(id, seqDef, btn) {
+    this.id    = id;
+    this.seq   = seqDef;   // {id,label,groupe,etapes:[{son,type,lbl}]}
+    this.btn   = btn;
+    this.state = "stopped"; // stopped | once | looping | stopping
+    this.step  = 0;
+    this._buildBar();
+    btn.addEventListener("click", () => this.press());
   }
 
-  const locos = await fetchJSON('/api/locos').catch(() => []);
-  const sel = document.getElementById('locoSelect');
-  locos.filter(l => l.disponible).forEach(l => {
-    const o = document.createElement('option');
-    o.value = l.id;
-    o.textContent = l.nom;
-    sel.appendChild(o);
-  });
+  press() {
+    if      (this.state === "stopped") this._start();
+    else if (this.state === "looping") this._advance();
+    // "once" / "stopping" : ignorer (auto-avance firmware, ou bouton Arrêt)
+  }
 
-  // Pré-sélectionner la loco courante du firmware
-  if (state) {
-    const locoId = state.voie1?.loco;
-    if (locoId) {
-      sel.value = locoId;
-      await loadLoco(locoId, false);
+  _start() {
+    apiPost(`/api/seq?voie=${currentVoie}&id=${encodeURIComponent(this.id)}`);
+    this.step  = 0;
+    const e    = this.seq.etapes[0];
+    this.state = e ? (e.type === "loop" ? "looping" : "once") : "stopped";
+    this._ui();
+  }
+
+  _advance() {
+    apiPost(`/api/seq/next?voie=${currentVoie}`);
+    this.step++;
+    if (this.step >= this.seq.etapes.length) {
+      this.state = "stopped"; this.step = 0;
+    } else {
+      const e    = this.seq.etapes[this.step];
+      this.state = e.type === "loop" ? "looping" : "once";
+    }
+    this._ui();
+  }
+
+  _forceDone() { this.state = "stopped"; this.step = 0; this._ui(); }
+
+  // Sync depuis /api/state (polling)
+  syncFrom(seqInfo) {
+    if (!seqInfo || seqInfo.id !== this.id) {
+      if (this.state !== "stopped") { this.state = "stopped"; this.step = 0; this._ui(); }
+      return;
+    }
+    const newState = seqInfo.loop ? "looping" : "once";
+    if (this.step !== seqInfo.step || this.state !== newState) {
+      this.step  = seqInfo.step;
+      this.state = newState;
+      this._ui();
     }
   }
 
-  sel.addEventListener('change', () => {
-    if (sel.value) loadLoco(sel.value, true);
+  _buildBar() {
+    const bar = this.btn.querySelector(".seq-bar");
+    if (!bar) return;
+    const frags = [];
+    this.seq.etapes.forEach((e, i) => {
+      if (i > 0) frags.push('<span class="step-sep"></span>');
+      frags.push(`<span class="step type-${e.type} future" data-i="${i}">${escHtml(e.lbl)}</span>`);
+    });
+    bar.innerHTML = frags.join("");
+  }
+
+  _syncBar() {
+    const bar = this.btn.querySelector(".seq-bar");
+    if (!bar) return;
+    bar.querySelectorAll(".step").forEach(el => {
+      const i = +el.dataset.i;
+      el.classList.remove("cur","past","future");
+      if      (i === this.step) el.classList.add("cur");
+      else if (i <  this.step)  el.classList.add("past");
+      else                      el.classList.add("future");
+    });
+  }
+
+  _ui() {
+    const btn = this.btn;
+    const bar = btn.querySelector(".seq-bar");
+    const arr = btn.querySelector(".arr");
+    btn.classList.remove("on","busy");
+
+    if (this.state === "stopped") {
+      if (bar) bar.style.display = "none";
+      if (arr) arr.style.display = "";
+    } else {
+      if (bar) { bar.style.display = "flex"; this._syncBar(); }
+      if (arr) arr.style.display = "none";
+      btn.classList.add("on");
+      if (this.state === "once" || this.state === "stopping")
+        btn.classList.add("busy");
+    }
+    _updateFooter();
+  }
+}
+
+// ─── Carousel locos ───────────────────────────────────────────────────────
+const GROUP_ORDER = ['vapeur','diesel','électrique','tgv'];
+const GROUP_COLOR = {vapeur:'#7B4F2E',diesel:'#B87800','électrique':'#2D67A8',tgv:'#E8761A'};
+function locoType(l){ return l.id==='TGV' ? 'tgv' : (l.type||'électrique'); }
+
+function buildCarousel(locos, activeId) {
+  const car = document.getElementById("loco-carousel");
+  car.innerHTML = "";
+
+  const sorted = [...locos].sort((a,b) =>
+    GROUP_ORDER.indexOf(locoType(a)) - GROUP_ORDER.indexOf(locoType(b)));
+
+  let prevGrp = null;
+  sorted.forEach(loco => {
+    const grp = locoType(loco);
+    if (prevGrp !== null && grp !== prevGrp) {
+      const sep = document.createElement("div");
+      sep.className = "car-sep";
+      sep.style.setProperty("--gc", GROUP_COLOR[grp]);
+      car.appendChild(sep);
+    }
+    prevGrp = grp;
+
+    const card = document.createElement("div");
+    card.className = "loco-card" + (loco.id === activeId ? " active" : "");
+    card.dataset.id   = loco.id;
+    card.dataset.type = grp;
+    card.innerHTML =
+      `<img src="/img/locos/${loco.id}.gif" alt="${escHtml(loco.nom||loco.id)}" onerror="this.style.display='none'">` +
+      `<div class="lc-name">${escHtml(loco.nom||loco.id)}</div>`;
+    card.addEventListener("click", () => {
+      if (card.classList.contains("active")) return;
+      const loco2 = locos.find(l => l.id === loco.id);
+      if (loco2) loadLoco(loco2, true);
+    });
+    car.appendChild(card);
   });
+
+  const active = car.querySelector(".active");
+  if (active) active.scrollIntoView({inline:"center",behavior:"instant"});
+}
+
+function setActiveCard(locoId) {
+  const car = document.getElementById("loco-carousel");
+  if (!car) return;
+  car.querySelectorAll(".loco-card").forEach(c =>
+    c.classList.toggle("active", c.dataset.id === locoId));
+  const active = car.querySelector(".active");
+  if (active) active.scrollIntoView({inline:"center",behavior:"smooth"});
+}
+
+function _updateFooter() {
+  const active = Object.values(players)
+    .filter(p => p.state !== "stopped")
+    .map(p => p.seq.label);
+  document.getElementById("ft-status").textContent =
+    active.length ? active.join(" · ") : "En attente";
+}
+
+// ─── Chargement séquences ─────────────────────────────────────────────────
+async function loadSeqs(loco) {
+  // Essaie sons_player.json (TGV et futures locos avec séquences multi-étapes)
+  let seqs = await fetchJSON(`/sounds/${loco.id}/sons_player.json`).catch(() => null);
+  if (seqs && Array.isArray(seqs) && seqs.length) return seqs;
+
+  // Fallback : générer séquences 1-étape depuis la liste de sons
+  const rel  = loco.sons_firmware || loco.sons || `${loco.id}/sons.json`;
+  const flat = await fetchJSON(`/sounds/${rel}`).catch(() => []);
+  return flat
+    .filter(s => s.disponible !== false && s.type !== 'sequence')
+    .map(s => ({
+      id:     s.id,
+      label:  s.label || s.id,
+      groupe: s.groupe || '',
+      etapes: [{
+        son:  s.id,
+        type: s.boucle ? 'loop' : 'once',
+        lbl:  s.boucle ? '↺' : 'ANON'
+      }]
+    }));
+}
+
+// ─── Rendu ────────────────────────────────────────────────────────────────
+function renderSections(seqs, locoId) {
+  const wrap = document.getElementById("secs-wrap");
+  wrap.innerHTML = "";
+
+  SECTIONS.forEach(sec => {
+    const list = seqs.filter(s => s.groupe === sec.id);
+    if (!list.length) return;
+
+    const secEl = document.createElement("div");
+    secEl.className = `sec sec-${sec.id}`;
+    secEl.innerHTML =
+      `<div class="sh"><em>${sec.num}</em><h2>${escHtml(sec.label)}</h2></div>` +
+      `<div class="gr"></div>`;
+    const gr = secEl.querySelector(".gr");
+
+    list.forEach(seqDef => {
+      const multi = seqDef.etapes.length > 1;
+      const btn   = document.createElement("button");
+      btn.className = multi ? "t w" : "t";
+      btn.innerHTML =
+        `<span class="lbl">${escHtml(seqDef.label)}</span>` +
+        `<div class="seq-bar"></div>` +
+        `<span class="arr"></span>`;
+
+      gr.appendChild(btn);
+      players[seqDef.id] = new SeqPlayer(seqDef.id, seqDef, btn);
+    });
+
+    wrap.appendChild(secEl);
+  });
+
+  const total = seqs.length;
+  document.getElementById("ft-loco").textContent = `${total} sons · ${locoId}`;
+}
+
+// ─── Polling état ─────────────────────────────────────────────────────────
+async function syncState() {
+  const state = await fetchJSON('/api/state').catch(() => null);
+  if (!state) return;
+
+  const voieKey  = `voie${currentVoie}`;
+  const seqInfo  = state[voieKey]?.seq;  // {id,step,steps,loop} ou undefined
+
+  Object.values(players).forEach(p => p.syncFrom(seqInfo));
+
+  // Synchronise le panneau automatismes
+  _syncAutoPanel(state.auto);
+
+  // Synchronise le volume si modifié depuis une autre source
+  const srv = state.volume ?? null;
+  if (srv !== null) {
+    const el = document.getElementById("vol");
+    if (Math.abs(+el.value - srv) > 1) {
+      el.value = srv;
+      document.getElementById("vol-val").textContent = `${srv} %`;
+    }
+  }
+}
+
+// ─── Automatismes ─────────────────────────────────────────────────────────────
+function autoToggle(groupe) {
+  const btn = document.getElementById('auto-' + groupe);
+  const sel = document.getElementById('freq-' + groupe);
+  const on  = !btn.classList.contains('on');
+  const [mn, mx] = sel.value.split(',');
+  apiPost(`/api/auto?groupe=${groupe}&on=${on?1:0}&min=${mn}&max=${mx}`);
+  btn.classList.toggle('on', on);
+  btn.textContent = on ? 'On' : 'Off';
+}
+
+function _syncAutoPanel(autoState) {
+  if (!autoState) return;
+  for (const grp of ['annonce', 'ambiance']) {
+    const info = autoState[grp];
+    if (!info) continue;
+    const btn = document.getElementById('auto-' + grp);
+    const sel = document.getElementById('freq-' + grp);
+    if (!btn || !sel) continue;
+    btn.classList.toggle('on', !!info.on);
+    btn.textContent = info.on ? 'On' : 'Off';
+    const target = `${info.min},${info.max}`;
+    if ([...sel.options].some(o => o.value === target)) sel.value = target;
+  }
 }
 
 // ─── Chargement loco ──────────────────────────────────────────────────────
-async function loadLoco(id, changeFirmware) {
-  if (pollTimer) clearInterval(pollTimer);
-  document.getElementById('sections').innerHTML =
+async function loadLoco(loco, changeFirmware) {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  players = {};
+  document.getElementById("secs-wrap").innerHTML =
     '<div class="placeholder">Chargement…</div>';
-
-  const locos = await fetchJSON('/api/locos').catch(() => []);
-  const loco  = locos.find(l => l.id === id);
-  // sons_firmware : fichier dédié firmware (ex. TGV sons.json au lieu de sons_player.json)
-  const jsonPath = '/sounds/' + (loco?.sons_firmware || loco?.sons || id + '/sons.json');
-
-  let sons = await fetchJSON(jsonPath).catch(() => []);
-  // Garder uniquement les sons disponibles et non-séquences
-  sons = sons.filter(s => s.disponible !== false && (!s.type || s.type !== 'sequence'));
-
-  sonMap = {};
-  sons.forEach(s => { sonMap[s.id] = s; });
+  setActiveCard(loco.id);
 
   if (changeFirmware) {
     await apiPost('/api/stop');
-    await apiPost('/api/loco?voie=' + currentVoie + '&id=' + encodeURIComponent(id));
+    await apiPost(`/api/loco?voie=${currentVoie}&id=${encodeURIComponent(loco.id)}`);
   }
 
-  renderSections(sons);
-  document.getElementById('footer').textContent =
-    sons.length + ' sons · ' + id;
+  const seqs = await loadSeqs(loco);
+  renderSections(seqs, loco.id);
 
   pollTimer = setInterval(syncState, 2000);
   syncState();
 }
 
-// ─── Rendu sections ────────────────────────────────────────────────────────
-function renderSections(sons) {
-  const wrap = document.getElementById('sections');
-  wrap.innerHTML = '';
-  SECTIONS_DEF.forEach(sec => {
-    const list = sons.filter(s => s.groupe === sec.id);
-    if (!list.length) return;
-    const secEl = document.createElement('div');
-    secEl.className = 'section sec-' + sec.id;
-    secEl.innerHTML =
-      '<div class="section-hdr">' +
-        '<div class="section-num">' + sec.num + '</div>' +
-        '<div class="section-title">' + sec.label + '</div>' +
-      '</div>';
-    const grid = document.createElement('div');
-    grid.className = 'btn-grid';
-    list.forEach(son => grid.appendChild(makeBtn(son)));
-    secEl.appendChild(grid);
-    wrap.appendChild(secEl);
-  });
-}
-
-// ─── Bouton ────────────────────────────────────────────────────────────────
-function makeBtn(son) {
-  const btn = document.createElement('button');
-  btn.className = 'sound-btn';
-  btn.id = 'btn-' + son.id;
-  btn.innerHTML =
-    '<span class="btn-label">' + escHtml(son.label) + '</span>' +
-    '<span class="btn-status">EN COURS</span>';
-
-  btn.addEventListener('click', () => {
-    const active = btn.classList.contains('is-active') ||
-                   btn.classList.contains('is-loop');
-    if (active) {
-      apiPost('/api/stop?voie=' + currentVoie + '&sound=' + encodeURIComponent(son.id));
-      setBtnState(btn, 'idle');
-    } else {
-      apiPost('/api/play?voie=' + currentVoie + '&sound=' + encodeURIComponent(son.id));
-      setBtnState(btn, son.boucle ? 'loop' : 'active');
-    }
-  });
-  return btn;
-}
-
-// ─── Polling état ──────────────────────────────────────────────────────────
-async function syncState() {
-  const state = await fetchJSON('/api/state').catch(() => null);
-  if (!state) return;
-
-  // Indicateur de chargement
-  const bar  = document.getElementById('loadingBar');
-  const wrap = document.getElementById('sections');
-  if (state.loading) {
-    bar.classList.add('visible');
-    wrap.classList.add('sections-loading');
-    // Polling rapide pendant le chargement
-    if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(syncState, 500); }
-  } else {
-    if (bar.classList.contains('visible')) {
-      bar.classList.remove('visible');
-      wrap.classList.remove('sections-loading');
-      // Revenir au polling normal
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = setInterval(syncState, 2000); }
-    }
-  }
-
-  const voie   = currentVoie === 1 ? state.voie1 : state.voie2;
-  const playing = new Set(voie?.playing || []);
-  document.querySelectorAll('.sound-btn').forEach(btn => {
-    const id = btn.id.replace('btn-', '');
-    const son = sonMap[id];
-    if (!son) return;
-    const isPlaying = playing.has(id);
-    setBtnState(btn, isPlaying ? (son.boucle ? 'loop' : 'active') : 'idle');
-  });
-}
-
-// ─── Volume ────────────────────────────────────────────────────────────────
+// ─── Volume ───────────────────────────────────────────────────────────────
 let volDebounce = null;
-volEl.addEventListener('input', () => {
-  volLabel.textContent = volEl.value;
+document.getElementById("vol").addEventListener("input", function() {
+  document.getElementById("vol-val").textContent = `${this.value} %`;
   clearTimeout(volDebounce);
-  volDebounce = setTimeout(() => {
-    apiPost('/api/volume?v=' + volEl.value);
-  }, 150);
+  volDebounce = setTimeout(() => apiPost(`/api/volume?v=${this.value}`), 150);
 });
 
-// ─── Arrêt général ─────────────────────────────────────────────────────────
-document.getElementById('stopAll').addEventListener('click', () => {
+// ─── Arrêt général ────────────────────────────────────────────────────────
+document.getElementById("btn-stop").addEventListener("click", () => {
   apiPost('/api/stop');
-  document.querySelectorAll('.sound-btn').forEach(btn => setBtnState(btn, 'idle'));
+  Object.values(players).forEach(p => p._forceDone());
 });
 
-// ─── État visuel bouton ────────────────────────────────────────────────────
-function setBtnState(btn, state) {
-  btn.classList.remove('is-active', 'is-loop');
-  const st = btn.querySelector('.btn-status');
-  if (state === 'active') {
-    btn.classList.add('is-active');
-    st.textContent = 'EN COURS';
-  } else if (state === 'loop') {
-    btn.classList.add('is-loop');
-    st.textContent = '↺ clic pour arrêter';
-  }
-}
+// ─── Init ─────────────────────────────────────────────────────────────────
+async function init() {
+  const [state, allLocos] = await Promise.all([
+    fetchJSON('/api/state').catch(() => null),
+    fetchJSON('/api/locos').catch(() => []),
+  ]);
 
-// ─── Utilitaires ──────────────────────────────────────────────────────────
-async function apiPost(url) {
-  return fetch(url, { method: 'POST' }).catch(() => null);
-}
-async function fetchJSON(url) {
-  return fetch(url).then(r => r.json());
-}
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // Automatismes initial
+  if (state?.auto) _syncAutoPanel(state.auto);
+
+  // Volume initial
+  if (state?.volume != null) {
+    document.getElementById("vol").value = state.volume;
+    document.getElementById("vol-val").textContent = `${state.volume} %`;
+  }
+
+  const locos   = allLocos.filter(l => l.disponible !== false);
+  const curId   = state?.voie1?.loco;
+  const curLoco = locos.find(l => l.id === curId);
+
+  buildCarousel(locos, curId);
+  if (curLoco) await loadLoco(curLoco, false);
 }
 
 init();
