@@ -78,7 +78,7 @@ Le haut-parleur se branche sur le bornier vert du MAX98357A.
 ### Compilation et flash
 
 ```bash
-git clone https://github.com/GuillaumeLeheuzey/lignenouvelle.git
+git clone https://github.com/glhzy/lignenouvelle.git
 cd lignenouvelle/firmware
 
 # Compiler et flasher le firmware
