@@ -1,5 +1,6 @@
-// Moteur audio Lignenouvelle
-// Mélangeur 6 voix PCM 22050 Hz mono → I2S stéréo, sons en PSRAM.
+// Moteur audio Lignenouvelle v2 — streaming depuis microSD
+// Mélangeur 6 voix PCM 22050 Hz mono → I2S stéréo
+// Chaque voix active lit depuis la SD via un ring-buffer PSRAM (8 Ko ≈ 185 ms)
 
 #include "audio.h"
 #include "sd_manager.h"
@@ -12,29 +13,45 @@
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
-// ── Constantes ────────────────────────────────────────────────────────────────
+// ── Constantes ─────────────────────────────────────────────────────────────────
 
 #define PIN_BCLK        5
 #define PIN_WS          6
 #define PIN_DOUT        4
 #define SAMPLE_RATE     22050
 #define NUM_VOICES      6
-#define MAX_SOUNDS      32
-#define BLOCK_SIZE      512         // ~23 ms par trame
+#define MAX_SOUNDS      48  // TGV a 45 sons au total (disponible + non-disponible)
+#define BLOCK_SIZE      512
+#define RING_SAMPLES    4096u               // = 8 Ko, doit être une puissance de 2
+#define RING_MASK       (RING_SAMPLES - 1u) // = 4095
+#define RING_REFILL_LO  2048u               // recharge quand avail < 50 %
+#define MAX_SEQS        24                  // séquences par loco
+#define MAX_STEPS       12                  // étapes par séquence
+#define NUM_GROUPS      5                   // groupes de sons connus
+
+static const char* const GROUP_NAMES[NUM_GROUPS] = {
+    "traction", "roulement", "bord", "signaux", "annonce"
+};
+static int group_to_idx(const char* g) {
+    for (int i = 0; i < NUM_GROUPS; i++)
+        if (strcmp(GROUP_NAMES[i], g) == 0) return i;
+    return 0; // fallback traction
+}
 #define FADE_IN_SAMP    (5   * SAMPLE_RATE / 1000)   // 110
 #define FADE_OUT_SAMP   (15  * SAMPLE_RATE / 1000)   // 330
 #define STOP_ALL_SAMP   (100 * SAMPLE_RATE / 1000)   // 2205
 #define VOL_CEILING     0.80f
 
-// ── Structures internes ───────────────────────────────────────────────────────
+// ── Structures ─────────────────────────────────────────────────────────────────
 
 struct SoundDef {
-    char     key[64];       // "CC6500/klaxon_haut"
+    char     key[64];         // "CC6500/klaxon_haut"
     char     id[32];
     char     loco_id[16];
     char     groupe[16];
-    int16_t* samples;       // alloué en PSRAM
-    uint32_t num_samples;
+    char     wav_path[80];    // "/sounds/CC6500/klaxon_haut.wav"
+    uint32_t data_offset;     // offset du chunk "data" dans le fichier
+    uint32_t data_size;       // taille du chunk "data" en octets
     float    base_level;
     bool     loop;
 };
@@ -42,25 +59,57 @@ struct SoundDef {
 typedef enum { VOICE_IDLE = 0, VOICE_PLAYING } VoiceState;
 
 struct Voice {
-    const SoundDef* def;
-    uint32_t        pos;
-    float           vol;
-    float           vol_target;
-    float           fade_step;
-    VoiceState      state;
-    uint8_t         voie;
+    const SoundDef*    def;
+    float              vol;
+    float              vol_target;
+    float              fade_step;
+    volatile VoiceState state;
+    uint8_t            voie;
+
+    // Ring-buffer SPSC (producteur = stream_refill_task, consommateur = mixer)
+    int16_t*           ring_buf;       // RING_SAMPLES int16_t, alloué en PSRAM
+    volatile uint32_t  ring_rd;        // index consommateur
+    volatile uint32_t  ring_wr;        // index producteur
+    File               sd_file;
+    uint32_t           file_pos;       // octets lus dans le chunk data
+    volatile bool      stream_eof;     // fin de données (non-loop)
 };
 
-typedef enum {
-    CMD_PLAY,
-    CMD_STOP,
-    CMD_STOP_ALL,
-    CMD_STOP_VOIE,
-    CMD_VOLUME,
-    CMD_LOCO
-} CmdType;
+// ── Séquenceur ─────────────────────────────────────────────────────────────────
 
-struct LoadReq { uint8_t voie; char loco_id[16]; };
+struct SeqStep { char son[32]; bool loop; };
+
+struct SeqDef {
+    char    id[32];
+    char    groupe[16];
+    SeqStep steps[MAX_STEPS];
+    uint8_t num_steps;
+};
+
+typedef enum { SEQ_IDLE = 0, SEQ_ONCE, SEQ_LOOP } SeqState;
+
+struct VoieSeq {
+    SeqState state;
+    int8_t   seq_idx;  // -1 = aucune
+    uint8_t  step_idx;
+    char     cur_son[32];
+};
+
+// ── Automatismes ───────────────────────────────────────────────────────────────
+
+struct AutoMode {
+    bool     enabled;
+    uint16_t min_s;    // intervalle minimum en secondes
+    uint16_t max_s;    // intervalle maximum en secondes
+    uint8_t  voie;
+    uint32_t next_ms;  // millis() cible du prochain déclenchement (0 = initialiser)
+};
+
+static AutoMode          s_auto[2];   // [0]=annonce  [1]=ambiance
+static const char* const AUTO_GROUPE[2] = {"annonce", "ambiance"};
+
+typedef enum { CMD_PLAY, CMD_STOP, CMD_STOP_ALL, CMD_STOP_VOIE, CMD_VOLUME, CMD_LOCO,
+               CMD_SEQ_START, CMD_SEQ_NEXT } CmdType;
 
 struct AudioCmd {
     CmdType type;
@@ -70,23 +119,23 @@ struct AudioCmd {
     uint8_t volume;
 };
 
-// ── État global ───────────────────────────────────────────────────────────────
+// ── État global ─────────────────────────────────────────────────────────────────
 
 static SoundDef          s_sounds[MAX_SOUNDS];
 static int               s_num_sounds = 0;
 static Voice             s_voices[NUM_VOICES];
 static QueueHandle_t     s_cmd_queue  = NULL;
-static QueueHandle_t     s_load_queue = NULL;
 static i2s_chan_handle_t s_tx         = NULL;
-static volatile float    s_global_vol = 0.49f; // 70% par défaut
+static volatile float    s_global_vol = 0.49f; // 70 % par défaut
 static char              s_loco[2][16] = {"CC6500", "CC6500"};
-static volatile bool     s_loading    = false;
+static SeqDef            s_seqs[MAX_SEQS];
+static int               s_num_seqs   = 0;
+static VoieSeq           s_voie_seq[2][NUM_GROUPS]; // [voie-1][group_idx]
 
-// Buffers de mixage : globaux, utilisés exclusivement par la tâche mélangeur (Core 1).
 static float   s_mix[BLOCK_SIZE];
-static int16_t s_out[BLOCK_SIZE * 2]; // stéréo
+static int16_t s_out[BLOCK_SIZE * 2];
 
-// ── I2S ───────────────────────────────────────────────────────────────────────
+// ── I2S ────────────────────────────────────────────────────────────────────────
 
 static bool i2s_init() {
     i2s_chan_config_t chan_cfg = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
@@ -109,23 +158,22 @@ static bool i2s_init() {
     return i2s_channel_enable(s_tx) == ESP_OK;
 }
 
-// ── Chargement PSRAM ──────────────────────────────────────────────────────────
+// ── Parser en-tête WAV ─────────────────────────────────────────────────────────
+// Lit uniquement l'en-tête pour trouver l'offset et la taille du chunk "data".
+// Parcourt les chunks (LIST, INFO…) jusqu'à trouver "data".
 
-static bool load_wav_to_psram(SoundDef& def, const char* path) {
-    // SD en premier, fallback LittleFS
+static bool parse_wav_header(const char* path, uint32_t* out_offset, uint32_t* out_size) {
     File f = sd_available() ? SD.open(path, FILE_READ) : File();
     if (!f) f = LittleFS.open(path, "r");
     if (!f) return false;
 
-    // En-tête RIFF/WAVE (12 octets)
     uint8_t riff[12];
-    if (f.read(riff, 12) < 12 || memcmp(riff, "RIFF", 4) || memcmp(riff + 8, "WAVE", 4)) {
+    if (f.read(riff, 12) < 12 ||
+        memcmp(riff, "RIFF", 4) || memcmp(riff + 8, "WAVE", 4)) {
         f.close(); return false;
     }
 
-    // Scan des chunks jusqu'à trouver "data"
-    // Certains fichiers ont des chunks LIST (métadonnées) avant "data"
-    uint32_t wav_sr = 0, data_size = 0;
+    uint32_t wav_sr = 0;
     bool found_data = false;
     uint8_t ch[8];
     while (f.read(ch, 8) == 8) {
@@ -134,56 +182,28 @@ static bool load_wav_to_psram(SoundDef& def, const char* path) {
             uint8_t fmt[16] = {};
             uint32_t rd = csz < 16 ? csz : 16;
             f.read(fmt, rd);
-            if (*(uint16_t*)fmt != 1) {          // PCM = 1
-                Serial.printf("[audio] %s : non-PCM\n", path);
-                f.close(); return false;
-            }
+            if (*(uint16_t*)fmt != 1) { f.close(); return false; } // non-PCM
             wav_sr = fmt[4] | (fmt[5]<<8) | (fmt[6]<<16) | (fmt[7]<<24);
             if (csz > 16) f.seek(f.position() + (csz - 16));
         } else if (memcmp(ch, "data", 4) == 0) {
-            data_size = csz;
-            found_data = true;
+            *out_offset = f.position();
+            *out_size   = csz ? csz : (uint32_t)(f.size() - f.position());
+            found_data  = true;
             break;
         } else {
-            // Chunk inconnu (LIST, INFO, …) — sauter
             f.seek(f.position() + csz + (csz & 1));
         }
     }
-
-    if (!found_data) {
-        Serial.printf("[audio] %s : chunk data introuvable\n", path);
-        f.close(); return false;
-    }
-    if (wav_sr != SAMPLE_RATE) {
-        Serial.printf("[audio] %s : sample rate %lu\n", path, (unsigned long)wav_sr);
-        f.close(); return false;
-    }
-    if (data_size == 0) data_size = (uint32_t)(f.size() - f.position());
-
-    def.samples = (int16_t*)ps_malloc(data_size);
-    if (!def.samples) {
-        Serial.printf("[audio] ps_malloc(%lu) échoué : %s\n", (unsigned long)data_size, path);
-        f.close(); return false;
-    }
-
-    // Lecture par tranches de 16 Ko + yield pour laisser le webserver répondre
-    const size_t CHUNK = 16384;
-    size_t got = 0;
-    while (got < data_size) {
-        size_t n = f.read((uint8_t*)def.samples + got,
-                          (data_size - got) < CHUNK ? (data_size - got) : CHUNK);
-        if (n == 0) break;
-        got += n;
-        taskYIELD();
-    }
     f.close();
-    if (got != data_size) { free(def.samples); def.samples = nullptr; return false; }
-    def.num_samples = data_size / 2;
+    if (!found_data || wav_sr != SAMPLE_RATE) return false;
     return true;
 }
 
+// ── Chargement métadonnées loco ───────────────────────────────────────────────
+// Parse sons.json et l'en-tête de chaque WAV (pas de lecture PCM).
+// ~1 ms par fichier × 20 fichiers = ~20 ms total.
+
 static void load_loco_sounds(const char* loco_id) {
-    // Trouver sons.json via locos.json
     char sons_path[64] = {};
     {
         File f = LittleFS.open("/sounds/locos.json", "r");
@@ -193,7 +213,6 @@ static void load_loco_sounds(const char* loco_id) {
         f.close();
         for (JsonObject loco : doc.as<JsonArray>()) {
             if (strcmp(loco["id"] | "", loco_id) == 0) {
-                // Préférer sons_firmware (ex. TGV) puis sons
                 const char* rel = loco["sons_firmware"] | loco["sons"] | "";
                 snprintf(sons_path, sizeof(sons_path), "/sounds/%s", rel);
                 break;
@@ -212,53 +231,150 @@ static void load_loco_sounds(const char* loco_id) {
     f.close();
 
     for (JsonObject son : doc.as<JsonArray>()) {
-        if (!son["disponible"].as<bool>()) continue;
-
-        // Chercher un slot libre
+        // Charger tous les sons, y compris disponible=false : ces sons sont utilisés
+        // dans les séquences sons_player.json. Le filtre "disponible" est une logique
+        // d'affichage (UI/JS), pas une logique firmware.
         int slot = -1;
         for (int i = 0; i < MAX_SOUNDS; i++)
             if (s_sounds[i].key[0] == '\0') { slot = i; break; }
-        if (slot < 0) {
-            Serial.println("[audio] MAX_SOUNDS atteint !");
-            break;
-        }
+        if (slot < 0) { Serial.println("[audio] MAX_SOUNDS atteint"); break; }
 
         SoundDef& def = s_sounds[slot];
         strlcpy(def.id,      son["id"]     | "", sizeof(def.id));
         strlcpy(def.loco_id, loco_id,            sizeof(def.loco_id));
         strlcpy(def.groupe,  son["groupe"] | "", sizeof(def.groupe));
-        snprintf(def.key, sizeof(def.key), "%s/%s", loco_id, def.id);
+        // Copier id dans une variable locale pour éviter l'alias src/dst dans snprintf
+        char id_copy[32];
+        strlcpy(id_copy, def.id, sizeof(id_copy));
+        snprintf(def.key,      sizeof(def.key),      "%s/%s", loco_id, id_copy);
+        snprintf(def.wav_path, sizeof(def.wav_path), "/sounds/%s/%s.wav", loco_id, id_copy);
         def.base_level = son["niveau"] | 0.8f;
         def.loop       = son["boucle"] | false;
-        def.samples    = nullptr;
 
-        char wav[80];
-        snprintf(wav, sizeof(wav), "/sounds/%s/%s.wav", loco_id, def.id);
-
-        if (load_wav_to_psram(def, wav)) {
-            Serial.printf("  %-32s %5lu Ko\n", def.key, (unsigned long)(def.num_samples * 2 / 1024));
+        if (parse_wav_header(def.wav_path, &def.data_offset, &def.data_size)) {
+            Serial.printf("  %-32s  %5lu Ko\n",
+                def.key, (unsigned long)(def.data_size / 1024));
             s_num_sounds++;
         } else {
-            Serial.printf("  [ERREUR] %s\n", wav);
-            memset(&def, 0, sizeof(def)); // Libérer le slot en cas d'échec
+            Serial.printf("  [ERREUR] %s\n", def.wav_path);
+            memset(&def, 0, sizeof(def));
         }
     }
 }
 
-static void unload_loco_sounds(const char* loco_id) {
-    int freed = 0;
-    for (int i = 0; i < MAX_SOUNDS; i++) {
-        SoundDef& def = s_sounds[i];
-        if (def.key[0] == '\0' || strcmp(def.loco_id, loco_id) != 0) continue;
-        if (def.samples) { free(def.samples); }
-        memset(&def, 0, sizeof(def));
-        freed++;
-        s_num_sounds--;
+// ── Chargement séquences loco ─────────────────────────────────────────────────
+// Tente /sounds/<id>/sons_player.json ; sinon génère une séquence 1-étape par son.
+
+static void load_loco_seqs(const char* loco_id) {
+    s_num_seqs = 0;
+    memset(s_seqs, 0, sizeof(s_seqs));
+
+    char path[64];
+    snprintf(path, sizeof(path), "/sounds/%s/sons_player.json", loco_id);
+
+    if (LittleFS.exists(path)) {
+        File f = LittleFS.open(path, "r");
+        if (!f) goto fallback;
+        {
+            JsonDocument doc;
+            deserializeJson(doc, f);
+            f.close();
+            for (JsonObject obj : doc.as<JsonArray>()) {
+                if (s_num_seqs >= MAX_SEQS) break;
+                SeqDef& seq = s_seqs[s_num_seqs];
+                strlcpy(seq.id,     obj["id"]     | "", sizeof(seq.id));
+                strlcpy(seq.groupe, obj["groupe"] | "", sizeof(seq.groupe));
+                seq.num_steps = 0;
+                for (JsonObject e : obj["etapes"].as<JsonArray>()) {
+                    if (seq.num_steps >= MAX_STEPS) break;
+                    SeqStep& st = seq.steps[seq.num_steps];
+                    strlcpy(st.son, e["son"] | "", sizeof(st.son));
+                    // sons_player.json inclut l'extension .wav ; SoundDef.id n'en a pas
+                    size_t slen = strlen(st.son);
+                    if (slen > 4 && strcmp(st.son + slen - 4, ".wav") == 0)
+                        st.son[slen - 4] = '\0';
+                    st.loop = strcmp(e["type"] | "", "loop") == 0;
+                    if (st.son[0]) seq.num_steps++;
+                }
+                if (seq.id[0] && seq.num_steps > 0) s_num_seqs++;
+            }
+        }
+        Serial.printf("[seq] %s : %d séquences (sons_player.json)\n", loco_id, s_num_seqs);
+        return;
     }
-    Serial.printf("[audio] Loco %s déchargée (%d sons)\n", loco_id, freed);
+
+fallback:
+    for (int i = 0; i < MAX_SOUNDS && s_num_seqs < MAX_SEQS; i++) {
+        SoundDef& def = s_sounds[i];
+        if (!def.key[0]) continue;
+        SeqDef& seq = s_seqs[s_num_seqs];
+        strlcpy(seq.id,          def.id,     sizeof(seq.id));
+        strlcpy(seq.groupe,      def.groupe, sizeof(seq.groupe));
+        strlcpy(seq.steps[0].son, def.id,    sizeof(seq.steps[0].son));
+        seq.steps[0].loop = def.loop;
+        seq.num_steps = 1;
+        s_num_seqs++;
+    }
+    Serial.printf("[seq] %s : %d séquences (générées)\n", loco_id, s_num_seqs);
 }
 
-// ── Gestion des voix (appelé depuis la tâche mélangeur uniquement) ───────────
+// ── Ring-buffer helpers ────────────────────────────────────────────────────────
+// SPSC lock-free : ring_rd (consommateur) et ring_wr (producteur) sont des
+// indices uint32_t volatiles qui s'incrémentent librement. L'index réel est
+// obtenu par masquage (& RING_MASK). Les deux côtés ne se marchent jamais
+// dessus tant que ring_avail >= 0 et ring_space >= 0.
+
+static inline uint32_t ring_avail(const Voice& v) {
+    return (v.ring_wr - v.ring_rd) & RING_MASK;
+}
+static inline uint32_t ring_space(const Voice& v) {
+    return RING_SAMPLES - ring_avail(v) - 1u; // -1 : évite l'ambiguïté plein/vide
+}
+
+// Remplit le ring-buffer depuis le fichier SD jusqu'à ce qu'il soit plein.
+// Pour les sons en boucle, repart au début du chunk data en fin de fichier.
+// Appelé depuis voice_open (mixer) ou stream_refill_task.
+static void refill_voice(Voice& v) {
+    if (!v.sd_file || v.stream_eof) return;
+    while (ring_space(v) > 0) {
+        uint32_t wr   = v.ring_wr & RING_MASK;
+        uint32_t lin  = RING_SAMPLES - wr;       // espace linéaire avant wrap
+        uint32_t spc  = ring_space(v);
+        uint32_t n    = (lin < spc) ? lin : spc; // ne pas croiser le bord du buffer
+        if (n > 256) n = 256;                    // max 512 octets par itération SD
+
+        uint32_t remaining = v.def->data_size - v.file_pos;
+        size_t to_read = (size_t)n * 2;
+        if (to_read > remaining) to_read = remaining;
+
+        if (to_read == 0) {
+            if (v.def->loop) {
+                v.sd_file.seek(v.def->data_offset);
+                v.file_pos = 0;
+                continue;
+            } else {
+                v.stream_eof = true;
+                break;
+            }
+        }
+
+        size_t got = v.sd_file.read((uint8_t*)(v.ring_buf + wr), to_read);
+        if (got == 0) {
+            // La carte SD peut rendre 0 octets temporairement (gestion interne).
+            // Ne déclarer EOF que si on a réellement consommé toutes les données.
+            if (v.file_pos >= v.def->data_size) v.stream_eof = true;
+            break; // réessayer au prochain cycle de recharge (20 ms)
+        }
+
+        v.file_pos += got;
+        uint32_t samps = got / 2;
+        // Mettre à jour ring_wr APRÈS l'écriture des données
+        // (le consommateur voit les nouvelles données avant la mise à jour de ring_wr)
+        v.ring_wr = v.ring_wr + samps; // débordement uint32_t intentionnel
+    }
+}
+
+// ── Gestion des voix ──────────────────────────────────────────────────────────
 
 static SoundDef* find_sound(const char* sound_id, uint8_t voie) {
     const char* loco = s_loco[voie - 1];
@@ -277,26 +393,101 @@ static void voice_fade_out(Voice& v, int fade_samp) {
     v.fade_step  = (v.vol > 0.001f) ? (-v.vol / fade_samp) : (-0.001f);
 }
 
-static void stop_exclusive_group(const char* groupe, uint8_t voie) {
-    for (int i = 0; i < NUM_VOICES; i++) {
-        Voice& v = s_voices[i];
-        if (v.state == VOICE_IDLE) continue;
-        if (v.voie != voie) continue;
-        if (strcmp(v.def->groupe, groupe) == 0)
-            voice_fade_out(v, FADE_OUT_SAMP);
+
+static void do_play(const char* sound_id, uint8_t voie); // forward
+
+// ── Helpers séquenceur (appelés depuis mixer_task) ────────────────────────────
+
+static int find_seq(const char* seq_id) {
+    for (int i = 0; i < s_num_seqs; i++)
+        if (strcmp(s_seqs[i].id, seq_id) == 0) return i;
+    return -1;
+}
+
+// Joue l'étape courante (step_idx) ; passe les sons indisponibles.
+// depth protège contre une récursion infinie si toutes les étapes sont indisponibles.
+static void seq_play_step(uint8_t voie, int gi, int depth = 0);
+
+static void seq_advance_internal(uint8_t voie, int gi) {
+    VoieSeq& vs = s_voie_seq[voie - 1][gi];
+    if (vs.seq_idx < 0) return;
+
+    // Arrêter la voix courante avant d'avancer (nécessaire pour les étapes loop encore actives).
+    // No-op si la voix est déjà VOICE_IDLE (auto-avance après fin naturelle d'une étape once).
+    if (vs.cur_son[0]) {
+        for (int i = 0; i < NUM_VOICES; i++) {
+            Voice& v = s_voices[i];
+            if (v.state != VOICE_IDLE && v.voie == voie && v.def &&
+                strcmp(v.def->id, vs.cur_son) == 0)
+                voice_fade_out(v, FADE_OUT_SAMP);
+        }
     }
+    // Vider cur_son AVANT tout stop pour ne pas annuler la séquence dans do_stop
+    vs.cur_son[0] = '\0';
+    vs.step_idx++;
+    seq_play_step(voie, gi);
+}
+
+static void seq_play_step(uint8_t voie, int gi, int depth) {
+    if (depth > MAX_STEPS) return;
+    VoieSeq& vs = s_voie_seq[voie - 1][gi];
+    if (vs.seq_idx < 0 || vs.step_idx >= s_seqs[vs.seq_idx].num_steps) {
+        vs.state   = SEQ_IDLE;
+        vs.seq_idx = -1;
+        return;
+    }
+    SeqDef&  seq  = s_seqs[vs.seq_idx];
+    SeqStep& step = seq.steps[vs.step_idx];
+
+    if (!find_sound(step.son, voie)) {
+        // Son indisponible → passer à l'étape suivante
+        vs.cur_son[0] = '\0';
+        vs.step_idx++;
+        seq_play_step(voie, gi, depth + 1);
+        return;
+    }
+    do_play(step.son, voie);
+    strlcpy(vs.cur_son, step.son, sizeof(vs.cur_son));
+    vs.state = step.loop ? SEQ_LOOP : SEQ_ONCE;
 }
 
 static Voice* alloc_voice() {
     for (int i = 0; i < NUM_VOICES; i++)
         if (s_voices[i].state == VOICE_IDLE) return &s_voices[i];
     // Voler la première voix jouante non bouclée
-    for (int i = 0; i < NUM_VOICES; i++)
-        if (s_voices[i].state == VOICE_PLAYING && !s_voices[i].def->loop) {
-            s_voices[i].state = VOICE_IDLE;
-            return &s_voices[i];
+    for (int i = 0; i < NUM_VOICES; i++) {
+        Voice& v = s_voices[i];
+        if (v.state == VOICE_PLAYING && v.def && !v.def->loop) {
+            if (v.sd_file) v.sd_file.close();
+            v.ring_rd = 0;
+            v.ring_wr = 0;
+            v.state   = VOICE_IDLE;
+            return &v;
         }
+    }
     return nullptr;
+}
+
+// Ouvre le fichier WAV et pré-remplit tout le ring-buffer.
+// Appelé depuis do_play (tâche mélangeur, haute priorité).
+static void voice_open(Voice& v, SoundDef* def) {
+    v.def        = def;
+    v.ring_rd    = 0;
+    v.ring_wr    = 0;
+    v.file_pos   = 0;
+    v.stream_eof = false;
+
+    if (!sd_available()) {
+        Serial.printf("[audio] SD indisponible pour %s\n", def->wav_path);
+        return;
+    }
+    v.sd_file = SD.open(def->wav_path, FILE_READ);
+    if (!v.sd_file) {
+        Serial.printf("[audio] Impossible d'ouvrir %s\n", def->wav_path);
+        return;
+    }
+    v.sd_file.seek(def->data_offset);
+    refill_voice(v); // pré-remplissage complet (~8 Ko, ~5 ms)
 }
 
 static void do_play(const char* sound_id, uint8_t voie) {
@@ -307,15 +498,12 @@ static void do_play(const char* sound_id, uint8_t voie) {
         return;
     }
 
-    // Groupes exclusifs : klaxon et annonce (pas ambiance)
-    if (strcmp(def->groupe, "ambiance") != 0 && def->groupe[0] != '\0')
-        stop_exclusive_group(def->groupe, voie);
-
     Voice* v = alloc_voice();
     if (!v) { Serial.println("[audio] Toutes les voix occupées"); return; }
 
-    v->def        = def;
-    v->pos        = 0;
+    voice_open(*v, def);
+    if (!v->sd_file) return;
+
     v->vol        = 0.0f;
     v->vol_target = def->base_level;
     v->fade_step  = def->base_level / FADE_IN_SAMP;
@@ -326,10 +514,18 @@ static void do_play(const char* sound_id, uint8_t voie) {
 static void do_stop(const char* sound_id, uint8_t voie) {
     for (int i = 0; i < NUM_VOICES; i++) {
         Voice& v = s_voices[i];
-        if (v.state == VOICE_IDLE) continue;
-        if (v.voie != voie) continue;
+        if (v.state == VOICE_IDLE || v.voie != voie || !v.def) continue;
         if (strcmp(v.def->id, sound_id) == 0)
             voice_fade_out(v, FADE_OUT_SAMP);
+    }
+    // Annule le slot de séquence dont cur_son correspond (appel externe)
+    for (int gi = 0; gi < NUM_GROUPS; gi++) {
+        VoieSeq& vs = s_voie_seq[voie - 1][gi];
+        if (vs.cur_son[0] && strcmp(vs.cur_son, sound_id) == 0) {
+            vs.state      = SEQ_IDLE;
+            vs.seq_idx    = -1;
+            vs.cur_son[0] = '\0';
+        }
     }
 }
 
@@ -337,88 +533,164 @@ static void do_stop_all() {
     for (int i = 0; i < NUM_VOICES; i++)
         if (s_voices[i].state != VOICE_IDLE)
             voice_fade_out(s_voices[i], STOP_ALL_SAMP);
+    for (int v = 0; v < 2; v++)
+        for (int gi = 0; gi < NUM_GROUPS; gi++)
+            s_voie_seq[v][gi] = {SEQ_IDLE, -1, 0, ""};
 }
 
 static void do_stop_voie(uint8_t voie) {
     for (int i = 0; i < NUM_VOICES; i++)
         if (s_voices[i].state != VOICE_IDLE && s_voices[i].voie == voie)
             voice_fade_out(s_voices[i], FADE_OUT_SAMP);
+    for (int gi = 0; gi < NUM_GROUPS; gi++)
+        s_voie_seq[voie - 1][gi] = {SEQ_IDLE, -1, 0, ""};
 }
 
-// ── Tâche de chargement asynchrone (Core 1, priorité basse) ──────────────────
+// ── Automatismes — timer aléatoire par groupe ─────────────────────────────────
+// Appelé depuis stream_refill_task (Core 1).  Lit s_sounds sans verrou :
+// la fenêtre de conflit avec CMD_LOCO est négligeable (pire cas : un son manqué).
 
-static void loco_load_task(void*) {
-    LoadReq req;
-    for (;;) {
-        if (xQueueReceive(s_load_queue, &req, portMAX_DELAY) != pdTRUE) continue;
-        s_loading = true;
-        Serial.printf("[audio] Chargement async %s...\n", req.loco_id);
-        load_loco_sounds(req.loco_id);
-        // Activer les deux voies sur la même loco
-        strlcpy(s_loco[0], req.loco_id, sizeof(s_loco[0]));
-        strlcpy(s_loco[1], req.loco_id, sizeof(s_loco[0]));
-        Serial.printf("[audio] → %s OK (%d sons)\n", req.loco_id, s_num_sounds);
-        s_loading = false;
+static void auto_check() {
+    if (!s_cmd_queue) return;
+    uint32_t now = (uint32_t)millis();
+    for (int i = 0; i < 2; i++) {
+        AutoMode& am = s_auto[i];
+        if (!am.enabled) continue;
+        if (am.next_ms == 0) {
+            // Premier tick : choisir un délai initial aléatoire dans [min, max]
+            uint32_t range_ms = (uint32_t)(am.max_s - am.min_s) * 1000;
+            am.next_ms = now + (uint32_t)am.min_s * 1000 +
+                         (range_ms ? esp_random() % range_ms : 0);
+            continue;
+        }
+        if (now < am.next_ms) continue;
+
+        // Collecter les sons disponibles dans ce groupe (locos courantes)
+        int indices[MAX_SOUNDS];
+        int count = 0;
+        for (int j = 0; j < s_num_sounds; j++) {
+            if (s_sounds[j].id[0] &&
+                strcmp(s_sounds[j].groupe, AUTO_GROUPE[i]) == 0)
+                indices[count++] = j;
+        }
+        if (count > 0) {
+            int pick = (int)(esp_random() % (uint32_t)count);
+            AudioCmd cmd = {};
+            cmd.type = CMD_PLAY;
+            cmd.voie = am.voie;
+            strlcpy(cmd.sound_id, s_sounds[indices[pick]].id, sizeof(cmd.sound_id));
+            xQueueSend(s_cmd_queue, &cmd, 0); // non-bloquant
+        }
+        // Planifier le prochain déclenchement
+        uint32_t range_ms = (uint32_t)(am.max_s - am.min_s) * 1000;
+        uint32_t delay_ms = (uint32_t)am.min_s * 1000 +
+                            (range_ms ? esp_random() % range_ms : 0);
+        am.next_ms = now + delay_ms;
     }
 }
 
-// ── Tâche mélangeur (Core 1, priorité haute) ──────────────────────────────────
+// ── Tâche de recharge (Core 1, priorité 3) ────────────────────────────────────
+// Surveille toutes les voix actives et recharge leur ring-buffer quand < 50 %.
+// Ferme les fichiers SD des voix passées en VOICE_IDLE.
+
+static void stream_refill_task(void*) {
+    for (;;) {
+        vTaskDelay(pdMS_TO_TICKS(20));
+        auto_check();
+        for (int i = 0; i < NUM_VOICES; i++) {
+            Voice& v = s_voices[i];
+            if (v.state == VOICE_IDLE) {
+                if (v.sd_file) v.sd_file.close();
+                continue;
+            }
+            if (!v.sd_file || v.stream_eof) continue;
+            if (ring_avail(v) < RING_REFILL_LO) refill_voice(v);
+        }
+    }
+}
+
+// ── Tâche mélangeur (Core 1, priorité 5) ─────────────────────────────────────
 
 static void mixer_task(void*) {
     AudioCmd cmd;
-
     for (;;) {
-        // Traiter les commandes en attente avant chaque trame
+        // Traiter les commandes en attente
         while (xQueueReceive(s_cmd_queue, &cmd, 0) == pdTRUE) {
             switch (cmd.type) {
-                case CMD_PLAY:
-                    do_play(cmd.sound_id, cmd.voie);
-                    break;
-                case CMD_STOP:
-                    do_stop(cmd.sound_id, cmd.voie);
-                    break;
-                case CMD_STOP_ALL:
-                    do_stop_all();
-                    break;
-                case CMD_STOP_VOIE:
-                    do_stop_voie(cmd.voie);
-                    break;
+                case CMD_PLAY:     do_play(cmd.sound_id, cmd.voie); break;
+                case CMD_STOP:     do_stop(cmd.sound_id, cmd.voie); break;
+                case CMD_STOP_ALL: do_stop_all(); break;
+                case CMD_STOP_VOIE:do_stop_voie(cmd.voie); break;
                 case CMD_VOLUME:
-                    // Courbe quadratique : vol = (pct/100)^2
                     s_global_vol = (float)cmd.volume * cmd.volume / 10000.0f;
                     break;
                 case CMD_LOCO: {
-                    const char* new_loco = cmd.loco_id;
-                    if (strcmp(s_loco[0], new_loco) == 0) break; // déjà chargée
-
-                    // Couper toutes les voix
-                    for (int i = 0; i < NUM_VOICES; i++)
+                    if (strcmp(s_loco[0], cmd.loco_id) == 0) break; // déjà chargée
+                    // Couper toutes les voix, séquences, et fermer les fichiers SD
+                    for (int i = 0; i < NUM_VOICES; i++) {
                         s_voices[i].state = VOICE_IDLE;
-
-                    // Effacer les deux voies pendant le chargement
-                    s_loco[0][0] = '\0';
-                    s_loco[1][0] = '\0';
-
-                    // Libérer TOUTE la PSRAM (une seule loco à la fois)
-                    for (int i = 0; i < MAX_SOUNDS; i++) {
-                        if (!s_sounds[i].key[0]) continue;
-                        if (s_sounds[i].samples) free(s_sounds[i].samples);
-                        memset(&s_sounds[i], 0, sizeof(s_sounds[i]));
+                        if (s_voices[i].sd_file) s_voices[i].sd_file.close();
+                        s_voices[i].ring_rd = 0;
+                        s_voices[i].ring_wr = 0;
                     }
+                    for (int v = 0; v < 2; v++)
+                        for (int gi = 0; gi < NUM_GROUPS; gi++)
+                            s_voie_seq[v][gi] = {SEQ_IDLE, -1, 0, ""};
+                    // Effacer les métadonnées
+                    memset(s_sounds, 0, sizeof(s_sounds));
                     s_num_sounds = 0;
-
-                    // Envoyer à la tâche de chargement asynchrone
-                    LoadReq req;
-                    req.voie = 1;
-                    strlcpy(req.loco_id, new_loco, sizeof(req.loco_id));
-                    if (xQueueSend(s_load_queue, &req, 0) != pdTRUE)
-                        Serial.println("[audio] ERREUR : file de chargement pleine");
+                    memset(s_seqs, 0, sizeof(s_seqs));
+                    s_num_seqs = 0;
+                    // Charger les métadonnées de la nouvelle loco (~20 ms — dans la fenêtre DMA)
+                    load_loco_sounds(cmd.loco_id);
+                    load_loco_seqs(cmd.loco_id);
+                    strlcpy(s_loco[0], cmd.loco_id, sizeof(s_loco[0]));
+                    strlcpy(s_loco[1], cmd.loco_id, sizeof(s_loco[1]));
+                    Serial.printf("[audio] Loco : %s (%d sons, %d séq)\n",
+                                  cmd.loco_id, s_num_sounds, s_num_seqs);
+                    break;
+                }
+                case CMD_SEQ_START: {
+                    int idx = find_seq(cmd.sound_id);
+                    if (idx < 0) {
+                        Serial.printf("[seq] Inconnue : %s\n", cmd.sound_id);
+                        break;
+                    }
+                    int gi = group_to_idx(s_seqs[idx].groupe);
+                    VoieSeq& vs = s_voie_seq[cmd.voie - 1][gi];
+                    // Bascule : même séquence déjà active → arrêt du groupe
+                    if (vs.seq_idx == idx && vs.state != SEQ_IDLE) {
+                        for (int i = 0; i < NUM_VOICES; i++) {
+                            Voice& v = s_voices[i];
+                            if (v.state != VOICE_IDLE && v.voie == cmd.voie && v.def &&
+                                strcmp(v.def->groupe, s_seqs[idx].groupe) == 0)
+                                voice_fade_out(v, FADE_OUT_SAMP);
+                        }
+                        vs = {SEQ_IDLE, -1, 0, ""};
+                        break;
+                    }
+                    // Réinitialiser ce slot de groupe uniquement
+                    vs.state      = SEQ_IDLE;
+                    vs.cur_son[0] = '\0';
+                    vs.seq_idx    = idx;
+                    vs.step_idx   = 0;
+                    seq_play_step(cmd.voie, gi);
+                    break;
+                }
+                case CMD_SEQ_NEXT: {
+                    // sound_id contient l'id de la séquence à avancer
+                    int idx = find_seq(cmd.sound_id);
+                    if (idx < 0) break;
+                    int gi = group_to_idx(s_seqs[idx].groupe);
+                    VoieSeq& vs = s_voie_seq[cmd.voie - 1][gi];
+                    if (vs.state == SEQ_LOOP && vs.seq_idx == idx)
+                        seq_advance_internal(cmd.voie, gi);
                     break;
                 }
             }
         }
 
-        // ── Mixage ────────────────────────────────────────────────────────────
+        // ── Mixage ──────────────────────────────────────────────────────────────
         memset(s_mix, 0, sizeof(s_mix));
 
         for (int vi = 0; vi < NUM_VOICES; vi++) {
@@ -429,33 +701,45 @@ static void mixer_task(void*) {
                 // Fondu
                 if (v.fade_step != 0.0f) {
                     v.vol += v.fade_step;
-                    if (v.fade_step > 0.0f) {
-                        if (v.vol >= v.vol_target) {
-                            v.vol       = v.vol_target;
-                            v.fade_step = 0.0f;
-                        }
-                    } else {
-                        if (v.vol <= 0.0f) {
-                            v.vol   = 0.0f;
-                            v.state = VOICE_IDLE;
-                            break;
-                        }
+                    if (v.fade_step > 0.0f && v.vol >= v.vol_target) {
+                        v.vol = v.vol_target; v.fade_step = 0.0f;
+                    } else if (v.fade_step < 0.0f && v.vol <= 0.0f) {
+                        v.vol = 0.0f; v.state = VOICE_IDLE; break;
                     }
                 }
 
-                s_mix[i] += v.def->samples[v.pos] * v.vol;
-
-                if (++v.pos >= v.def->num_samples) {
-                    v.pos = 0;
-                    if (!v.def->loop) {
-                        v.state = VOICE_IDLE;
-                        break;
-                    }
+                uint32_t avail = ring_avail(v);
+                if (avail > 0) {
+                    int16_t samp = v.ring_buf[v.ring_rd & RING_MASK];
+                    v.ring_rd = v.ring_rd + 1u;
+                    s_mix[i] += (float)samp * v.vol;
+                } else if (v.stream_eof) {
+                    // Fin naturelle du son : libérer la voix
+                    v.state = VOICE_IDLE;
+                    break;
                 }
+                // Underrun passager : silence (refill_task comblera au prochain cycle)
             }
         }
 
-        // ── Volume global + plafond + conversion stéréo ───────────────────────
+        // ── Auto-avance séquenceur ────────────────────────────────────────
+        for (int vi = 0; vi < 2; vi++) {
+            for (int gi = 0; gi < NUM_GROUPS; gi++) {
+                VoieSeq& vs = s_voie_seq[vi][gi];
+                if (vs.state != SEQ_ONCE || vs.cur_son[0] == '\0') continue;
+                bool still = false;
+                for (int i = 0; i < NUM_VOICES && !still; i++) {
+                    if (s_voices[i].state == VOICE_PLAYING &&
+                        s_voices[i].voie == (uint8_t)(vi + 1) &&
+                        s_voices[i].def &&
+                        strcmp(s_voices[i].def->id, vs.cur_son) == 0)
+                        still = true;
+                }
+                if (!still) seq_advance_internal(vi + 1, gi);
+            }
+        }
+
+        // ── Volume global + plafond + conversion stéréo ──────────────────────
         const float gain = s_global_vol * VOL_CEILING;
         for (int i = 0; i < BLOCK_SIZE; i++) {
             int32_t s = (int32_t)(s_mix[i] * gain);
@@ -474,32 +758,39 @@ static void mixer_task(void*) {
 // ── API publique ──────────────────────────────────────────────────────────────
 
 void audio_begin(const char* loco_id) {
-    Serial.println("[audio] Initialisation...");
-    memset(s_voices, 0, sizeof(s_voices));
+    Serial.println("[audio] Init v2 (streaming SD + séquenceur)...");
+    memset(s_voices,    0, sizeof(s_voices));
+    memset(s_sounds,    0, sizeof(s_sounds));
+    memset(s_seqs,      0, sizeof(s_seqs));
+    for (int v = 0; v < 2; v++)
+        for (int gi = 0; gi < NUM_GROUPS; gi++)
+            s_voie_seq[v][gi] = {SEQ_IDLE, -1, 0, ""};
+    // Automatismes : désactivés par défaut, intervals typiques
+    s_auto[0] = {false, 60,  300, 1, 0};  // annonce
+    s_auto[1] = {false, 120, 600, 1, 0};  // ambiance
+
+    // Allouer les ring-buffers en PSRAM (6 × 8 Ko = 48 Ko)
+    for (int i = 0; i < NUM_VOICES; i++) {
+        s_voices[i].ring_buf = (int16_t*)ps_malloc(RING_SAMPLES * sizeof(int16_t));
+        if (!s_voices[i].ring_buf)
+            Serial.printf("[audio] ERREUR ps_malloc ring[%d]\n", i);
+    }
+
     strlcpy(s_loco[0], loco_id, sizeof(s_loco[0]));
     strlcpy(s_loco[1], loco_id, sizeof(s_loco[1]));
 
-    if (!i2s_init()) {
-        Serial.println("[audio] ERREUR : I2S non initialisé");
-        return;
-    }
+    if (!i2s_init()) { Serial.println("[audio] ERREUR I2S"); return; }
     Serial.println("[audio] I2S OK");
 
-    Serial.println("[audio] Chargement PSRAM :");
+    Serial.println("[audio] Métadonnées :");
     load_loco_sounds(loco_id);
+    load_loco_seqs(loco_id);
+    Serial.printf("[audio] %d sons, %d séquences\n", s_num_sounds, s_num_seqs);
 
-    uint32_t total = 0;
-    for (int i = 0; i < MAX_SOUNDS; i++)
-        if (s_sounds[i].key[0]) total += s_sounds[i].num_samples * 2;
-    Serial.printf("[audio] %d sons — %lu Ko PSRAM utilisés\n",
-                  s_num_sounds, (unsigned long)(total / 1024));
-
-    s_cmd_queue  = xQueueCreate(16, sizeof(AudioCmd));
-    s_load_queue = xQueueCreate(2, sizeof(LoadReq));
-    // Core 1 (APP_CPU) : Core 0 est réservé aux tâches Wi-Fi/BT de l'IDF.
-    xTaskCreatePinnedToCore(mixer_task,    "audio_mix",  4096, NULL, 5, NULL, 1);
-    xTaskCreatePinnedToCore(loco_load_task,"loco_load",  8192, NULL, 1, NULL, 1);
-    Serial.println("[audio] Mélangeur + chargeur async démarrés (Core 1)");
+    s_cmd_queue = xQueueCreate(16, sizeof(AudioCmd));
+    xTaskCreatePinnedToCore(mixer_task,        "audio_mix", 8192, NULL, 5, NULL, 1);
+    xTaskCreatePinnedToCore(stream_refill_task,"audio_ref", 4096, NULL, 3, NULL, 1);
+    Serial.println("[audio] Mélangeur + recharge démarrés (Core 1)");
 }
 
 bool audio_play(const char* sound_id, uint8_t voie) {
@@ -539,16 +830,14 @@ void audio_set_volume(uint8_t pct) {
 }
 
 uint8_t audio_get_volume() {
-    // Inverse courbe quadratique : pct = sqrt(vol) × 100
     return (uint8_t)(sqrtf(s_global_vol) * 100.0f + 0.5f);
 }
 
 bool audio_is_playing(const char* sound_id, uint8_t voie) {
-    // Lecture non verrouillée depuis Core 1 — valeur indicative pour l'UI
     for (int i = 0; i < NUM_VOICES; i++) {
         const Voice& v = s_voices[i];
-        if (v.state == VOICE_IDLE || v.voie != voie) continue;
-        if (v.def && strcmp(v.def->id, sound_id) == 0) return true;
+        if (v.state == VOICE_IDLE || v.voie != voie || !v.def) continue;
+        if (strcmp(v.def->id, sound_id) == 0) return true;
     }
     return false;
 }
@@ -556,11 +845,9 @@ bool audio_is_playing(const char* sound_id, uint8_t voie) {
 void audio_set_loco(uint8_t voie, const char* loco_id) {
     if (!s_cmd_queue) return;
     AudioCmd cmd = {};
-    // Arrêter les sons de la voie avant de changer
     cmd.type = CMD_STOP_VOIE;
     cmd.voie = voie;
     xQueueSend(s_cmd_queue, &cmd, pdMS_TO_TICKS(10));
-    // Changer la loco (traité après le stop)
     memset(&cmd, 0, sizeof(cmd));
     cmd.type = CMD_LOCO;
     cmd.voie = voie;
@@ -582,4 +869,61 @@ int audio_get_playing(uint8_t voie, char out_ids[][32], int max_count) {
     return n;
 }
 
-bool audio_is_loading() { return s_loading; }
+bool audio_seq_start(const char* seq_id, uint8_t voie) {
+    if (!s_cmd_queue) return false;
+    AudioCmd cmd = {};
+    cmd.type = CMD_SEQ_START;
+    cmd.voie = voie;
+    strlcpy(cmd.sound_id, seq_id, sizeof(cmd.sound_id));
+    return xQueueSend(s_cmd_queue, &cmd, pdMS_TO_TICKS(10)) == pdTRUE;
+}
+
+void audio_seq_next(const char* seq_id, uint8_t voie) {
+    if (!s_cmd_queue) return;
+    AudioCmd cmd = {};
+    cmd.type = CMD_SEQ_NEXT;
+    cmd.voie = voie;
+    strlcpy(cmd.sound_id, seq_id, sizeof(cmd.sound_id));
+    xQueueSend(s_cmd_queue, &cmd, pdMS_TO_TICKS(10));
+}
+
+int audio_seq_info_all(uint8_t voie, SeqInfo out_infos[], int max_count) {
+    int n = 0;
+    for (int gi = 0; gi < NUM_GROUPS && n < max_count; gi++) {
+        const VoieSeq& vs = s_voie_seq[voie - 1][gi];
+        if (vs.state == SEQ_IDLE || vs.seq_idx < 0) continue;
+        strlcpy(out_infos[n].id, s_seqs[vs.seq_idx].id, 32);
+        out_infos[n].step      = vs.step_idx;
+        out_infos[n].num_steps = s_seqs[vs.seq_idx].num_steps;
+        out_infos[n].loop      = (vs.state == SEQ_LOOP);
+        n++;
+    }
+    return n;
+}
+
+// ── Automatismes ──────────────────────────────────────────────────────────────
+
+void audio_auto_set(const char* groupe, bool on, uint16_t min_s, uint16_t max_s, uint8_t voie) {
+    for (int i = 0; i < 2; i++) {
+        if (strcmp(AUTO_GROUPE[i], groupe) == 0) {
+            s_auto[i].enabled = on;
+            s_auto[i].min_s   = min_s;
+            s_auto[i].max_s   = max_s;
+            s_auto[i].voie    = voie;
+            s_auto[i].next_ms = 0; // réinitialise le timer au prochain tick
+            return;
+        }
+    }
+}
+
+bool audio_auto_get(const char* groupe, bool* out_on, uint16_t* out_min, uint16_t* out_max) {
+    for (int i = 0; i < 2; i++) {
+        if (strcmp(AUTO_GROUPE[i], groupe) == 0) {
+            *out_on  = s_auto[i].enabled;
+            *out_min = s_auto[i].min_s;
+            *out_max = s_auto[i].max_s;
+            return true;
+        }
+    }
+    return false;
+}

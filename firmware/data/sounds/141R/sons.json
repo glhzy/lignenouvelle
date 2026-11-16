@@ -2,7 +2,7 @@
   {
     "id": "sifflet_court",
     "label": "Sifflet court",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 1.88,
@@ -12,7 +12,7 @@
   {
     "id": "sifflet_long",
     "label": "Sifflet long",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 8.53,
@@ -22,7 +22,7 @@
   {
     "id": "sifflet_moyen",
     "label": "Sifflet moyen",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 4.09,
@@ -32,7 +32,7 @@
   {
     "id": "sifflet_gare",
     "label": "Sifflet chef de gare",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "duree": 1.24,
@@ -52,7 +52,7 @@
   {
     "id": "purge_cylindres",
     "label": "Purge des cylindres",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.6,
     "duree": 1.35,
@@ -62,7 +62,7 @@
   {
     "id": "pompe_air",
     "label": "Pompe à air",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.5,
     "duree": 14.15,
@@ -72,7 +72,7 @@
   {
     "id": "souffleur",
     "label": "Souffleur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.65,
     "duree": 10.73,
@@ -82,7 +82,7 @@
   {
     "id": "injecteur",
     "label": "Injecteur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.65,
     "duree": 9.79,
@@ -92,7 +92,7 @@
   {
     "id": "sablage",
     "label": "Sablage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 2.45,
@@ -102,7 +102,7 @@
   {
     "id": "bruleur",
     "label": "Brûleur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.5,
     "duree": 18.17,
@@ -112,7 +112,7 @@
   {
     "id": "pompe_eau",
     "label": "Pompe à eau",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.5,
     "duree": 15.34,
@@ -122,7 +122,7 @@
   {
     "id": "turbopompe",
     "label": "Turbopompe",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.5,
     "duree": 28.59,

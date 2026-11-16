@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <LittleFS.h>
+#include <Preferences.h>
 #include "audio.h"
 #include "sd_manager.h"
 #include "wifi_manager.h"
@@ -39,8 +40,27 @@ void setup() {
     // 3. Carte SD (sons WAV — fallback sur LittleFS si absente)
     sd_begin();
 
-    // 4+5. Moteur audio — une seule loco en PSRAM à la fois (8 Mo max)
-    audio_begin("CC6500");
+    // 4+5. Moteur audio — NVS : restaure loco, volume et automatismes
+    {
+        Preferences prefs;
+        prefs.begin("lignenouvelle", true);
+        String   loco = prefs.getString("loco", "CC6500");
+        uint8_t  vol  = (uint8_t)prefs.getUChar("volume", 70);
+        bool     ann_on  = prefs.getBool("a_annonce_on", false);
+        uint16_t ann_mn  = prefs.getUShort("a_annonce_mn", 60);
+        uint16_t ann_mx  = prefs.getUShort("a_annonce_mx", 300);
+        bool     amb_on  = prefs.getBool("a_ambiance_on", false);
+        uint16_t amb_mn  = prefs.getUShort("a_ambiance_mn", 120);
+        uint16_t amb_mx  = prefs.getUShort("a_ambiance_mx", 600);
+        prefs.end();
+
+        Serial.printf("NVS      : loco=%s  volume=%u  ann=%s  amb=%s\n",
+                      loco.c_str(), vol, ann_on ? "on" : "off", amb_on ? "on" : "off");
+        audio_begin(loco.c_str());
+        audio_set_volume(vol);
+        audio_auto_set("annonce",  ann_on, ann_mn, ann_mx, 1);
+        audio_auto_set("ambiance", amb_on, amb_mn, amb_mx, 1);
+    }
 
     // 6+7. Wi-Fi + serveur web (sur Core 1, dans loop())
     wifi_begin();

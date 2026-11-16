@@ -2,7 +2,7 @@
   {
     "id": "klaxon_haut",
     "label": "Klaxon haut",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 4.45,
@@ -12,7 +12,7 @@
   {
     "id": "klaxon_bas",
     "label": "Klaxon bas",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 4.44,
@@ -22,7 +22,7 @@
   {
     "id": "klaxon_bitonal",
     "label": "Klaxon haut-bas-haut",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 3.85,
@@ -32,7 +32,7 @@
   {
     "id": "sifflet",
     "label": "Sifflet chef de gare",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "duree": 2.1,
@@ -42,7 +42,7 @@
   {
     "id": "porte_cabine",
     "label": "Porte de cabine",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 1.6,
@@ -52,7 +52,7 @@
   {
     "id": "porte_machines",
     "label": "Porte salle des machines",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 1.5,
@@ -62,7 +62,7 @@
   {
     "id": "compresseur",
     "label": "Compresseur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "duree": 17.31,
@@ -72,7 +72,7 @@
   {
     "id": "petit_cheval",
     "label": "Petit-cheval (compresseur aux.)",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "duree": 6.69,
@@ -82,7 +82,7 @@
   {
     "id": "essai_freins",
     "label": "Essai des freins",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.8,
     "duree": 5.33,
@@ -92,7 +92,7 @@
   {
     "id": "pantographe",
     "label": "Pantographe",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 3.89,
@@ -102,7 +102,7 @@
   {
     "id": "kvb",
     "label": "Signal KVB",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 3.98,
@@ -112,7 +112,7 @@
   {
     "id": "tachymetre",
     "label": "Tachymètre",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "duree": 9.64,
@@ -122,7 +122,7 @@
   {
     "id": "sablage",
     "label": "Sablage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 2.45,

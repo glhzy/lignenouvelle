@@ -2,7 +2,7 @@
   {
     "id": "drive_1_demarrage",
     "label": "Drive — démarrage",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.75,
     "disponible": false
@@ -10,7 +10,7 @@
   {
     "id": "drive_2_lent",
     "label": "Drive — lent ↺",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": true,
     "niveau": 0.75,
     "disponible": false
@@ -18,7 +18,7 @@
   {
     "id": "drive_3_acceleration",
     "label": "Drive — accélération",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.75,
     "disponible": false
@@ -26,7 +26,7 @@
   {
     "id": "drive_4_rapide",
     "label": "Drive rapide ↺",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": true,
     "niveau": 0.75,
     "disponible": true
@@ -34,7 +34,7 @@
   {
     "id": "drive_5_deceleration",
     "label": "Drive — décélération",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.75,
     "disponible": false
@@ -42,7 +42,7 @@
   {
     "id": "drive_6_lent2",
     "label": "Drive — lent 2 ↺",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": true,
     "niveau": 0.75,
     "disponible": false
@@ -50,7 +50,7 @@
   {
     "id": "drive_7_arret",
     "label": "Drive — arrêt",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.75,
     "disponible": false
@@ -58,7 +58,7 @@
   {
     "id": "moteur_1_demarrage",
     "label": "Moteur — démarrage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "disponible": false
@@ -66,7 +66,7 @@
   {
     "id": "moteur_2_montee",
     "label": "Moteur — montée",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "disponible": false
@@ -74,7 +74,7 @@
   {
     "id": "moteur_3_transition",
     "label": "Moteur — transition",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "disponible": false
@@ -82,7 +82,7 @@
   {
     "id": "moteur_4_ralenti",
     "label": "Moteur ralenti ↺",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": true,
     "niveau": 0.7,
     "disponible": true
@@ -90,7 +90,7 @@
   {
     "id": "moteur_5_arret",
     "label": "Moteur — arrêt",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "disponible": false
@@ -98,7 +98,7 @@
   {
     "id": "noise_1_demarrage",
     "label": "Bruit roul. — démarrage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -106,7 +106,7 @@
   {
     "id": "noise_2_lent",
     "label": "Bruit roul. — lent ↺",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": true,
     "niveau": 0.55,
     "disponible": false
@@ -114,7 +114,7 @@
   {
     "id": "noise_3_montee",
     "label": "Bruit roul. — montée",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -122,7 +122,7 @@
   {
     "id": "noise_4_rapide",
     "label": "Bruit roul. — rapide ↺",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": true,
     "niveau": 0.55,
     "disponible": false
@@ -130,7 +130,7 @@
   {
     "id": "noise_5_descente",
     "label": "Bruit roul. — descente",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -138,7 +138,7 @@
   {
     "id": "noise_6_lent2",
     "label": "Bruit roul. — lent 2 ↺",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": true,
     "niveau": 0.55,
     "disponible": false
@@ -146,7 +146,7 @@
   {
     "id": "noise_7_arret",
     "label": "Bruit roul. — arrêt",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -154,7 +154,7 @@
   {
     "id": "crissement_demarrage",
     "label": "Crissement — début",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.65,
     "disponible": false
@@ -162,7 +162,7 @@
   {
     "id": "crissement",
     "label": "Crissement ↺",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": true,
     "niveau": 0.65,
     "disponible": true
@@ -170,7 +170,7 @@
   {
     "id": "crissement_arret",
     "label": "Crissement — fin",
-    "groupe": "conduite",
+    "groupe": "roulement",
     "boucle": false,
     "niveau": 0.65,
     "disponible": false
@@ -178,7 +178,7 @@
   {
     "id": "frein_init",
     "label": "Freinage",
-    "groupe": "conduite",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.8,
     "disponible": true
@@ -186,7 +186,7 @@
   {
     "id": "frein_loop",
     "label": "Frein serré ↺",
-    "groupe": "conduite",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.8,
     "disponible": true
@@ -194,7 +194,7 @@
   {
     "id": "frein_exit",
     "label": "Frein desserré",
-    "groupe": "conduite",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.8,
     "disponible": true
@@ -202,7 +202,7 @@
   {
     "id": "frein_leve",
     "label": "Frein levé",
-    "groupe": "conduite",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.8,
     "disponible": true
@@ -210,7 +210,7 @@
   {
     "id": "airhorn_quai",
     "label": "Klaxon quai",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "disponible": true
@@ -218,7 +218,7 @@
   {
     "id": "airhorn_tunnel",
     "label": "Klaxon tunnel",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "disponible": true
@@ -226,7 +226,7 @@
   {
     "id": "sifflet_conducteur",
     "label": "Sifflet conducteur",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "disponible": true
@@ -234,7 +234,7 @@
   {
     "id": "porte_ouverture",
     "label": "Portes ouverture",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.75,
     "disponible": true
@@ -242,7 +242,7 @@
   {
     "id": "porte_fermeture",
     "label": "Portes fermeture",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.75,
     "disponible": true
@@ -250,7 +250,7 @@
   {
     "id": "compresseur_demarrage",
     "label": "Compresseur — démarrage",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -258,7 +258,7 @@
   {
     "id": "compresseur",
     "label": "Compresseur ↺",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "disponible": true
@@ -266,7 +266,7 @@
   {
     "id": "compresseur_arret",
     "label": "Compresseur — arrêt",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -274,7 +274,7 @@
   {
     "id": "compresseur2_demarrage",
     "label": "Compresseur 2 — démarrage",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -282,7 +282,7 @@
   {
     "id": "compresseur2",
     "label": "Compresseur 2 ↺",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "disponible": false
@@ -290,7 +290,7 @@
   {
     "id": "compresseur2_arret",
     "label": "Compresseur 2 — arrêt",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -298,7 +298,7 @@
   {
     "id": "ventilateur_demarrage",
     "label": "Ventilateur — démarrage",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false
@@ -306,7 +306,7 @@
   {
     "id": "ventilateur",
     "label": "Ventilateur ↺",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "disponible": true
@@ -314,7 +314,7 @@
   {
     "id": "ventilateur_arret",
     "label": "Ventilateur — arrêt",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.55,
     "disponible": false

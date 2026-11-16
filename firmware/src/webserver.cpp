@@ -5,6 +5,7 @@
 #include "audio.h"
 #include <LittleFS.h>
 #include <ArduinoJson.h>
+#include <Preferences.h>
 
 WebServer server(80);
 
@@ -48,7 +49,7 @@ static void cors() {
 // ── Handlers API ──────────────────────────────────────────────────────────────
 
 // GET /api/state
-// {"volume":70,"voie1":{"loco":"CC6500","playing":["compresseur"]},"voie2":{...}}
+// {"volume":70,"voie1":{"loco":"CC6500","playing":["compresseur"],"seqs":[{...},...]},"voie2":{...}}
 static void handle_state() {
     cors();
     JsonDocument doc;
@@ -61,11 +62,50 @@ static void handle_state() {
         JsonArray arr = doc[key]["playing"].to<JsonArray>();
         int n = audio_get_playing(voie, ids, 6);
         for (int i = 0; i < n; i++) arr.add(ids[i]);
+
+        SeqInfo infos[5];
+        int ns = audio_seq_info_all(voie, infos, 5);
+        JsonArray seqsArr = doc[key]["seqs"].to<JsonArray>();
+        for (int si = 0; si < ns; si++) {
+            JsonObject s = seqsArr.add<JsonObject>();
+            s["id"]    = infos[si].id;
+            s["step"]  = infos[si].step;
+            s["steps"] = infos[si].num_steps;
+            s["loop"]  = infos[si].loop;
+        }
     }
-    doc["auto"]    = false; // step 7
-    doc["loading"] = audio_is_loading();
+    JsonObject autoObj = doc["auto"].to<JsonObject>();
+    for (const char* grp : {"annonce", "ambiance"}) {
+        bool on; uint16_t mn, mx;
+        if (audio_auto_get(grp, &on, &mn, &mx)) {
+            autoObj[grp]["on"]  = on;
+            autoObj[grp]["min"] = mn;
+            autoObj[grp]["max"] = mx;
+        }
+    }
+    doc["loading"] = false;
 
     send_json(200, doc);
+}
+
+// POST /api/seq?voie=1&id=xxx
+static void handle_seq() {
+    cors();
+    if (!server.hasArg("id")) { server.send(400, "text/plain", "?id manquant"); return; }
+    uint8_t voie = server.hasArg("voie") ? (uint8_t)server.arg("voie").toInt() : 1;
+    if (voie < 1 || voie > 2) { server.send(400, "text/plain", "voie 1 ou 2"); return; }
+    audio_seq_start(server.arg("id").c_str(), voie);
+    server.send(200, "application/json", "{\"ok\":true}");
+}
+
+// POST /api/seq/next?voie=1&id=xxx
+static void handle_seq_next() {
+    cors();
+    uint8_t voie = server.hasArg("voie") ? (uint8_t)server.arg("voie").toInt() : 1;
+    if (voie < 1 || voie > 2) { server.send(400, "text/plain", "voie 1 ou 2"); return; }
+    if (!server.hasArg("id")) { server.send(400, "text/plain", "?id manquant"); return; }
+    audio_seq_next(server.arg("id").c_str(), voie);
+    server.send(200, "application/json", "{\"ok\":true}");
 }
 
 // POST /api/play?voie=1&sound=xxx
@@ -98,6 +138,7 @@ static void handle_volume() {
     int v = server.arg("v").toInt();
     if (v < 0 || v > 100) { server.send(400, "text/plain", "v hors plage"); return; }
     audio_set_volume((uint8_t)v);
+    { Preferences p; p.begin("lignenouvelle", false); p.putUChar("volume", (uint8_t)v); p.end(); }
     server.send(200, "application/json", "{\"ok\":true}");
 }
 
@@ -112,6 +153,9 @@ static void handle_loco() {
     String  id   = server.arg("id");
     if (voie < 1 || voie > 2) { server.send(400, "text/plain", "voie 1 ou 2"); return; }
     audio_set_loco(voie, id.c_str());
+    if (voie == 1) {
+        Preferences p; p.begin("lignenouvelle", false); p.putString("loco", id); p.end();
+    }
     server.send(200, "application/json", "{\"ok\":true}");
 }
 
@@ -127,10 +171,26 @@ static void handle_locos() {
     f.close();
 }
 
-// POST /api/auto?on=0|1&min=60&max=300  — stub step 7
+// POST /api/auto?groupe=annonce&on=0|1&min=60&max=300
 static void handle_auto() {
     cors();
-    server.send(200, "application/json", "{\"ok\":true,\"note\":\"step 7\"}");
+    String   groupe = server.hasArg("groupe") ? server.arg("groupe") : "annonce";
+    bool     on     = server.hasArg("on") && server.arg("on") == "1";
+    uint16_t mn     = server.hasArg("min") ? (uint16_t)server.arg("min").toInt() : 60;
+    uint16_t mx     = server.hasArg("max") ? (uint16_t)server.arg("max").toInt() : 300;
+    uint8_t  voie   = server.hasArg("voie") ? (uint8_t)server.arg("voie").toInt() : 1;
+    if (mn < 5)  mn = 5;
+    if (mx < mn) mx = mn;
+    audio_auto_set(groupe.c_str(), on, mn, mx, voie);
+    {
+        Preferences p; p.begin("lignenouvelle", false);
+        String pfx = "a_" + groupe;   // préfixe court (limite NVS 15 octets)
+        p.putBool((pfx + "_on").c_str(),  on);
+        p.putUShort((pfx + "_mn").c_str(), mn);
+        p.putUShort((pfx + "_mx").c_str(), mx);
+        p.end();
+    }
+    server.send(200, "application/json", "{\"ok\":true}");
 }
 
 // ── Initialisation ────────────────────────────────────────────────────────────
@@ -142,6 +202,8 @@ void webserver_begin() {
     server.on("/api/stop",   HTTP_POST, handle_stop);
     server.on("/api/volume", HTTP_POST, handle_volume);
     server.on("/api/loco",   HTTP_POST, handle_loco);
+    server.on("/api/seq/next", HTTP_POST, handle_seq_next);
+    server.on("/api/seq",    HTTP_POST, handle_seq);
     server.on("/api/auto",   HTTP_POST, handle_auto);
 
     // Toutes les autres requêtes : redirection portail ou fichier LittleFS

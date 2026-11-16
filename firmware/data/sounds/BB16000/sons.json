@@ -2,7 +2,7 @@
   {
     "id": "klaxon_haut",
     "label": "Klaxon haut",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 0.71,
@@ -12,7 +12,7 @@
   {
     "id": "klaxon_bas",
     "label": "Klaxon bas",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 0.92,
@@ -22,7 +22,7 @@
   {
     "id": "klaxon_mixte",
     "label": "Klaxon mixte",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 1.9,
@@ -32,7 +32,7 @@
   {
     "id": "sifflet",
     "label": "Sifflet conducteur",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "duree": 0.42,
@@ -62,7 +62,7 @@
   {
     "id": "porte",
     "label": "Porte de cabine",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 0.53,
@@ -72,7 +72,7 @@
   {
     "id": "compresseur",
     "label": "Compresseur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "duree": 6.27,
@@ -82,7 +82,7 @@
   {
     "id": "kvb",
     "label": "Signal KVB",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 4.24,
@@ -112,7 +112,7 @@
   {
     "id": "attelage",
     "label": "Attelage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 1.08,
@@ -122,7 +122,7 @@
   {
     "id": "disjoncteur",
     "label": "Disjoncteur",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 3.95,

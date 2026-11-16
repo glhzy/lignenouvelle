@@ -2,7 +2,7 @@
   {
     "id": "klaxon_bas",
     "label": "Klaxon bas court",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 1.58,
@@ -12,7 +12,7 @@
   {
     "id": "klaxon_haut",
     "label": "Klaxon haut",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 3.39,
@@ -22,7 +22,7 @@
   {
     "id": "klaxon_bitonal",
     "label": "Klaxon bas-haut",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 4.34,
@@ -32,7 +32,7 @@
   {
     "id": "sifflet",
     "label": "Sifflet chef de gare",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "duree": 2.1,
@@ -62,7 +62,7 @@
   {
     "id": "porte_cabine",
     "label": "Porte de cabine",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 1.72,
@@ -72,7 +72,7 @@
   {
     "id": "porte_machines",
     "label": "Porte salle des machines",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 1.17,
@@ -82,7 +82,7 @@
   {
     "id": "compresseur",
     "label": "Compresseur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "duree": 17.31,
@@ -92,7 +92,7 @@
   {
     "id": "kvb",
     "label": "Signal KVB",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 4.77,
@@ -102,7 +102,7 @@
   {
     "id": "tachymetre",
     "label": "Tachymètre",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.55,
     "duree": 9.64,
@@ -112,7 +112,7 @@
   {
     "id": "sablage",
     "label": "Sablage",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 2.45,
@@ -122,7 +122,7 @@
   {
     "id": "frein_main",
     "label": "Frein à main",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.9,
     "duree": 14.54,
@@ -132,7 +132,7 @@
   {
     "id": "essai_freins",
     "label": "Essai des freins",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.8,
     "duree": 15.44,
@@ -152,7 +152,7 @@
   {
     "id": "faire_plein",
     "label": "Faire le plein",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.7,
     "duree": 24.56,

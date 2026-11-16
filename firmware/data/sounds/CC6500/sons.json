@@ -2,7 +2,7 @@
   {
     "id": "klaxon_long",
     "label": "Klaxon long",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 3.56,
@@ -12,7 +12,7 @@
   {
     "id": "klaxon_court",
     "label": "Klaxon court",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 2.55,
@@ -22,7 +22,7 @@
   {
     "id": "klaxon_bitonal",
     "label": "Klaxon bitonal",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.85,
     "duree": 3.85,
@@ -32,7 +32,7 @@
   {
     "id": "sifflet",
     "label": "Sifflet chef de gare",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "niveau": 0.8,
     "duree": 2.1,
@@ -72,7 +72,7 @@
   {
     "id": "porte_cabine",
     "label": "Porte de cabine",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 2.35,
@@ -82,7 +82,7 @@
   {
     "id": "porte_machines",
     "label": "Porte salle des machines",
-    "groupe": "avertisseurs",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.9,
     "duree": 2.08,
@@ -92,7 +92,7 @@
   {
     "id": "essai_freins",
     "label": "Essai des freins",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.8,
     "duree": 6.93,
@@ -102,7 +102,7 @@
   {
     "id": "frein_main",
     "label": "Frein à main",
-    "groupe": "conduite",
+    "groupe": "traction",
     "boucle": false,
     "niveau": 0.9,
     "duree": 4.0,
@@ -112,7 +112,7 @@
   {
     "id": "compresseur",
     "label": "Compresseur",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": true,
     "niveau": 0.45,
     "duree": 16.84,
@@ -122,7 +122,7 @@
   {
     "id": "purge_air",
     "label": "Purge d'air",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 7.89,
@@ -132,7 +132,7 @@
   {
     "id": "pantographe",
     "label": "Pantographe",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 10.3,
@@ -142,7 +142,7 @@
   {
     "id": "kvb",
     "label": "Signal KVB",
-    "groupe": "equipements",
+    "groupe": "bord",
     "boucle": false,
     "niveau": 0.7,
     "duree": 3.98,

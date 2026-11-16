@@ -1,8 +1,8 @@
 [
   {
     "id": "moteur_marche",
-    "label": "Mise en traction",
-    "groupe": "conduite",
+    "label": "Traction — Mise en marche",
+    "groupe": "traction",
     "boucle": false,
     "type": "sequence",
     "etapes": [
@@ -20,8 +20,8 @@
   },
   {
     "id": "drive_cycle",
-    "label": "Cycle de marche",
-    "groupe": "conduite",
+    "label": "Bruit de roulement",
+    "groupe": "roulement",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -64,8 +64,8 @@
   },
   {
     "id": "noise_low",
-    "label": "Bruit de roulement",
-    "groupe": "conduite",
+    "label": "Cycle de marche",
+    "groupe": "traction",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -108,8 +108,8 @@
   },
   {
     "id": "crissement",
-    "label": "Crissement de bandage",
-    "groupe": "conduite",
+    "label": "Roulement — Crissement",
+    "groupe": "roulement",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -132,8 +132,8 @@
   },
   {
     "id": "moteur_ralenti",
-    "label": "Coupure de traction",
-    "groupe": "conduite",
+    "label": "Traction — Coupure",
+    "groupe": "traction",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -156,8 +156,8 @@
   },
   {
     "id": "frein",
-    "label": "Serrage du frein",
-    "groupe": "conduite",
+    "label": "Frein — Serrage",
+    "groupe": "bord",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -180,8 +180,8 @@
   },
   {
     "id": "frein_leve",
-    "label": "Desserrage du frein",
-    "groupe": "conduite",
+    "label": "Frein — Desserrage",
+    "groupe": "bord",
     "boucle": false,
     "type": "sequence",
     "etapes": [
@@ -195,77 +195,77 @@
   {
     "id": "airhorn_quai",
     "label": "Avertisseur — départ",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "type": "sequence",
     "etapes": [
       {
         "son": "airhorn_quai.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
   {
     "id": "airhorn_tunnel",
     "label": "Avertisseur — tunnel",
-    "groupe": "avertisseurs",
+    "groupe": "signaux",
     "boucle": false,
     "type": "sequence",
     "etapes": [
       {
         "son": "airhorn_tunnel.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
   {
     "id": "sifflet_conducteur",
-    "label": "Sifflet de manœuvre",
-    "groupe": "avertisseurs",
+    "label": "Avertisseur — sifflet",
+    "groupe": "signaux",
     "boucle": false,
     "type": "sequence",
     "etapes": [
       {
         "son": "sifflet_conducteur.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
   {
     "id": "porte_ouverture",
-    "label": "Ouverture des portières",
-    "groupe": "avertisseurs",
+    "label": "Portières — Ouverture",
+    "groupe": "bord",
     "boucle": false,
     "type": "sequence",
     "etapes": [
       {
         "son": "porte_ouverture.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
   {
     "id": "porte_fermeture",
-    "label": "Fermeture des portières",
-    "groupe": "avertisseurs",
+    "label": "Portières — Fermeture",
+    "groupe": "bord",
     "boucle": false,
     "type": "sequence",
     "etapes": [
       {
         "son": "porte_fermeture.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
   {
     "id": "compresseur",
-    "label": "Groupe moto-compresseur",
-    "groupe": "equipements",
+    "label": "Compresseur — Principal",
+    "groupe": "bord",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -288,8 +288,8 @@
   },
   {
     "id": "compresseur2",
-    "label": "Compresseur 2e groupe",
-    "groupe": "equipements",
+    "label": "Compresseur — Secondaire",
+    "groupe": "bord",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -312,8 +312,8 @@
   },
   {
     "id": "ventilateur",
-    "label": "Ventilateur de refroidissement",
-    "groupe": "equipements",
+    "label": "Ventilateur",
+    "groupe": "bord",
     "boucle": true,
     "type": "sequence",
     "etapes": [
@@ -344,7 +344,7 @@
       {
         "son": "annonce_tgv_1.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
@@ -358,7 +358,7 @@
       {
         "son": "annonce_tgv_2.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
@@ -372,7 +372,7 @@
       {
         "son": "annonce_tgv_3.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
@@ -386,7 +386,7 @@
       {
         "son": "annonce_tgv_4.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   },
@@ -400,7 +400,7 @@
       {
         "son": "annonce_tgv_5.wav",
         "type": "once",
-        "lbl": "▶"
+        "lbl": "ANON"
       }
     ]
   }

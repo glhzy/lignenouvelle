@@ -11,7 +11,7 @@
 :root{
   --bleu:#1B2A49; --papier:#F4F1E8; --gris:#D8D5CA;
   --orange:#E8761A; --rouge:#C8102E; --encre:#14203A;
-  --c-cond:#5C6BC0; --c-avert:#C8102E; --c-equip:#2D7D46; --c-ann:#E8761A;
+  --c-trac:#5C6BC0; --c-roul:#7B4F2E; --c-bord:#2D7D46; --c-sign:#C8102E; --c-ann:#E8761A;
 }
 *{box-sizing:border-box}
 body{margin:0;background:#E4E1D8}
@@ -31,15 +31,15 @@ body{margin:0;background:#E4E1D8}
                scroll-snap-type:x mandatory;gap:8px;padding:10px 0 12px;
                scrollbar-width:none;margin-top:10px}
 .loco-carousel::-webkit-scrollbar{display:none}
-.loco-card{flex:0 0 auto;scroll-snap-align:center;background:#fff;
+.loco-card{flex:0 0 148px;width:148px;scroll-snap-align:center;background:#fff;
            border:2px solid transparent;border-radius:4px;
            padding:5px 7px 3px;cursor:pointer;text-align:center;
            -webkit-tap-highlight-color:transparent;user-select:none;
            transition:border-color .12s;
            display:flex;flex-direction:column;justify-content:flex-end}
-.loco-card.active{border-color:var(--orange);background:var(--orange)}
+.loco-card.active{border-color:var(--bleu);background:var(--bleu)}
 .loco-card.active .lc-name{color:#fff}
-.loco-card img{display:block;height:auto;max-width:100%;image-rendering:pixelated}
+.loco-card img{display:block;width:100%;height:76px;object-fit:contain;image-rendering:pixelated}
 .loco-card .lc-name{font-family:"PoliceSNCF";font-size:9px;letter-spacing:.05em;
                     text-transform:uppercase;color:var(--encre);margin-top:3px;
                     white-space:nowrap}
@@ -80,10 +80,11 @@ body{margin:0;background:#E4E1D8}
        letter-spacing:.06em;text-transform:uppercase}
 
 /* Carrés colorés par section */
-.sec-conduite    .sh em{background:var(--c-cond);  color:#fff}
-.sec-avertisseurs .sh em{background:var(--c-avert);color:#fff}
-.sec-equipements  .sh em{background:var(--c-equip);color:#fff}
-.sec-annonce      .sh em{background:var(--c-ann);  color:#fff}
+.sec-traction  .sh em{background:var(--c-trac);color:#fff}
+.sec-roulement .sh em{background:var(--c-roul);color:#fff}
+.sec-bord      .sh em{background:var(--c-bord);color:#fff}
+.sec-signaux   .sh em{background:var(--c-sign);color:#fff}
+.sec-annonce   .sh em{background:var(--c-ann); color:#fff}
 
 .gr{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
 
@@ -91,7 +92,7 @@ body{margin:0;background:#E4E1D8}
 .t{min-height:64px;border:2px solid var(--bleu);background:#fff;color:var(--encre);
    font:400 14px/1.2 "Univers LT Std",sans-serif;text-align:left;
    padding:9px 10px 8px;display:flex;flex-direction:column;
-   justify-content:space-between;gap:4px;
+   justify-content:center;gap:4px;
    cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;
    transition:background .12s}
 .t.w{min-height:64px;flex-direction:row;
@@ -171,7 +172,7 @@ body{margin:0;background:#E4E1D8}
 
   <div class="loco-carousel" id="loco-carousel"></div>
 
-  <div class="auto-panel">
+  <div class="auto-panel" style="display:none">
     <div class="auto-hd">Automatismes</div>
     <div class="auto-row">
       <span class="auto-lbl">Annonces</span>
@@ -213,10 +214,11 @@ body{margin:0;background:#E4E1D8}
 'use strict';
 
 const SECTIONS = [
-  {id:'conduite',      label:'Conduite',                  num:1},
-  {id:'avertisseurs',  label:'Avertisseurs et portières', num:2},
-  {id:'equipements',   label:'Équipements de bord',       num:3},
-  {id:'annonce',       label:'Annonces en gare',          num:4},
+  {id:'traction',   label:'Traction',               num:1},
+  {id:'roulement',  label:'Roulement et crissement', num:2},
+  {id:'bord',       label:'Équipements de bord',     num:3},
+  {id:'signaux',    label:'Signaux et klaxons',      num:4},
+  {id:'annonce',    label:'Annonces en gare',        num:5},
 ];
 
 let currentVoie = 1;
@@ -255,7 +257,7 @@ class SeqPlayer {
   }
 
   _advance() {
-    apiPost(`/api/seq/next?voie=${currentVoie}`);
+    apiPost(`/api/seq/next?voie=${currentVoie}&id=${encodeURIComponent(this.id)}`);
     this.step++;
     if (this.step >= this.seq.etapes.length) {
       this.state = "stopped"; this.step = 0;
@@ -449,9 +451,10 @@ async function syncState() {
   if (!state) return;
 
   const voieKey  = `voie${currentVoie}`;
-  const seqInfo  = state[voieKey]?.seq;  // {id,step,steps,loop} ou undefined
+  const seqsArr  = state[voieKey]?.seqs ?? [];  // [{id,step,steps,loop}, ...]
+  const seqsMap  = new Map(seqsArr.map(s => [s.id, s]));
 
-  Object.values(players).forEach(p => p.syncFrom(seqInfo));
+  Object.values(players).forEach(p => p.syncFrom(seqsMap.get(p.id) ?? null));
 
   // Synchronise le panneau automatismes
   _syncAutoPanel(state.auto);
