@@ -4,7 +4,7 @@
     "label": "Klaxon haut",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.49,
     "duree": 0.71,
     "fx": "F1",
     "disponible": true
@@ -14,7 +14,7 @@
     "label": "Klaxon bas",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.38,
     "duree": 0.92,
     "fx": "F2",
     "disponible": true
@@ -24,7 +24,7 @@
     "label": "Klaxon mixte",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.44,
     "duree": 1.9,
     "fx": "F3",
     "disponible": true
@@ -34,7 +34,7 @@
     "label": "Sifflet conducteur",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.46,
     "duree": 0.42,
     "fx": "F16",
     "disponible": true
@@ -44,7 +44,7 @@
     "label": "Annonce gare (actuelle)",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 1.04,
     "duree": 11.66,
     "fx": "F5",
     "disponible": true
@@ -54,7 +54,7 @@
     "label": "Annonce gare (ancienne)",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.62,
     "duree": 6.36,
     "fx": "F7",
     "disponible": true
@@ -64,7 +64,7 @@
     "label": "Porte de cabine",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 0.59,
     "duree": 0.53,
     "fx": "F15",
     "disponible": true
@@ -74,7 +74,7 @@
     "label": "Compresseur",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.34,
     "duree": 6.27,
     "fx": "F4",
     "disponible": true
@@ -84,7 +84,7 @@
     "label": "Signal KVB",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 0.36,
     "duree": 4.24,
     "fx": "F17",
     "disponible": true
@@ -94,7 +94,7 @@
     "label": "Jingle annonce (actuel)",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 0.49,
     "duree": 2.17,
     "fx": null,
     "disponible": true
@@ -104,7 +104,7 @@
     "label": "Jingle annonce (ancien)",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 0.4,
     "duree": 3.5,
     "fx": null,
     "disponible": true
@@ -114,7 +114,7 @@
     "label": "Attelage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 1.06,
     "duree": 1.08,
     "fx": null,
     "disponible": true
@@ -124,7 +124,7 @@
     "label": "Disjoncteur",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 0.64,
     "duree": 3.95,
     "fx": null,
     "disponible": true

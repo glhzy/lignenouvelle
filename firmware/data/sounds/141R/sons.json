@@ -4,7 +4,7 @@
     "label": "Sifflet court",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.53,
     "duree": 1.88,
     "fx": "F2",
     "disponible": true
@@ -14,7 +14,7 @@
     "label": "Sifflet long",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.36,
     "duree": 8.53,
     "fx": "F3",
     "disponible": true
@@ -24,7 +24,7 @@
     "label": "Sifflet moyen",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.38,
     "duree": 4.09,
     "fx": "F4",
     "disponible": true
@@ -34,7 +34,7 @@
     "label": "Sifflet chef de gare",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.45,
     "duree": 1.24,
     "fx": "F5",
     "disponible": true
@@ -44,7 +44,7 @@
     "label": "Annonce départ (ancienne)",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.6,
     "duree": 13.58,
     "fx": "F21",
     "disponible": true
@@ -54,7 +54,7 @@
     "label": "Purge des cylindres",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.6,
+    "niveau": 0.16,
     "duree": 1.35,
     "fx": "F10",
     "disponible": true
@@ -64,7 +64,7 @@
     "label": "Pompe à air",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.5,
+    "niveau": 2.0,
     "duree": 14.15,
     "fx": "F18",
     "disponible": true
@@ -74,7 +74,7 @@
     "label": "Souffleur",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.65,
+    "niveau": 0.74,
     "duree": 10.73,
     "fx": "F14",
     "disponible": true
@@ -84,7 +84,7 @@
     "label": "Injecteur",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.65,
+    "niveau": 0.87,
     "duree": 9.79,
     "fx": "F17",
     "disponible": true
@@ -94,7 +94,7 @@
     "label": "Sablage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 2.45,
     "fx": "F25",
     "disponible": true
@@ -104,7 +104,7 @@
     "label": "Brûleur",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.5,
+    "niveau": 0.46,
     "duree": 18.17,
     "fx": "F12",
     "disponible": true
@@ -114,7 +114,7 @@
     "label": "Pompe à eau",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.5,
+    "niveau": 1.34,
     "duree": 15.34,
     "fx": "F16",
     "disponible": true
@@ -124,7 +124,7 @@
     "label": "Turbopompe",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.5,
+    "niveau": 0.77,
     "duree": 28.59,
     "fx": "F19",
     "disponible": true

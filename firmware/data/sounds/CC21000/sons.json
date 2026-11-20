@@ -4,7 +4,7 @@
     "label": "Klaxon haut",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.39,
     "duree": 4.45,
     "fx": "F2",
     "disponible": true
@@ -14,7 +14,7 @@
     "label": "Klaxon bas",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.54,
     "duree": 4.44,
     "fx": "F3",
     "disponible": true
@@ -24,7 +24,7 @@
     "label": "Klaxon haut-bas-haut",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.55,
     "duree": 3.85,
     "fx": null,
     "disponible": true
@@ -34,7 +34,7 @@
     "label": "Sifflet chef de gare",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.48,
     "duree": 2.1,
     "fx": "F4",
     "disponible": true
@@ -44,7 +44,7 @@
     "label": "Porte de cabine",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 2.0,
     "duree": 1.6,
     "fx": "F11",
     "disponible": true
@@ -54,7 +54,7 @@
     "label": "Porte salle des machines",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.17,
     "duree": 1.5,
     "fx": "F12",
     "disponible": true
@@ -64,7 +64,7 @@
     "label": "Compresseur",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.69,
     "duree": 17.31,
     "fx": "F13",
     "disponible": true
@@ -74,7 +74,7 @@
     "label": "Petit-cheval (compresseur aux.)",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.4,
     "duree": 6.69,
     "fx": "F14",
     "disponible": true
@@ -84,7 +84,7 @@
     "label": "Essai des freins",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 2.0,
     "duree": 5.33,
     "fx": "F15",
     "disponible": true
@@ -94,7 +94,7 @@
     "label": "Pantographe",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 3.89,
     "fx": "F20",
     "disponible": true
@@ -104,7 +104,7 @@
     "label": "Signal KVB",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 3.98,
     "fx": "F22",
     "disponible": true
@@ -114,7 +114,7 @@
     "label": "Tachymètre",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 2.0,
     "duree": 9.64,
     "fx": "F23",
     "disponible": true
@@ -124,7 +124,7 @@
     "label": "Sablage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 2.45,
     "fx": "F26",
     "disponible": true

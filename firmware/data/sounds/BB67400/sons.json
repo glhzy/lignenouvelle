@@ -4,7 +4,7 @@
     "label": "Klaxon haut",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.39,
     "duree": 4.4,
     "fx": "F1",
     "disponible": true
@@ -14,7 +14,7 @@
     "label": "Klaxon bas",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.54,
     "duree": 4.4,
     "fx": "F2",
     "disponible": true
@@ -24,7 +24,7 @@
     "label": "Klaxon bas-haut-bas",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.4,
     "duree": 6.1,
     "fx": "F3",
     "disponible": true
@@ -34,7 +34,7 @@
     "label": "Sifflet chef de gare",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.48,
     "duree": 2.1,
     "fx": "F4",
     "disponible": true
@@ -44,7 +44,7 @@
     "label": "Porte de cabine",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.3,
     "duree": 3.4,
     "fx": "F13",
     "disponible": true
@@ -54,7 +54,7 @@
     "label": "Signal KVB",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 4.8,
     "fx": "F17",
     "disponible": true
@@ -64,7 +64,7 @@
     "label": "Compresseur",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.73,
     "duree": 13.1,
     "fx": "F19",
     "disponible": true
@@ -74,7 +74,7 @@
     "label": "Tachymètre",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.65,
     "duree": 3.3,
     "fx": "F24",
     "disponible": true
@@ -84,7 +84,7 @@
     "label": "Sablage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 2.5,
     "fx": "F26",
     "disponible": true
@@ -104,7 +104,7 @@
     "label": "Porte salle des machines",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.01,
     "duree": 2.0,
     "fx": "auto",
     "disponible": true
@@ -114,7 +114,7 @@
     "label": "Freins pneumatiques",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.59,
     "duree": 8.8,
     "fx": "auto",
     "disponible": true
@@ -124,7 +124,7 @@
     "label": "Purge d'air (urgence)",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 0.56,
     "duree": 1.8,
     "fx": "auto",
     "disponible": true
@@ -134,7 +134,7 @@
     "label": "Attelage - dételage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "duree": 24.64,
     "fx": "F5",
     "disponible": false
@@ -144,7 +144,7 @@
     "label": "Frein à main",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.52,
     "duree": 25.45,
     "fx": "F18",
     "disponible": false
@@ -154,7 +154,7 @@
     "label": "Faire le plein",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 0.92,
     "duree": 24.56,
     "fx": "F25",
     "disponible": false

@@ -4,7 +4,7 @@
     "label": "Drive — démarrage",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -12,7 +12,7 @@
     "label": "Drive — lent ↺",
     "groupe": "roulement",
     "boucle": true,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -20,7 +20,7 @@
     "label": "Drive — accélération",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -28,7 +28,7 @@
     "label": "Drive rapide ↺",
     "groupe": "roulement",
     "boucle": true,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": true
   },
   {
@@ -36,7 +36,7 @@
     "label": "Drive — décélération",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -44,7 +44,7 @@
     "label": "Drive — lent 2 ↺",
     "groupe": "roulement",
     "boucle": true,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -52,7 +52,7 @@
     "label": "Drive — arrêt",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -60,7 +60,7 @@
     "label": "Moteur — démarrage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -68,7 +68,7 @@
     "label": "Moteur — montée",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -76,7 +76,7 @@
     "label": "Moteur — transition",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -84,7 +84,7 @@
     "label": "Moteur ralenti ↺",
     "groupe": "traction",
     "boucle": true,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "disponible": true
   },
   {
@@ -92,7 +92,7 @@
     "label": "Moteur — arrêt",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -100,7 +100,7 @@
     "label": "Bruit roul. — démarrage",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -108,7 +108,7 @@
     "label": "Bruit roul. — lent ↺",
     "groupe": "traction",
     "boucle": true,
-    "niveau": 0.55,
+    "niveau": 1.83,
     "disponible": false
   },
   {
@@ -116,7 +116,7 @@
     "label": "Bruit roul. — montée",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.83,
     "disponible": false
   },
   {
@@ -124,7 +124,7 @@
     "label": "Bruit roul. — rapide ↺",
     "groupe": "traction",
     "boucle": true,
-    "niveau": 0.55,
+    "niveau": 1.16,
     "disponible": false
   },
   {
@@ -132,7 +132,7 @@
     "label": "Bruit roul. — descente",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.24,
     "disponible": false
   },
   {
@@ -140,7 +140,7 @@
     "label": "Bruit roul. — lent 2 ↺",
     "groupe": "traction",
     "boucle": true,
-    "niveau": 0.55,
+    "niveau": 1.8,
     "disponible": false
   },
   {
@@ -148,7 +148,7 @@
     "label": "Bruit roul. — arrêt",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -156,7 +156,7 @@
     "label": "Crissement — début",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.65,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -164,7 +164,7 @@
     "label": "Crissement ↺",
     "groupe": "roulement",
     "boucle": true,
-    "niveau": 0.65,
+    "niveau": 1.01,
     "disponible": true
   },
   {
@@ -172,7 +172,7 @@
     "label": "Crissement — fin",
     "groupe": "roulement",
     "boucle": false,
-    "niveau": 0.65,
+    "niveau": 1.33,
     "disponible": false
   },
   {
@@ -180,7 +180,7 @@
     "label": "Freinage",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.52,
     "disponible": true
   },
   {
@@ -188,7 +188,7 @@
     "label": "Frein serré ↺",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.8,
+    "niveau": 0.38,
     "disponible": true
   },
   {
@@ -196,7 +196,7 @@
     "label": "Frein desserré",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.47,
     "disponible": true
   },
   {
@@ -204,7 +204,7 @@
     "label": "Frein levé",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 0.28,
     "disponible": true
   },
   {
@@ -212,7 +212,7 @@
     "label": "Klaxon quai",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.33,
     "disponible": true
   },
   {
@@ -220,7 +220,7 @@
     "label": "Klaxon tunnel",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 0.34,
     "disponible": true
   },
   {
@@ -228,7 +228,7 @@
     "label": "Sifflet conducteur",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 1.98,
     "disponible": true
   },
   {
@@ -236,7 +236,7 @@
     "label": "Portes ouverture",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 0.96,
     "disponible": true
   },
   {
@@ -244,7 +244,7 @@
     "label": "Portes fermeture",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.75,
+    "niveau": 1.32,
     "disponible": true
   },
   {
@@ -252,7 +252,7 @@
     "label": "Compresseur — démarrage",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.74,
     "disponible": false
   },
   {
@@ -260,7 +260,7 @@
     "label": "Compresseur ↺",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 1.49,
     "disponible": true
   },
   {
@@ -268,7 +268,7 @@
     "label": "Compresseur — arrêt",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 2.0,
     "disponible": false
   },
   {
@@ -276,7 +276,7 @@
     "label": "Compresseur 2 — démarrage",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.11,
     "disponible": false
   },
   {
@@ -284,7 +284,7 @@
     "label": "Compresseur 2 ↺",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.99,
     "disponible": false
   },
   {
@@ -292,7 +292,7 @@
     "label": "Compresseur 2 — arrêt",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.52,
     "disponible": false
   },
   {
@@ -300,7 +300,7 @@
     "label": "Ventilateur — démarrage",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.36,
     "disponible": false
   },
   {
@@ -308,7 +308,7 @@
     "label": "Ventilateur ↺",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 1.11,
     "disponible": true
   },
   {
@@ -316,7 +316,7 @@
     "label": "Ventilateur — arrêt",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.55,
+    "niveau": 1.52,
     "disponible": false
   },
   {
@@ -324,7 +324,7 @@
     "label": "Annonce 1",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.51,
     "disponible": true
   },
   {
@@ -332,7 +332,7 @@
     "label": "Annonce 2",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.43,
     "disponible": true
   },
   {
@@ -340,7 +340,7 @@
     "label": "Annonce 3",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.35,
     "disponible": true
   },
   {
@@ -348,7 +348,7 @@
     "label": "Annonce 4",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.35,
     "disponible": true
   },
   {
@@ -356,7 +356,7 @@
     "label": "Annonce 5",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 0.47,
     "disponible": true
   }
 ]

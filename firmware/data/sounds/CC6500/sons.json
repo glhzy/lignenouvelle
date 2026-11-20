@@ -4,7 +4,7 @@
     "label": "Klaxon long",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 1.26,
     "duree": 3.56,
     "fx": "F3",
     "disponible": true
@@ -14,7 +14,7 @@
     "label": "Klaxon court",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 1.26,
     "duree": 2.55,
     "fx": "F2",
     "disponible": true
@@ -24,7 +24,7 @@
     "label": "Klaxon bitonal",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.85,
+    "niveau": 1.26,
     "duree": 3.85,
     "fx": "F3",
     "disponible": true
@@ -34,7 +34,7 @@
     "label": "Sifflet chef de gare",
     "groupe": "signaux",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 1.26,
     "duree": 2.1,
     "fx": "F4",
     "disponible": true
@@ -54,7 +54,7 @@
     "label": "Annonce Corail, jingle",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 1.0,
+    "niveau": 1.35,
     "duree": 14.95,
     "fx": null,
     "disponible": true
@@ -64,7 +64,7 @@
     "label": "Annonce TEE Mistral",
     "groupe": "annonce",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.15,
     "duree": 16.69,
     "fx": "F25",
     "disponible": true
@@ -74,7 +74,7 @@
     "label": "Porte de cabine",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 2.0,
     "duree": 2.35,
     "fx": "F11",
     "disponible": true
@@ -94,7 +94,7 @@
     "label": "Essai des freins",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.8,
+    "niveau": 1.89,
     "duree": 6.93,
     "fx": "F16",
     "disponible": true
@@ -104,7 +104,7 @@
     "label": "Frein à main",
     "groupe": "traction",
     "boucle": false,
-    "niveau": 0.9,
+    "niveau": 1.19,
     "duree": 4.0,
     "fx": "F17",
     "disponible": true
@@ -114,7 +114,7 @@
     "label": "Compresseur",
     "groupe": "bord",
     "boucle": true,
-    "niveau": 0.45,
+    "niveau": 0.7,
     "duree": 16.84,
     "fx": "F14",
     "disponible": true
@@ -134,7 +134,7 @@
     "label": "Pantographe",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 1.8,
     "duree": 10.3,
     "fx": "F21",
     "disponible": true
@@ -144,7 +144,7 @@
     "label": "Signal KVB",
     "groupe": "bord",
     "boucle": false,
-    "niveau": 0.7,
+    "niveau": 1.58,
     "duree": 3.98,
     "fx": "F23",
     "disponible": true
