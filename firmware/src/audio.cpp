@@ -1,6 +1,6 @@
 // Moteur audio Lignenouvelle v2 — streaming depuis microSD
 // Mélangeur 6 voix PCM 22050 Hz mono → I2S stéréo
-// Chaque voix active lit depuis la SD via un ring-buffer PSRAM (8 Ko ≈ 185 ms)
+// Chaque voix active lit depuis la SD via un ring-buffer PSRAM (32 Ko ≈ 740 ms)
 
 #include "audio.h"
 #include "sd_manager.h"
@@ -22,9 +22,9 @@
 #define NUM_VOICES      6
 #define MAX_SOUNDS      48  // TGV a 45 sons au total (disponible + non-disponible)
 #define BLOCK_SIZE      512
-#define RING_SAMPLES    4096u               // = 8 Ko, doit être une puissance de 2
-#define RING_MASK       (RING_SAMPLES - 1u) // = 4095
-#define RING_REFILL_LO  2048u               // recharge quand avail < 50 %
+#define RING_SAMPLES    16384u              // = 32 Ko, doit être une puissance de 2 (≈ 740 ms)
+#define RING_MASK       (RING_SAMPLES - 1u) // = 16383
+#define RING_REFILL_LO  8192u               // recharge quand avail < 50 %
 #define MAX_SEQS        24                  // séquences par loco
 #define MAX_STEPS       12                  // étapes par séquence
 #define NUM_GROUPS      5                   // groupes de sons connus
@@ -37,8 +37,9 @@ static int group_to_idx(const char* g) {
         if (strcmp(GROUP_NAMES[i], g) == 0) return i;
     return 0; // fallback traction
 }
-#define FADE_IN_SAMP    (5   * SAMPLE_RATE / 1000)   // 110
-#define FADE_OUT_SAMP   (15  * SAMPLE_RATE / 1000)   // 330
+#define FADE_IN_SAMP    (5   * SAMPLE_RATE / 1000)   // 110  — fade-in démarrage direct
+#define FADE_OUT_SAMP   (15  * SAMPLE_RATE / 1000)   // 330  — fade-out arrêt simple
+#define CROSSFADE_SAMP  (300 * SAMPLE_RATE / 1000)   // 6615 — crossfade entre étapes
 #define STOP_ALL_SAMP   (100 * SAMPLE_RATE / 1000)   // 2205
 #define VOL_CEILING     0.80f
 
@@ -73,6 +74,7 @@ struct Voice {
     File               sd_file;
     uint32_t           file_pos;       // octets lus dans le chunk data
     volatile bool      stream_eof;     // fin de données (non-loop)
+    volatile bool      needs_prefill;  // ring vide, refill_task doit remplir avant mixage
 };
 
 // ── Séquenceur ─────────────────────────────────────────────────────────────────
@@ -132,8 +134,9 @@ static SeqDef            s_seqs[MAX_SEQS];
 static int               s_num_seqs   = 0;
 static VoieSeq           s_voie_seq[2][NUM_GROUPS]; // [voie-1][group_idx]
 
-static float   s_mix[BLOCK_SIZE];
-static int16_t s_out[BLOCK_SIZE * 2];
+static float    s_mix[BLOCK_SIZE];
+static int16_t  s_out[BLOCK_SIZE * 2];
+static uint32_t s_underrun_ctr[NUM_VOICES] = {}; // compteur underrun par voix (log throttlé)
 
 // ── I2S ────────────────────────────────────────────────────────────────────────
 
@@ -341,7 +344,7 @@ static void refill_voice(Voice& v) {
         uint32_t lin  = RING_SAMPLES - wr;       // espace linéaire avant wrap
         uint32_t spc  = ring_space(v);
         uint32_t n    = (lin < spc) ? lin : spc; // ne pas croiser le bord du buffer
-        if (n > 256) n = 256;                    // max 512 octets par itération SD
+        if (n > 2048) n = 2048;                   // max 4096 octets par itération SD
 
         uint32_t remaining = v.def->data_size - v.file_pos;
         size_t to_read = (size_t)n * 2;
@@ -353,6 +356,9 @@ static void refill_voice(Voice& v) {
                 v.file_pos = 0;
                 continue;
             } else {
+                Serial.printf("[dbg] eof %s pos=%lu/%lu\n",
+                              v.def->id, (unsigned long)v.file_pos,
+                              (unsigned long)v.def->data_size);
                 v.stream_eof = true;
                 break;
             }
@@ -394,7 +400,8 @@ static void voice_fade_out(Voice& v, int fade_samp) {
 }
 
 
-static void do_play(const char* sound_id, uint8_t voie); // forward
+static void do_play(const char* sound_id, uint8_t voie,
+                    uint32_t fade_in_samp = FADE_IN_SAMP); // forward
 
 // ── Helpers séquenceur (appelés depuis mixer_task) ────────────────────────────
 
@@ -412,14 +419,14 @@ static void seq_advance_internal(uint8_t voie, int gi) {
     VoieSeq& vs = s_voie_seq[voie - 1][gi];
     if (vs.seq_idx < 0) return;
 
-    // Arrêter la voix courante avant d'avancer (nécessaire pour les étapes loop encore actives).
-    // No-op si la voix est déjà VOICE_IDLE (auto-avance après fin naturelle d'une étape once).
+    // Fondu sortant de A : crossfade long pour passage manuel, no-op si A est déjà IDLE
+    // (fin naturelle d'une étape once gérée par l'avance anticipée dans le mixer).
     if (vs.cur_son[0]) {
         for (int i = 0; i < NUM_VOICES; i++) {
             Voice& v = s_voices[i];
             if (v.state != VOICE_IDLE && v.voie == voie && v.def &&
                 strcmp(v.def->id, vs.cur_son) == 0)
-                voice_fade_out(v, FADE_OUT_SAMP);
+                voice_fade_out(v, CROSSFADE_SAMP);
         }
     }
     // Vider cur_son AVANT tout stop pour ne pas annuler la séquence dans do_stop
@@ -446,7 +453,7 @@ static void seq_play_step(uint8_t voie, int gi, int depth) {
         seq_play_step(voie, gi, depth + 1);
         return;
     }
-    do_play(step.son, voie);
+    do_play(step.son, voie, CROSSFADE_SAMP); // fondu entrant crossfade
     strlcpy(vs.cur_son, step.son, sizeof(vs.cur_son));
     vs.state = step.loop ? SEQ_LOOP : SEQ_ONCE;
 }
@@ -458,6 +465,7 @@ static Voice* alloc_voice() {
     for (int i = 0; i < NUM_VOICES; i++) {
         Voice& v = s_voices[i];
         if (v.state == VOICE_PLAYING && v.def && !v.def->loop) {
+            Serial.printf("[dbg] steal %s\n", v.def->id);
             if (v.sd_file) v.sd_file.close();
             v.ring_rd = 0;
             v.ring_wr = 0;
@@ -471,11 +479,16 @@ static Voice* alloc_voice() {
 // Ouvre le fichier WAV et pré-remplit tout le ring-buffer.
 // Appelé depuis do_play (tâche mélangeur, haute priorité).
 static void voice_open(Voice& v, SoundDef* def) {
-    v.def        = def;
-    v.ring_rd    = 0;
-    v.ring_wr    = 0;
-    v.file_pos   = 0;
-    v.stream_eof = false;
+    if (v.sd_file) v.sd_file.close(); // fermer le fichier précédent si pas encore nettoyé par refill_task
+    // Reset du compteur underrun pour ce slot de voix
+    uint32_t vi = (uint32_t)(&v - s_voices);
+    if (vi < NUM_VOICES) s_underrun_ctr[vi] = 0;
+    v.def          = def;
+    v.ring_rd      = 0;
+    v.ring_wr      = 0;
+    v.file_pos     = 0;
+    v.stream_eof   = false;
+    v.needs_prefill = true;  // refill_task remplit le ring avant le premier mixage
 
     if (!sd_available()) {
         Serial.printf("[audio] SD indisponible pour %s\n", def->wav_path);
@@ -487,10 +500,12 @@ static void voice_open(Voice& v, SoundDef* def) {
         return;
     }
     v.sd_file.seek(def->data_offset);
-    refill_voice(v); // pré-remplissage complet (~8 Ko, ~5 ms)
+    // Pas de lecture SD ici : le mixer ne bloque plus du tout.
+    // Le refill_task remplit le ring en priorité (< 10 ms). Le fade-in de 300 ms couvre ce délai.
 }
 
-static void do_play(const char* sound_id, uint8_t voie) {
+static void do_play(const char* sound_id, uint8_t voie,
+                    uint32_t fade_in_samp) {
     SoundDef* def = find_sound(sound_id, voie);
     if (!def) {
         Serial.printf("[audio] Son inconnu : %s (voie %u / %s)\n",
@@ -506,7 +521,7 @@ static void do_play(const char* sound_id, uint8_t voie) {
 
     v->vol        = 0.0f;
     v->vol_target = def->base_level;
-    v->fade_step  = def->base_level / FADE_IN_SAMP;
+    v->fade_step  = def->base_level / (float)fade_in_samp;
     v->state      = VOICE_PLAYING;
     v->voie       = voie;
 }
@@ -595,7 +610,7 @@ static void auto_check() {
 
 static void stream_refill_task(void*) {
     for (;;) {
-        vTaskDelay(pdMS_TO_TICKS(20));
+        vTaskDelay(pdMS_TO_TICKS(10));  // 10 ms : réactif pour le pré-remplissage (< fade-in 300 ms)
         auto_check();
         for (int i = 0; i < NUM_VOICES; i++) {
             Voice& v = s_voices[i];
@@ -604,7 +619,14 @@ static void stream_refill_task(void*) {
                 continue;
             }
             if (!v.sd_file || v.stream_eof) continue;
-            if (ring_avail(v) < RING_REFILL_LO) refill_voice(v);
+            // Pré-remplissage prioritaire : remplir jusqu'à RING_REFILL_LO avant de passer la main
+            if (v.needs_prefill) {
+                while (ring_avail(v) < RING_REFILL_LO && !v.stream_eof)
+                    refill_voice(v);
+                if (ring_avail(v) >= RING_REFILL_LO) v.needs_prefill = false;
+            } else if (ring_avail(v) < RING_REFILL_LO) {
+                refill_voice(v);
+            }
         }
     }
 }
@@ -710,6 +732,7 @@ static void mixer_task(void*) {
 
                 uint32_t avail = ring_avail(v);
                 if (avail > 0) {
+                    v.needs_prefill = false;
                     int16_t samp = v.ring_buf[v.ring_rd & RING_MASK];
                     v.ring_rd = v.ring_rd + 1u;
                     s_mix[i] += (float)samp * v.vol;
@@ -717,12 +740,44 @@ static void mixer_task(void*) {
                     // Fin naturelle du son : libérer la voix
                     v.state = VOICE_IDLE;
                     break;
+                } else if (v.needs_prefill) {
+                    // Silence pendant le pré-remplissage (refill_task en cours, < 10 ms)
+                } else {
+                    // Underrun SD réel : ring vide mais son non terminé
+                    if (s_underrun_ctr[vi]++ == 0)
+                        Serial.printf("[dbg] underrun %s pos=%lu/%lu avail=%lu\n",
+                                      v.def ? v.def->id : "?",
+                                      (unsigned long)(v.def ? v.file_pos : 0),
+                                      (unsigned long)(v.def ? v.def->data_size : 0),
+                                      (unsigned long)ring_avail(v));
                 }
-                // Underrun passager : silence (refill_task comblera au prochain cycle)
             }
         }
 
-        // ── Auto-avance séquenceur ────────────────────────────────────────
+        // ── Avance anticipée : pré-ouvrir l'étape suivante pendant que A joue ──────
+        // Dès que A a stream_eof + < 2 blocs restants (~46 ms), on ouvre B immédiatement.
+        // A et B coexistent brièvement sur des voix différentes : A finit naturellement,
+        // B démarre sans gap audible. Ne pas appeler seq_advance_internal (qui fade-out A).
+        for (int vi = 0; vi < 2; vi++) {
+            for (int gi = 0; gi < NUM_GROUPS; gi++) {
+                VoieSeq& vs = s_voie_seq[vi][gi];
+                if (vs.state != SEQ_ONCE || vs.cur_son[0] == '\0') continue;
+                for (int i = 0; i < NUM_VOICES; i++) {
+                    Voice& v = s_voices[i];
+                    if (v.state != VOICE_PLAYING) continue;
+                    if (v.voie != (uint8_t)(vi + 1)) continue;
+                    if (!v.def || strcmp(v.def->id, vs.cur_son) != 0) continue;
+                    if (!v.stream_eof || ring_avail(v) >= (uint32_t)CROSSFADE_SAMP) continue;
+                    // A a < 300 ms devant elle : pré-ouvrir B avec fondu entrant crossfade
+                    vs.cur_son[0] = '\0'; // vider AVANT do_play (évite annulation parasite)
+                    vs.step_idx++;
+                    seq_play_step((uint8_t)(vi + 1), gi);
+                    break;
+                }
+            }
+        }
+
+        // ── Auto-avance séquenceur (fallback : voix déjà IDLE) ───────────────────
         for (int vi = 0; vi < 2; vi++) {
             for (int gi = 0; gi < NUM_GROUPS; gi++) {
                 VoieSeq& vs = s_voie_seq[vi][gi];
@@ -735,7 +790,10 @@ static void mixer_task(void*) {
                         strcmp(s_voices[i].def->id, vs.cur_son) == 0)
                         still = true;
                 }
-                if (!still) seq_advance_internal(vi + 1, gi);
+                if (!still) {
+                    Serial.printf("[dbg] auto-adv v%d g%d '%s'\n", vi+1, gi, vs.cur_son);
+                    seq_advance_internal(vi + 1, gi);
+                }
             }
         }
 
@@ -769,7 +827,7 @@ void audio_begin(const char* loco_id) {
     s_auto[0] = {false, 60,  300, 1, 0};  // annonce
     s_auto[1] = {false, 120, 600, 1, 0};  // ambiance
 
-    // Allouer les ring-buffers en PSRAM (6 × 8 Ko = 48 Ko)
+    // Allouer les ring-buffers en PSRAM (6 × 32 Ko = 192 Ko)
     for (int i = 0; i < NUM_VOICES; i++) {
         s_voices[i].ring_buf = (int16_t*)ps_malloc(RING_SAMPLES * sizeof(int16_t));
         if (!s_voices[i].ring_buf)

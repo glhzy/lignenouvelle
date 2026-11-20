@@ -16,7 +16,7 @@ static bool     s_ready = false;
 
 bool sd_begin() {
     s_spi.begin(PIN_SD_CLK, PIN_SD_MISO, PIN_SD_MOSI, PIN_SD_CS);
-    if (!SD.begin(PIN_SD_CS, s_spi)) {
+    if (!SD.begin(PIN_SD_CS, s_spi, 4000000, "/sd", 10)) { // max_files=10 : 6 voix + marge
         Serial.println("SD       : absente ou non FAT32 — sons chargés depuis LittleFS");
         return false;
     }
