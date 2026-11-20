@@ -1,21 +1,28 @@
 [
   {
-    "id": "moteur_marche",
-    "label": "Traction — Mise en marche",
+    "id": "traction",
+    "label": "Traction — Cycle complet",
     "groupe": "traction",
-    "boucle": false,
+    "boucle": true,
     "type": "sequence",
+    "phases": [
+      { "label": "Mise en marche", "count": 2 },
+      { "label": "Cycle de marche", "count": 7 },
+      { "label": "Coupure", "count": 3 }
+    ],
     "etapes": [
-      {
-        "son": "moteur_1_demarrage.wav",
-        "type": "once",
-        "lbl": "MAR"
-      },
-      {
-        "son": "moteur_2_montee.wav",
-        "type": "once",
-        "lbl": "MON"
-      }
+      { "son": "moteur_1_demarrage.wav", "type": "once", "lbl": "DEM" },
+      { "son": "moteur_2_montee.wav",    "type": "once", "lbl": "MON" },
+      { "son": "noise_1_demarrage.wav",  "type": "once", "lbl": "DEM" },
+      { "son": "noise_2_lent.wav",       "type": "loop", "lbl": "BAS↺" },
+      { "son": "noise_3_montee.wav",     "type": "once", "lbl": "ACC" },
+      { "son": "noise_4_rapide.wav",     "type": "loop", "lbl": "HAUT↺" },
+      { "son": "noise_5_descente.wav",   "type": "once", "lbl": "DEC" },
+      { "son": "noise_6_lent2.wav",      "type": "loop", "lbl": "BAS↺" },
+      { "son": "noise_7_arret.wav",      "type": "once", "lbl": "ARR" },
+      { "son": "moteur_3_transition.wav","type": "once", "lbl": "TRANS" },
+      { "son": "moteur_4_ralenti.wav",   "type": "loop", "lbl": "RAL↺" },
+      { "son": "moteur_5_arret.wav",     "type": "once", "lbl": "ARR" }
     ]
   },
   {
@@ -63,50 +70,6 @@
     ]
   },
   {
-    "id": "noise_low",
-    "label": "Cycle de marche",
-    "groupe": "traction",
-    "boucle": true,
-    "type": "sequence",
-    "etapes": [
-      {
-        "son": "noise_1_demarrage.wav",
-        "type": "once",
-        "lbl": "DEM"
-      },
-      {
-        "son": "noise_2_lent.wav",
-        "type": "loop",
-        "lbl": "BAS↺"
-      },
-      {
-        "son": "noise_3_montee.wav",
-        "type": "once",
-        "lbl": "MON"
-      },
-      {
-        "son": "noise_4_rapide.wav",
-        "type": "loop",
-        "lbl": "HAUT↺"
-      },
-      {
-        "son": "noise_5_descente.wav",
-        "type": "once",
-        "lbl": "DES"
-      },
-      {
-        "son": "noise_6_lent2.wav",
-        "type": "loop",
-        "lbl": "BAS↺"
-      },
-      {
-        "son": "noise_7_arret.wav",
-        "type": "once",
-        "lbl": "ARR"
-      }
-    ]
-  },
-  {
     "id": "crissement",
     "label": "Roulement — Crissement",
     "groupe": "roulement",
@@ -125,30 +88,6 @@
       },
       {
         "son": "crissement_arret.wav",
-        "type": "once",
-        "lbl": "ARR"
-      }
-    ]
-  },
-  {
-    "id": "moteur_ralenti",
-    "label": "Traction — Coupure",
-    "groupe": "traction",
-    "boucle": true,
-    "type": "sequence",
-    "etapes": [
-      {
-        "son": "moteur_3_transition.wav",
-        "type": "once",
-        "lbl": "TRANS"
-      },
-      {
-        "son": "moteur_4_ralenti.wav",
-        "type": "loop",
-        "lbl": "RAL↺"
-      },
-      {
-        "son": "moteur_5_arret.wav",
         "type": "once",
         "lbl": "ARR"
       }

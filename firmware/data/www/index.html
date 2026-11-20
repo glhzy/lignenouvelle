@@ -128,6 +128,19 @@ body{margin:0;background:#E4E1D8}
 .step-sep{width:4px;height:1.5px;background:rgba(20,32,58,.2);flex-shrink:0}
 .step.past + .step-sep{background:rgba(20,32,58,.18)}
 
+/* ── Phases de séquence ── */
+.seq-bar.has-phases{gap:4px;align-items:stretch}
+.seq-phase{display:flex;flex-direction:column;gap:3px;padding:3px 5px 4px;
+           border-radius:3px;border:1px solid rgba(20,32,58,.12);
+           background:rgba(20,32,58,.04);flex-shrink:0;min-width:0}
+.seq-phase.ph-active{background:rgba(232,118,26,.10);border-color:rgba(232,118,26,.35)}
+.seq-phase.ph-past{opacity:.55}
+.seq-phase.ph-future{opacity:.45}
+.phase-lbl{font-family:"PoliceSNCF";font-size:9px;letter-spacing:.05em;
+           text-transform:uppercase;color:rgba(20,32,58,.45);line-height:1;white-space:nowrap}
+.seq-phase.ph-active .phase-lbl{color:var(--orange)}
+.phase-steps{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+
 /* ── Automatismes ── */
 .auto-panel{margin-top:14px;border:2px solid var(--bleu);background:#fff}
 .auto-hd{background:var(--bleu);color:#fff;padding:0 14px;min-height:36px;
@@ -287,12 +300,29 @@ class SeqPlayer {
   _buildBar() {
     const bar = this.btn.querySelector(".seq-bar");
     if (!bar) return;
-    const frags = [];
-    this.seq.etapes.forEach((e, i) => {
-      if (i > 0) frags.push('<span class="step-sep"></span>');
-      frags.push(`<span class="step type-${e.type} future" data-i="${i}">${escHtml(e.lbl)}</span>`);
-    });
-    bar.innerHTML = frags.join("");
+    if (this.seq.phases) {
+      bar.classList.add("has-phases");
+      const frags = [];
+      let si = 0;
+      this.seq.phases.forEach((ph, pi) => {
+        const steps = this.seq.etapes.slice(si, si + ph.count);
+        const stepsHtml = steps.map((e, j) => {
+          const idx = si + j;
+          const sep = j > 0 ? '<span class="step-sep"></span>' : '';
+          return `${sep}<span class="step type-${e.type} future" data-i="${idx}">${escHtml(e.lbl)}</span>`;
+        }).join('');
+        frags.push(`<div class="seq-phase ph-future" data-phase="${pi}"><span class="phase-lbl">${escHtml(ph.label)}</span><div class="phase-steps">${stepsHtml}</div></div>`);
+        si += ph.count;
+      });
+      bar.innerHTML = frags.join("");
+    } else {
+      const frags = [];
+      this.seq.etapes.forEach((e, i) => {
+        if (i > 0) frags.push('<span class="step-sep"></span>');
+        frags.push(`<span class="step type-${e.type} future" data-i="${i}">${escHtml(e.lbl)}</span>`);
+      });
+      bar.innerHTML = frags.join("");
+    }
   }
 
   _syncBar() {
@@ -305,6 +335,17 @@ class SeqPlayer {
       else if (i <  this.step)  el.classList.add("past");
       else                      el.classList.add("future");
     });
+    if (this.seq.phases) {
+      let si = 0;
+      bar.querySelectorAll(".seq-phase").forEach((phEl, pi) => {
+        const count = this.seq.phases[pi].count;
+        phEl.classList.remove("ph-active","ph-past","ph-future");
+        if      (this.step >= si && this.step < si + count) phEl.classList.add("ph-active");
+        else if (this.step >= si + count)                   phEl.classList.add("ph-past");
+        else                                                phEl.classList.add("ph-future");
+        si += count;
+      });
+    }
   }
 
   _ui() {
