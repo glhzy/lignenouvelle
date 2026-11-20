@@ -39,7 +39,7 @@ static int group_to_idx(const char* g) {
 }
 #define FADE_IN_SAMP    (5   * SAMPLE_RATE / 1000)   // 110  — fade-in démarrage direct
 #define FADE_OUT_SAMP   (15  * SAMPLE_RATE / 1000)   // 330  — fade-out arrêt simple
-#define CROSSFADE_SAMP  (300 * SAMPLE_RATE / 1000)   // 6615 — crossfade entre étapes
+#define CROSSFADE_SAMP  (300 * SAMPLE_RATE / 1000)   // 6615 — durée fondu entre étapes
 #define STOP_ALL_SAMP   (100 * SAMPLE_RATE / 1000)   // 2205
 #define VOL_CEILING     0.80f
 
@@ -691,6 +691,15 @@ static void mixer_task(void*) {
                         vs = {SEQ_IDLE, -1, 0, ""};
                         break;
                     }
+                    // Fade-out de la voix en cours si une autre séquence occupait ce slot
+                    if (vs.cur_son[0]) {
+                        for (int i = 0; i < NUM_VOICES; i++) {
+                            Voice& v2 = s_voices[i];
+                            if (v2.state != VOICE_IDLE && v2.voie == cmd.voie && v2.def &&
+                                strcmp(v2.def->id, vs.cur_son) == 0)
+                                voice_fade_out(v2, CROSSFADE_SAMP);
+                        }
+                    }
                     // Réinitialiser ce slot de groupe uniquement
                     vs.state      = SEQ_IDLE;
                     vs.cur_son[0] = '\0';
@@ -707,6 +716,27 @@ static void mixer_task(void*) {
                     VoieSeq& vs = s_voie_seq[cmd.voie - 1][gi];
                     if (vs.state == SEQ_LOOP && vs.seq_idx == idx)
                         seq_advance_internal(cmd.voie, gi);
+                    break;
+                }
+            }
+        }
+
+        // ── Avance anticipée : pré-ouvrir B AVANT de mélanger A ─────────────────
+        // Doit être AVANT le mixage : si ring < 1 bloc quand stream_eof arrive,
+        // la voix passe IDLE dans ce même bloc — le check la raterait après.
+        for (int vi = 0; vi < 2; vi++) {
+            for (int gi = 0; gi < NUM_GROUPS; gi++) {
+                VoieSeq& vs = s_voie_seq[vi][gi];
+                if (vs.state != SEQ_ONCE || vs.cur_son[0] == '\0') continue;
+                for (int i = 0; i < NUM_VOICES; i++) {
+                    Voice& v = s_voices[i];
+                    if (v.state != VOICE_PLAYING) continue;
+                    if (v.voie != (uint8_t)(vi + 1)) continue;
+                    if (!v.def || strcmp(v.def->id, vs.cur_son) != 0) continue;
+                    if (!v.stream_eof || ring_avail(v) >= (uint32_t)CROSSFADE_SAMP) continue;
+                    vs.cur_son[0] = '\0';
+                    vs.step_idx++;
+                    seq_play_step((uint8_t)(vi + 1), gi);
                     break;
                 }
             }
@@ -750,29 +780,6 @@ static void mixer_task(void*) {
                                       (unsigned long)(v.def ? v.file_pos : 0),
                                       (unsigned long)(v.def ? v.def->data_size : 0),
                                       (unsigned long)ring_avail(v));
-                }
-            }
-        }
-
-        // ── Avance anticipée : pré-ouvrir l'étape suivante pendant que A joue ──────
-        // Dès que A a stream_eof + < 2 blocs restants (~46 ms), on ouvre B immédiatement.
-        // A et B coexistent brièvement sur des voix différentes : A finit naturellement,
-        // B démarre sans gap audible. Ne pas appeler seq_advance_internal (qui fade-out A).
-        for (int vi = 0; vi < 2; vi++) {
-            for (int gi = 0; gi < NUM_GROUPS; gi++) {
-                VoieSeq& vs = s_voie_seq[vi][gi];
-                if (vs.state != SEQ_ONCE || vs.cur_son[0] == '\0') continue;
-                for (int i = 0; i < NUM_VOICES; i++) {
-                    Voice& v = s_voices[i];
-                    if (v.state != VOICE_PLAYING) continue;
-                    if (v.voie != (uint8_t)(vi + 1)) continue;
-                    if (!v.def || strcmp(v.def->id, vs.cur_son) != 0) continue;
-                    if (!v.stream_eof || ring_avail(v) >= (uint32_t)CROSSFADE_SAMP) continue;
-                    // A a < 300 ms devant elle : pré-ouvrir B avec fondu entrant crossfade
-                    vs.cur_son[0] = '\0'; // vider AVANT do_play (évite annulation parasite)
-                    vs.step_idx++;
-                    seq_play_step((uint8_t)(vi + 1), gi);
-                    break;
                 }
             }
         }

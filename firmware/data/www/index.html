@@ -130,16 +130,20 @@ body{margin:0;background:#E4E1D8}
 
 /* ── Phases de séquence ── */
 .seq-bar.has-phases{gap:4px;align-items:stretch}
-.seq-phase{display:flex;flex-direction:column;gap:3px;padding:3px 5px 4px;
-           border-radius:3px;border:1px solid rgba(20,32,58,.12);
-           background:rgba(20,32,58,.04);flex-shrink:0;min-width:0}
-.seq-phase.ph-active{background:rgba(232,118,26,.10);border-color:rgba(232,118,26,.35)}
-.seq-phase.ph-past{opacity:.55}
-.seq-phase.ph-future{opacity:.45}
-.phase-lbl{font-family:"PoliceSNCF";font-size:9px;letter-spacing:.05em;
-           text-transform:uppercase;color:rgba(20,32,58,.45);line-height:1;white-space:nowrap}
-.seq-phase.ph-active .phase-lbl{color:var(--orange)}
-.phase-steps{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.seq-phase{display:flex;flex-direction:column;gap:0;
+           border-radius:4px;overflow:hidden;
+           border:1px solid rgba(20,32,58,.14);
+           background:rgba(20,32,58,.03);flex-shrink:0;min-width:0;
+           transition:opacity .2s,border-color .2s}
+.seq-phase.ph-active{border-color:var(--orange)}
+.seq-phase.ph-past{opacity:.45}
+.seq-phase.ph-future{opacity:.30}
+.phase-lbl{font-family:"PoliceSNCF";font-size:9px;letter-spacing:.06em;
+           text-transform:uppercase;line-height:1;white-space:nowrap;
+           padding:4px 7px 4px;
+           background:rgba(20,32,58,.07);color:rgba(20,32,58,.45)}
+.seq-phase.ph-active .phase-lbl{background:var(--orange);color:#fff}
+.phase-steps{display:flex;align-items:center;gap:3px;flex-wrap:wrap;padding:4px 5px 5px}
 
 /* ── Automatismes ── */
 .auto-panel{margin-top:14px;border:2px solid var(--bleu);background:#fff}
@@ -361,8 +365,6 @@ class SeqPlayer {
       if (bar) { bar.style.display = "flex"; this._syncBar(); }
       if (arr) arr.style.display = "none";
       btn.classList.add("on");
-      if (this.state === "once" || this.state === "stopping")
-        btn.classList.add("busy");
     }
     _updateFooter();
   }
